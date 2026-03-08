@@ -5,8 +5,8 @@ import { CheckCircle2, AlertCircle, TrendingUp, Search, ShieldCheck, FileSearch,
 import * as pdfjsLib from 'pdfjs-dist';
 import mammoth from 'mammoth';
 
-// PDF Worker configuration
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
+// PDF Worker configuration - version must match package.json exactly
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.5.207/pdf.worker.min.mjs`;
 
 const AtsChecker = () => {
     const { resumeData } = useResume();
@@ -91,19 +91,34 @@ const AtsChecker = () => {
                 const reader = new FileReader();
                 reader.onload = async (e) => {
                     try {
+                        console.log("PDF loading started...");
                         const typedarray = new Uint8Array(e.target.result);
-                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                        const loadingTask = pdfjsLib.getDocument({
+                            data: typedarray,
+                            useWorkerFetch: true,
+                            isEvalSupported: false,
+                        });
+
+                        const pdf = await loadingTask.promise;
                         let fullText = '';
+                        console.log(`PDF loaded. Number of pages: ${pdf.numPages}`);
+
                         for (let i = 1; i <= pdf.numPages; i++) {
                             const page = await pdf.getPage(i);
                             const textContent = await page.getTextContent();
                             const pageText = textContent.items.map(item => item.str).join(' ');
                             fullText += pageText + '\n';
                         }
-                        setPastedText(fullText);
+
+                        if (!fullText.trim()) {
+                            throw new Error("Extracted text is empty. The PDF might be an image/scan.");
+                        }
+
+                        setPastedText(fullText.trim());
                         setExtracting(false);
                     } catch (err) {
-                        setError('Failed to parse PDF. Try copying and pasting the text instead.');
+                        console.error("PDF Parsing Error:", err);
+                        setError(`Failed to parse PDF: ${err.message || 'Unknown error'}. Try copying and pasting the text instead.`);
                         setExtracting(false);
                     }
                 };
