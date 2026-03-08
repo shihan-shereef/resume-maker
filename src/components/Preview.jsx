@@ -15,7 +15,7 @@ const Preview = () => {
     const componentRef = useRef();
 
     const handlePrint = useReactToPrint({
-        content: () => componentRef.current,
+        contentRef: componentRef,
         documentTitle: `${resumeData.personalInfo.firstName}_${resumeData.personalInfo.lastName}_Resume`,
     });
 
