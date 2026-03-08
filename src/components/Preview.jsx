@@ -88,26 +88,72 @@ const Preview = () => {
             <div style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: '40px',
+                padding: '20px',
                 display: 'flex',
                 justifyContent: 'center',
+                alignItems: 'flex-start',
                 background: '#334155' // Dark slate for background contrast
             }}>
                 <div
-                    ref={componentRef}
+                    className="resume-paper-container"
                     style={{
-                        width: '210mm',
-                        minHeight: '297mm',
-                        backgroundColor: 'white',
-                        boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
-                        padding: '20mm', // Standard resume padding
-                        color: '#1e293b', // Deep charcoal for readability
-                        fontFamily: resumeData.settings.font
+                        transformOrigin: 'top center',
+                        transition: 'transform 0.3s ease'
                     }}
                 >
-                    {renderTemplate()}
+                    <div
+                        ref={componentRef}
+                        className="resume-paper"
+                        style={{
+                            width: '210mm',
+                            minHeight: '297mm',
+                            backgroundColor: 'white',
+                            boxShadow: '0 20px 50px rgba(0,0,0,0.3)',
+                            padding: '20mm', // Standard resume padding
+                            color: '#1e293b', // Deep charcoal for readability
+                            fontFamily: resumeData.settings.font
+                        }}
+                    >
+                        {renderTemplate()}
+                    </div>
                 </div>
             </div>
+
+            <style>{`
+                @media (max-width: 900px) {
+                    .resume-paper-container {
+                        transform: scale(0.4);
+                        margin-bottom: -60%;
+                    }
+                }
+                @media (max-width: 600px) {
+                    .resume-paper-container {
+                        transform: scale(0.35);
+                        margin-bottom: -100%;
+                    }
+                }
+                @media (max-width: 450px) {
+                    .resume-paper-container {
+                        transform: scale(0.3);
+                        margin-bottom: -140%;
+                    }
+                }
+                
+                @media print {
+                    @page {
+                        margin: 0;
+                        size: A4;
+                    }
+                    body {
+                        background: white !important;
+                    }
+                    .resume-paper {
+                        box-shadow: none !important;
+                        padding: 0 !important;
+                        width: 100% !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 };

@@ -99,22 +99,22 @@ const ProfessionalTemplate = ({ data }) => {
     );
 
     const sectionRenderers = {
-        summary: { title: 'Personal Summary', render: renderSummary },
-        experience: { title: 'Professional Experience', render: renderExperience },
-        education: { title: 'Education', render: renderEducation },
-        skills: { title: 'Skills', render: renderSkills },
-        projects: { title: 'Projects', render: renderProjects },
+        summary: { title: 'Work Summary', render: renderSummary },
+        experience: { title: 'Work Experience', render: renderExperience },
+        education: { title: 'Education History', render: renderEducation },
+        skills: { title: 'Professional Skills', render: renderSkills },
+        projects: { title: 'Key Projects', render: renderProjects },
         certifications: { title: 'Certifications', render: renderCertifications },
         achievements: { title: 'Achievements', render: renderAchievements },
     };
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <header style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <h1 style={{ margin: '0 0 8px', fontSize: '2.2rem', fontWeight: 700, color: '#1e293b' }}>
+        <div style={{ width: '100%', height: '100%', padding: '0 5mm' }}>
+            <header style={{ textAlign: 'center', marginBottom: '24px', borderBottom: '2px solid #333', paddingBottom: '16px' }}>
+                <h1 style={{ margin: '0 0 4px', fontSize: '2.4rem', fontWeight: 700, color: '#000', textTransform: 'uppercase' }}>
                     {personalInfo.firstName} {personalInfo.lastName}
                 </h1>
-                <p style={{ margin: '0 0 12px', fontSize: '1.1rem', color: themeColor, fontWeight: 600 }}>
+                <p style={{ margin: '0 0 10px', fontSize: '1.2rem', color: themeColor || '#444', fontWeight: 700, textTransform: 'uppercase' }}>
                     {personalInfo.jobTitle}
                 </p>
                 <div style={{
@@ -122,17 +122,18 @@ const ProfessionalTemplate = ({ data }) => {
                     justifyContent: 'center',
                     flexWrap: 'wrap',
                     gap: '12px',
-                    fontSize: '0.85rem',
-                    color: '#475569'
+                    fontSize: '0.9rem',
+                    color: '#000',
+                    fontWeight: 500
                 }}>
                     <span>{personalInfo.email}</span>
-                    <span>|</span>
+                    <span>•</span>
                     <span>{personalInfo.phone}</span>
-                    <span>|</span>
+                    <span>•</span>
                     <span>{personalInfo.location}</span>
                     {personalInfo.linkedin && (
                         <>
-                            <span>|</span>
+                            <span>•</span>
                             <span>{personalInfo.linkedin}</span>
                         </>
                     )}
@@ -145,7 +146,7 @@ const ProfessionalTemplate = ({ data }) => {
                 const content = config.render();
                 if (!content) return null;
                 return (
-                    <div key={sectionId}>
+                    <div key={sectionId} style={{ marginBottom: '16px' }}>
                         <SectionHeader title={config.title} />
                         {content}
                     </div>
