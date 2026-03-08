@@ -2,6 +2,11 @@ import React, { useState } from 'react';
 import { useResume } from '../context/ResumeContext';
 import { generateResumeContent } from '../lib/openrouter';
 import { CheckCircle2, AlertCircle, TrendingUp, Search, ShieldCheck, FileSearch, Loader, Zap } from 'lucide-react';
+import * as pdfjsLib from 'pdfjs-dist';
+import mammoth from 'mammoth';
+
+// PDF Worker configuration
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs`;
 
 const AtsChecker = () => {
     const { resumeData } = useResume();
@@ -10,6 +15,7 @@ const AtsChecker = () => {
     const [error, setError] = useState('');
     const [pastedText, setPastedText] = useState('');
     const [analysisMode, setAnalysisMode] = useState('current'); // 'current' or 'pasted'
+    const [extracting, setExtracting] = useState(false);
 
     const analyzeResume = async () => {
         setLoading(true);
@@ -27,7 +33,7 @@ const AtsChecker = () => {
             : pastedText;
 
         if (analysisMode === 'pasted' && !pastedText.trim()) {
-            setError('Please paste your resume text first.');
+            setError('Please upload a file or paste your resume text first.');
             setLoading(false);
             return;
         }
@@ -65,21 +71,67 @@ const AtsChecker = () => {
         return '#ef4444';
     };
 
-    const handleFileUpload = (e) => {
+    const handleFileUpload = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
-        if (file.type !== 'text/plain') {
-            setError('Please upload a .txt file. For PDFs, please use the paste box below.');
-            return;
-        }
+        setExtracting(true);
+        setError('');
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            setPastedText(e.target.result);
-            setError('');
-        };
-        reader.readAsText(file);
+        try {
+            if (file.type === 'text/plain') {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setPastedText(e.target.result);
+                    setExtracting(false);
+                };
+                reader.readAsText(file);
+            }
+            else if (file.type === 'application/pdf') {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const typedarray = new Uint8Array(e.target.result);
+                        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+                        let fullText = '';
+                        for (let i = 1; i <= pdf.numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const textContent = await page.getTextContent();
+                            const pageText = textContent.items.map(item => item.str).join(' ');
+                            fullText += pageText + '\n';
+                        }
+                        setPastedText(fullText);
+                        setExtracting(false);
+                    } catch (err) {
+                        setError('Failed to parse PDF. Try copying and pasting the text instead.');
+                        setExtracting(false);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+                const reader = new FileReader();
+                reader.onload = async (e) => {
+                    try {
+                        const arrayBuffer = e.target.result;
+                        const result = await mammoth.extractRawText({ arrayBuffer });
+                        setPastedText(result.value);
+                        setExtracting(false);
+                    } catch (err) {
+                        setError('Failed to parse Word file. Try copying and pasting the text instead.');
+                        setExtracting(false);
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            }
+            else {
+                setError('Unsupported file format. Please use PDF, DOCX, or TXT.');
+                setExtracting(false);
+            }
+        } catch (err) {
+            setError('An error occurred while uploading. Please try again.');
+            setExtracting(false);
+        }
     };
 
     return (
@@ -165,16 +217,18 @@ const AtsChecker = () => {
                                     cursor: 'pointer',
                                     background: 'rgba(255,255,255,0.03)',
                                     marginBottom: '12px',
-                                    transition: 'all 0.2s'
+                                    transition: 'all 0.2s',
+                                    opacity: extracting ? 0.5 : 1,
+                                    pointerEvents: extracting ? 'none' : 'auto'
                                 }}
                                 onMouseOver={e => e.currentTarget.style.borderColor = 'var(--primary)'}
                                 onMouseOut={e => e.currentTarget.style.borderColor = 'var(--glass-border)'}
                             >
                                 <Search size={20} style={{ margin: '0 auto 8px', display: 'block', opacity: 0.5 }} />
                                 <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-                                    Click to upload .txt file
+                                    {extracting ? 'Extracting text...' : 'Click to upload PDF, DOCX, or TXT'}
                                 </span>
-                                <input id="file-upload" type="file" accept=".txt" onChange={handleFileUpload} style={{ display: 'none' }} />
+                                <input id="file-upload" type="file" accept=".pdf,.docx,.txt" onChange={handleFileUpload} style={{ display: 'none' }} />
                             </label>
 
                             <textarea
@@ -193,7 +247,7 @@ const AtsChecker = () => {
                         </div>
                     )}
 
-                    <button onClick={analyzeResume} className="btn-primary" style={{ width: '100%', maxWidth: '250px' }}>
+                    <button onClick={analyzeResume} className="btn-primary" style={{ width: '100%', maxWidth: '250px' }} disabled={loading || extracting}>
                         <Zap size={18} /> {loading ? 'Scanning...' : 'Start AI Analysis'}
                     </button>
                     {error && <p style={{ color: '#ef4444', marginTop: '12px', fontSize: '0.85rem' }}>{error}</p>}
