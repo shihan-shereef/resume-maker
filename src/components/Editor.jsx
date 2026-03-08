@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Briefcase, GraduationCap, Code, FileText, Settings, Key, BookOpen, Award, Medal, ChevronDown, ChevronUp } from 'lucide-react';
+import { User, Briefcase, GraduationCap, Code, FileText, Settings, Key, BookOpen, Award, Medal, ChevronDown, ChevronUp, ShieldCheck } from 'lucide-react';
 import PersonalInfoForm from './PersonalInfoForm';
 import SummaryForm from './SummaryForm';
 import ExperienceForm from './ExperienceForm';
@@ -8,6 +8,7 @@ import SkillsForm from './SkillsForm';
 import ProjectsForm from './ProjectsForm';
 import CertificationsForm from './CertificationsForm';
 import AchievementsForm from './AchievementsForm';
+import AtsChecker from './AtsChecker';
 import { useResume } from '../context/ResumeContext';
 
 const AccordionItem = ({ title, icon: Icon, isOpen, onToggle, children }) => {
@@ -123,6 +124,7 @@ const Editor = () => {
 
     const sections = [
         { id: 'settings', title: 'Theme & Template', icon: Settings, component: <TemplateSettings /> },
+        { id: 'atsChecker', title: 'AI ATS Resume Checker', icon: ShieldCheck, component: <AtsChecker /> },
         { id: 'personalInfo', title: 'Personal Information', icon: User, component: <PersonalInfoForm /> },
         { id: 'summary', title: 'Professional Summary', icon: FileText, component: <SummaryForm /> },
         { id: 'experience', title: 'Work Experience', icon: Briefcase, component: <ExperienceForm /> },
