@@ -435,7 +435,7 @@ const SettingsPage = () => {
                     Account Control
                 </div>
                 <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
-                    Workspace <span className="gradient-text">Settings</span>
+                    Takshila <span className="gradient-text">Video Analyzer 3.0</span> <span style={{ fontSize: '0.8rem', verticalAlign: 'middle', background: '#f1f5f9', padding: '4px 12px', borderRadius: '100px', fontWeight: 600, color: '#64748b' }}>v3.1.2-SYNC-FIX</span>
                 </h1>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
                     Manage your profile, security, and personal preferences.
