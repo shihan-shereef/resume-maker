@@ -20,7 +20,9 @@ export const VOICES = {
  * @returns {Promise<string|null>} - Returns a Blob URL for the audio or null if failed
  */
 export const textToSpeech = async (text, voiceId = VOICES.INTERVIEWER) => {
-    if (!API_KEY || API_KEY === 'your_eleven_labs_key_here' || !API_KEY.startsWith('sk_')) {
+    const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || localStorage.getItem('VITE_ELEVENLABS_API_KEY');
+    
+    if (!apiKey || apiKey === 'your_eleven_labs_key_here' || !apiKey.startsWith('sk_')) {
         console.warn("ElevenLabs API Key missing or invalid. Falling back to system voices.");
         return null;
     }
@@ -29,7 +31,7 @@ export const textToSpeech = async (text, voiceId = VOICES.INTERVIEWER) => {
         const response = await fetch(`${BASE_URL}/${voiceId}`, {
             method: 'POST',
             headers: {
-                'xi-api-key': API_KEY,
+                'xi-api-key': apiKey,
                 'Content-Type': 'application/json',
                 'accept': 'audio/mpeg'
             },
