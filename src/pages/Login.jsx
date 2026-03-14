@@ -39,14 +39,17 @@ const Login = () => {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                // redirectTo: 'http://localhost:5173/login',
-                // Note: The Client ID provided by user 479414857282-... 
-                // is typically configured in the Google Cloud Console / Supabase Dashboard.
-                queryParams: {
-                    access_type: 'offline',
-                    prompt: 'consent',
-                },
-                redirectTo: window.location.origin + '/login'
+                redirectTo: window.location.origin + '/portfolio'
+            }
+        });
+        if (error) setError(error.message);
+    };
+
+    const handleGithubLogin = async () => {
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: 'github',
+            options: {
+                redirectTo: window.location.origin + '/portfolio'
             }
         });
         if (error) setError(error.message);
@@ -93,39 +96,73 @@ const Login = () => {
                         </div>
                     )}
 
-                    <button
-                        type="button"
-                        onClick={handleGoogleLogin}
-                        style={{ 
-                            width: '100%', 
-                            height: '60px', 
-                            background: '#fff', 
-                            color: '#1f2937', 
-                            fontWeight: 700, 
-                            border: '1px solid #d1d5db', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            gap: '12px',
-                            marginBottom: '32px',
-                            borderRadius: '16px',
-                            cursor: 'pointer',
-                            fontSize: '1rem',
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                            transition: 'all 0.2s ease'
-                        }}
-                        onMouseOver={(e) => {
-                            e.currentTarget.style.background = '#f9fafb';
-                            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)';
-                        }}
-                        onMouseOut={(e) => {
-                            e.currentTarget.style.background = '#fff';
-                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-                        }}
-                    >
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style={{ width: '20px' }} />
-                        Sign in with Google
-                    </button>
+                    <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+                        <button
+                            type="button"
+                            onClick={handleGoogleLogin}
+                            style={{ 
+                                flex: 1, 
+                                height: '60px', 
+                                background: '#fff', 
+                                color: '#1f2937', 
+                                fontWeight: 700, 
+                                border: '1px solid #d1d5db', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                gap: '12px',
+                                borderRadius: '16px',
+                                cursor: 'pointer',
+                                fontSize: '1rem',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#f9fafb';
+                                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.background = '#fff';
+                                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                            }}
+                        >
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style={{ width: '20px' }} />
+                            Google
+                        </button>
+
+                        <button
+                            type="button"
+                            onClick={handleGithubLogin}
+                            style={{ 
+                                flex: 1, 
+                                height: '60px', 
+                                background: '#fff', 
+                                color: '#1f2937', 
+                                fontWeight: 700, 
+                                border: '1px solid #d1d5db', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center', 
+                                gap: '12px',
+                                borderRadius: '16px',
+                                cursor: 'pointer',
+                                fontSize: '1rem',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                                transition: 'all 0.2s ease'
+                            }}
+                            onMouseOver={(e) => {
+                                e.currentTarget.style.background = '#f9fafb';
+                                e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0,0,0,0.1)';
+                            }}
+                            onMouseOut={(e) => {
+                                e.currentTarget.style.background = '#fff';
+                                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                            }}
+                        >
+                            <img src="https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png" alt="GitHub" style={{ width: '24px' }} />
+                            GitHub
+                        </button>
+                    </div>
 
                     <div style={{
                         display: 'flex',
