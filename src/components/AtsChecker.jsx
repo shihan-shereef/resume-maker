@@ -52,7 +52,9 @@ const AtsChecker = () => {
         Response must be ONLY valid JSON.`;
 
         try {
-            const response = await generateResumeContent(prompt);
+            // Use gpt-4o-mini for significantly faster processing and lower latency instead of default 3.5 turbo or 4
+            const response = await generateResumeContent(prompt, "You are a senior HR recruitment technologist.", "openai/gpt-4o-mini");
+            
             // Clean response to ensure it's valid JSON
             const jsonStr = response.replace(/```json|```/g, '').trim();
             const data = JSON.parse(jsonStr);

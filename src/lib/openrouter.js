@@ -6,9 +6,10 @@ const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
  * Generate text using OpenRouter API
  * @param {string} prompt - The user prompt to generate text for
  * @param {string} systemPrompt - Optional system prompt instruction
+ * @param {string} model - The model to use for generation
  * @returns {Promise<string>} Generative response
  */
-export const generateResumeContent = async (prompt, systemPrompt = "You are a professional resume writer.") => {
+export const generateResumeContent = async (prompt, systemPrompt = "You are a professional resume writer.", model = "openai/gpt-3.5-turbo") => {
     if (!OPENROUTER_API_KEY) {
         throw new Error("OpenRouter API key is missing. Please add it to your .env file.");
     }
@@ -23,7 +24,7 @@ export const generateResumeContent = async (prompt, systemPrompt = "You are a pr
                 "X-Title": "ResumeFlow App" // Optional identifier
             },
             body: JSON.stringify({
-                model: "openai/gpt-3.5-turbo", // You can switch this to other models supported by OpenRouter
+                model: model, // Use the provided model, defaulting to gpt-3.5-turbo
                 messages: [
                     { role: "system", content: systemPrompt },
                     { role: "user", content: prompt }
