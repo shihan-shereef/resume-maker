@@ -2,60 +2,41 @@
  * ElevenLabs Hyper-Realistic Text-to-Speech Utility
  */
 
-const API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY || localStorage.getItem('VITE_ELEVENLABS_API_KEY');
-const BASE_URL = 'https://api.elevenlabs.io/v1/text-to-speech';
-
-// Hyper-Realistic "Actor" Voice IDs
+/**
+ * Hyper-Realistic Voice AI (Backend Powered)
+ */
 export const VOICES = {
-    FATHIMA: 'yj30vwTGJxSHezdAGsv9', // Custom Actor Voice
-    SAM: 'onwK4e9ZLuTAKqWW03F9',    // Daniel - Professional & Deep
-    INTERVIEWER: 'onwK4e9ZLuTAKqWW03F9', // Daniel - Best for Corporate
-    NICOLE: 'AZnzlk1XhkDUDXYG7Sgh', // Nicole - Conversational
+    FATHIMA: 'yj30vwTGJxSHezdAGsv9', 
+    SAM: 'onwK4e9ZLuTAKqWW03F9',
+    INTERVIEWER: 'onwK4e9ZLuTAKqWW03F9',
+    NICOLE: 'AZnzlk1XhkDUDXYG7Sgh'
 };
 
 /**
- * Converts text to hyper-realistic speech using ElevenLabs API
- * @param {string} text - The text to speak
- * @param {string} voiceId - The ID of the voice to use
+ * Convert text to speech using Takshila Backend Proxy
+ * @param {string} text - The text to convert
+ * @param {string} voiceId - The ElevenLabs voice ID
  * @returns {Promise<string|null>} - Returns a Blob URL for the audio or null if failed
  */
 export const textToSpeech = async (text, voiceId = VOICES.INTERVIEWER) => {
-    const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || localStorage.getItem('VITE_ELEVENLABS_API_KEY');
-    
-    if (!apiKey || apiKey === 'your_eleven_labs_key_here' || !apiKey.startsWith('sk_')) {
-        console.warn("ElevenLabs API Key missing or invalid. Falling back to system voices.");
-        return null;
-    }
-
     try {
-        const response = await fetch(`${BASE_URL}/${voiceId}`, {
+        const response = await fetch('/api/speak', {
             method: 'POST',
             headers: {
-                'xi-api-key': apiKey,
                 'Content-Type': 'application/json',
-                'accept': 'audio/mpeg'
             },
-            body: JSON.stringify({
-                text: text,
-                model_id: 'eleven_multilingual_v2',
-                voice_settings: {
-                    stability: 0.35, // Lower for more emotion/expression
-                    similarity_boost: 0.85, // Higher for better clarity
-                    style: 0.05,
-                    use_speaker_boost: true
-                }
-            })
+            body: JSON.stringify({ text, voiceId })
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail?.message || 'ElevenLabs API error');
+            throw new Error('Backend Voice Error');
         }
 
-        const audioBlob = await response.blob();
-        return URL.createObjectURL(audioBlob);
+        const blob = await response.blob();
+        return URL.createObjectURL(blob);
+
     } catch (error) {
-        console.error('ElevenLabs Error:', error);
+        console.error("Voice Generation Error:", error);
         return null;
     }
 };
