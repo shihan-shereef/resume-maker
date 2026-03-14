@@ -1,6 +1,6 @@
 // lib/openrouter.js
 
-const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY;
+const OPENROUTER_API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY || localStorage.getItem('VITE_OPENROUTER_API_KEY');
 
 /**
  * Generate text using OpenRouter API

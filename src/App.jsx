@@ -10,6 +10,7 @@ import JobSearchPage from './pages/JobSearchPage';
 import NotesPage from './pages/NotesPage';
 import YoutubeSummarizerAdvanced from './pages/YoutubeSummarizerAdvanced';
 import RoadmapGenerator from './pages/RoadmapGenerator';
+import InterviewSimulatorPage from './pages/InterviewSimulatorPage';
 import SettingsPage from './pages/SettingsPage';
 import CoverLetterPage from './pages/CoverLetterPage';
 import PdfSummarizerPage from './pages/PdfSummarizerPage';
@@ -79,13 +80,13 @@ function App() {
                 <Route path="/ats" element={session ? <WorkspaceLayout><AtsCheckerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 
                 <Route path="/cover-letter" element={session ? <WorkspaceLayout><CoverLetterPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/interview" element={session ? <WorkspaceLayout><Placeholder title="AI Interview Prep" /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/skill-gap" element={session ? <WorkspaceLayout><SkillGapPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/roadmap" element={session ? <WorkspaceLayout><RoadmapGenerator /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/portfolio" element={session ? <WorkspaceLayout><PortfolioPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 
                 <Route path="/job-search" element={session ? <WorkspaceLayout><JobSearchPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/tracker" element={session ? <WorkspaceLayout><JobTrackerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
+                <Route path="/interview" element={session ? <WorkspaceLayout><InterviewSimulatorPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/youtube" element={session ? <WorkspaceLayout><YoutubeSummarizerAdvanced /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/pdf" element={session ? <WorkspaceLayout><PdfSummarizerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/notes" element={session ? <WorkspaceLayout><NotesPage /></WorkspaceLayout> : <Navigate to="/login" />} />

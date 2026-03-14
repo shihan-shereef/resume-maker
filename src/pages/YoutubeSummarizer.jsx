@@ -3,6 +3,7 @@ import { Youtube, Search, Sparkles, Globe, MessageSquare, AlertTriangle, Headpho
 import { generateResumeContent } from '../lib/openrouter';
 import LoadingMascot from '../components/common/LoadingMascot';
 import { useReactToPrint } from 'react-to-print';
+import { textToSpeech, VOICES } from '../lib/elevenlabs';
 
 const YoutubeSummarizer = () => {
     const [url, setUrl] = useState('');
@@ -121,14 +122,14 @@ const YoutubeSummarizer = () => {
             
             PODCAST FORMAT:
             - A conversation between 2 people (Fathima and Sam).
-            - Fathima is the host, Sam is the expert.
-            - The tone should be natural and engaging.
+            - Fathima is the warm host, Sam is the knowledgeable actor-expert.
+            - The tone must be hyper-realistic, including natural fillers like "Hmm", "Umm", or "Exactly".
             - Format each line as "Fathima: [content]" or "Sam: [content]".
             
             CRITICAL LANGUAGE RULE:
-            - YOU MUST OUTPUT THE ENTIRE SCRIPT STRICTLY AND ONLY IN ${selectedLanguage} (Language and Character Script).
-            - DO NOT MIX IN ENGLISH, KOREAN, TURKISH, OR ANY OTHER LANGUAGE. 
-            - If translating to Malayalam or Hindi, use ONLY authentic Malayalam/Hindi script and vocabulary. No alien words.`;
+            - YOU MUST OUTPUT THE ENTIRE SCRIPT STRICTLY AND ONLY IN ${selectedLanguage}.
+            - ACTOR RULE: Speak like you are in a real recording studio. Do not be robotic. Use emotion.
+            - If translating to Malayalam or Hindi, use ONLY authentic script. No alien words.`;
 
             const response = await generateResumeContent(prompt, "You are a professional Podcast producer.", "openai/gpt-4o-mini");
             setPodcast(response);
@@ -158,7 +159,7 @@ const YoutubeSummarizer = () => {
         let currentIndex = 0;
         setTotalDuration(utterances.length);
         
-        const speakNext = () => {
+        const speakNext = async () => {
             if (currentIndex >= utterances.length) {
                 setIsReading(false);
                 setAudioProgress(100);
@@ -166,20 +167,32 @@ const YoutubeSummarizer = () => {
             }
 
             let text = utterances[currentIndex];
+            const isFathima = text.includes('Fathima:');
+            const isSam = text.includes('Sam:');
             const cleanText = text.replace(/Fathima:|Sam:/gi, '').trim();
             const targetLangCode = langMap[selectedLanguage] || 'en-US';
 
-            // Universal Fix: Use Google Translate TTS to guarantee all OS & Languages work correctly (including Malayalam)
-            // Limit text chunking to prevent max URI lengths
-            const gtxLang = targetLangCode.split('-')[0];
-            const ttsUrl = `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${gtxLang}&q=${encodeURIComponent(cleanText.substring(0, 200))}`;
+            // Try ElevenLabs first if key is present
+            let ttsUrl = null;
+            if (activeTab === 'podcast') {
+                const voiceId = isFathima ? VOICES.FATHIMA : (isSam ? VOICES.SAM : VOICES.INTERVIEWER);
+                ttsUrl = await textToSpeech(cleanText, voiceId);
+            } else {
+                ttsUrl = await textToSpeech(cleanText, VOICES.INTERVIEWER);
+            }
+
+            // Universal Fallback: Use Google Translate TTS if ElevenLabs fails or is missing
+            if (!ttsUrl) {
+                const gtxLang = targetLangCode.split('-')[0];
+                ttsUrl = `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${gtxLang}&q=${encodeURIComponent(cleanText.substring(0, 200))}`;
+            }
             
             const audio = new Audio(ttsUrl);
             audioObjRef.current = audio;
 
             if (activeTab === 'podcast') {
-                if (text.includes('Fathima:')) audio.playbackRate = 1.05;
-                if (text.includes('Sam:')) audio.playbackRate = 0.95;
+                if (isFathima) audio.playbackRate = 1.05;
+                if (isSam) audio.playbackRate = 0.95;
             }
 
             audio.onended = () => {

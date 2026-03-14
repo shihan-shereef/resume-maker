@@ -21,13 +21,17 @@ const AtsCheckerPage = () => {
             if (fileType === 'pdf') {
                 const arrayBuffer = await file.arrayBuffer();
                 const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-                let fullText = '';
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    fullText += textContent.items.map(item => item.str).join(' ') + '\n';
-                }
-                return fullText;
+                
+                // Parallelize for speed
+                const pagePromises = Array.from({ length: pdf.numPages }, (_, i) => 
+                    pdf.getPage(i + 1).then(async (page) => {
+                        const textContent = await page.getTextContent();
+                        return textContent.items.map(item => item.str).join(' ');
+                    })
+                );
+                
+                const pageTexts = await Promise.all(pagePromises);
+                return pageTexts.join('\n');
             } else if (fileType === 'docx') {
                 const arrayBuffer = await file.arrayBuffer();
                 const result = await mammoth.extractRawText({ arrayBuffer });
@@ -64,11 +68,11 @@ const AtsCheckerPage = () => {
             GAPS: [comma separated list of skill gaps]
             FORMATTING: [comma separated list of layout issues]
             SUGGESTIONS: [list of actionable feedback]
-            HIGHLIGHTED_TEXT: [Return the original text but wrap sections that need improvement in <mark>...</mark> tags. Focus on highlighting poorly phrased summaries or missing metrics.]
+            HIGHLIGHTS: [List 3-5 specific short sentences or phrases from the resume that are weak or lack metrics, separated by " | "]
             
             Be critical and professional. Target a 100% compatibility score in your suggestions.`;
 
-            // Using the new faster model "openai/gpt-4o-mini"
+            // Using "openai/gpt-4o-mini" which is very fast
             const response = await generateResumeContent(prompt, "You are a senior HR recruitment technologist.", "openai/gpt-4o-mini");
             
             // Robust Parsing
@@ -76,8 +80,17 @@ const AtsCheckerPage = () => {
             const keywords = response.match(/KEYWORDS:\s*(.*)/)?.[1] || "None found";
             const gaps = response.match(/GAPS:\s*(.*)/)?.[1] || "None found";
             const formatting = response.match(/FORMATTING:\s*(.*)/)?.[1] || "None found";
-            const suggestions = response.match(/SUGGESTIONS:\s*([\s\S]*?)(?=HIGHLIGHTED_TEXT:|$)/)?.[1] || "No specific suggestions.";
-            const highlightedText = response.match(/HIGHLIGHTED_TEXT:\s*([\s\S]*)/)?.[1] || text;
+            const suggestions = response.match(/SUGGESTIONS:\s*([\s\S]*?)(?=HIGHLIGHTS:|$)/)?.[1] || "No specific suggestions.";
+            const highlightStrings = (response.match(/HIGHLIGHTS:\s*(.*)/)?.[1] || "").split('|').map(s => s.trim()).filter(Boolean);
+
+            // Dynamically mark the original text
+            let processedText = text;
+            highlightStrings.forEach(str => {
+                if (str.length > 5) { // Avoid masking tiny punctuation or single words
+                    const regex = new RegExp(`(${str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                    processedText = processedText.replace(regex, '<mark class="ats-weak">$1</mark>');
+                }
+            });
             
             setResult({
                 score,
@@ -85,7 +98,7 @@ const AtsCheckerPage = () => {
                 gaps,
                 formatting,
                 suggestions,
-                highlightedText,
+                highlightedText: processedText,
                 fileName: uploadedFile.name
             });
         } catch (err) {

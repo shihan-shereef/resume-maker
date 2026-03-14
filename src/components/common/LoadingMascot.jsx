@@ -33,11 +33,12 @@ const LoadingMascot = ({ message = "Takshila AI is thinking..." }) => {
             <style>{`
                 .mascot-container {
                     position: relative;
-                    width: 120px;
-                    height: 120px;
+                    width: 60px;
+                    height: 60px;
                     display: flex;
-                    alignItems: center;
-                    justifyContent: center;
+                    align-items: center;
+                    justify-content: center;
+                    transform: scale(0.4);
                 }
 
                 .duck-body {
