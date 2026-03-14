@@ -60,65 +60,6 @@ const SettingsPage = () => {
         navigate('/login');
     };
 
-    const APIIntegrationsSettings = () => {
-        const [orKey, setOrKey] = useState(localStorage.getItem('VITE_OPENROUTER_API_KEY') || '');
-        const [elKey, setElKey] = useState(localStorage.getItem('VITE_ELEVENLABS_API_KEY') || '');
-        const [status, setStatus] = useState('');
-
-        const isEnvOrPresent = !!import.meta.env.VITE_OPENROUTER_API_KEY;
-        const isEnvElPresent = !!import.meta.env.VITE_ELEVENLABS_API_KEY;
-
-        const handleSaveKeys = () => {
-            localStorage.setItem('VITE_OPENROUTER_API_KEY', orKey);
-            localStorage.setItem('VITE_ELEVENLABS_API_KEY', elKey);
-            setStatus('Keys saved successfully! Refresh to apply.');
-            setTimeout(() => setStatus(''), 3000);
-        };
-
-        return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-                    Paste your API keys here if they are missing in the production environment. They will be saved securely in your browser's local storage.
-                </p>
-                
-                <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        OpenRouter API Key 
-                        {isEnvOrPresent && <span style={{ color: '#10b981', fontSize: '0.7rem' }}>● DETECTED IN ENV</span>}
-                    </label>
-                    <input 
-                        type="password" 
-                        className="form-input" 
-                        placeholder="sk-or-v1-..." 
-                        value={orKey}
-                        onChange={(e) => setOrKey(e.target.value)}
-                    />
-                </div>
-
-                <div className="form-group">
-                    <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        ElevenLabs API Key
-                        {isEnvElPresent && <span style={{ color: '#10b981', fontSize: '0.7rem' }}>● DETECTED IN ENV</span>}
-                    </label>
-                    <input 
-                        type="password" 
-                        className="form-input" 
-                        placeholder="Paste ElevenLabs Key" 
-                        value={elKey}
-                        onChange={(e) => setElKey(e.target.value)}
-                    />
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <button className="btn-primary" onClick={handleSaveKeys} style={{ flex: 1 }}>
-                        <Save size={18} /> Save Keys
-                    </button>
-                    {status && <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: 600 }}>{status}</span>}
-                </div>
-            </div>
-        );
-    };
-
     const handleDeleteAccount = async () => {
         if (window.confirm('Are you sure you want to delete your account? This action is permanent.')) {
             // In a real app, you'd call a Supabase function to delete the user record
@@ -363,12 +304,6 @@ const SettingsPage = () => {
                     </div>
                 </div>
             )
-        },
-        {
-            id: 'api',
-            title: 'API & Integrations',
-            icon: Key,
-            content: <APIIntegrationsSettings />
         },
         {
             id: 'history',
