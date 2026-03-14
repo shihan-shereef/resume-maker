@@ -1,5 +1,5 @@
 // api/speak.js
-import fetch from 'node-fetch';
+// Native fetch is available in Node 18+ on Vercel
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -10,7 +10,7 @@ export default async function handler(req, res) {
     const apiKey = process.env.VITE_ELEVENLABS_API_KEY;
 
     if (!apiKey || apiKey === 'your_eleven_labs_key_here') {
-        return res.status(500).json({ error: 'ElevenLabs API key is missing on the server.' });
+        return res.status(500).json({ error: '[SERVER_ERROR] ElevenLabs API key is missing in Vercel Settings.' });
     }
 
     try {

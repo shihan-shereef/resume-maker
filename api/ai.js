@@ -1,5 +1,5 @@
 // api/ai.js
-import fetch from 'node-fetch';
+// Native fetch is available in Node 18+ on Vercel
 
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
@@ -13,7 +13,7 @@ export default async function handler(req, res) {
 
     if (!apiKey) {
         return res.status(500).json({ 
-            error: 'OpenRouter API key is missing on the server. Please add VITE_OPENROUTER_API_KEY to your Vercel Environment Variables.' 
+            error: '[SERVER_ERROR] OpenRouter API key is missing in Vercel Settings.' 
         });
     }
 
