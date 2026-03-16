@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://resume-maker-t96i.vercel.app/sitemap.xml

@@ -265,8 +265,8 @@ const Login = () => {
                     color: '#94a3b8',
                     fontWeight: 600
                 }}>
-                    <span>Privacy Policy</span>
-                    <span>Terms of Service</span>
+                    <Link to="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
+                    <Link to="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Service</Link>
                     <span>Cookies</span>
                 </div>
             </div>

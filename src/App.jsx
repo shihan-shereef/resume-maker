@@ -17,6 +17,8 @@ import PdfSummarizerPage from './pages/PdfSummarizerPage';
 import SkillGapPage from './pages/SkillGapPage';
 import JobTrackerPage from './pages/JobTrackerPage';
 import PortfolioPage from './pages/PortfolioPage';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 import WorkspaceLayout from './components/layout/WorkspaceLayout';
 // Placeholder components for modules
 const Placeholder = ({ title }) => (
@@ -93,6 +95,9 @@ function App() {
                 <Route path="/file-tools" element={session ? <WorkspaceLayout><Placeholder title="File Tools" /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/ideas" element={session ? <WorkspaceLayout><Placeholder title="Project Ideas" /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/settings" element={session ? <WorkspaceLayout><SettingsPage /></WorkspaceLayout> : <Navigate to="/login" />} />
+                
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfService />} />
                 
                 <Route path="*" element={<ErrorPage type="404" />} />
             </Routes>

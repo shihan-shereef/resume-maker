@@ -283,8 +283,8 @@ const LandingPage = ({ session }) => {
                         <p style={{ color: 'var(--text-secondary)' }}>© 2026 Takshila AI. All rights reserved.</p>
                     </div>
                     <div style={{ display: 'flex', gap: '40px', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                        <span style={{ cursor: 'pointer' }}>Privacy Policy</span>
-                        <span style={{ cursor: 'pointer' }}>Terms of Service</span>
+                        <span onClick={() => navigate('/privacy')} style={{ cursor: 'pointer' }}>Privacy Policy</span>
+                        <span onClick={() => navigate('/terms')} style={{ cursor: 'pointer' }}>Terms of Service</span>
                         <span style={{ cursor: 'pointer' }}>Contact</span>
                     </div>
                 </div>

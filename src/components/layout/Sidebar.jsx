@@ -17,7 +17,8 @@ import {
     Lightbulb, 
     FolderOpen, 
     Settings,
-    UserCircle
+    UserCircle,
+    BookOpenCheck
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -37,7 +38,7 @@ const Sidebar = () => {
         { id: 'tracker', icon: Briefcase, label: 'Job Tracker', path: '/tracker' },
         { id: 'youtube', icon: Youtube, label: 'YouTube Summarizer', path: '/youtube' },
         { id: 'pdf', icon: FileUp, label: 'PDF Summarizer', path: '/pdf' },
-        { id: 'notes', icon: StickyNote, label: 'Notes Saver', path: '/notes' },
+        { id: 'notes', icon: BookOpenCheck, label: 'Takshila AI Notes', path: '/notes' },
         { id: 'file-tools', icon: FolderOpen, label: 'File Tools', path: '/file-tools' },
         { id: 'ideas', icon: Lightbulb, label: 'Project Ideas', path: '/ideas' },
     ];
