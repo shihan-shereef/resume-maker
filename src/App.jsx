@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { supabase } from './lib/supabase';
 import Login from './pages/Login';
 import LandingPage from './pages/LandingPage';
@@ -32,6 +33,56 @@ const Placeholder = ({ title }) => (
 
 import SplashScreen from './components/common/SplashScreen';
 import ErrorPage from './components/common/ErrorPage';
+import ButtermaxEffects from './components/effects/ButtermaxEffects';
+
+const AnimatedRoutes = ({ session, Placeholder }) => {
+    const location = useLocation();
+    
+    return (
+        <AnimatePresence mode="wait">
+            <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+            >
+                <Routes location={location} key={location.pathname}>
+                    {/* Public Routes */}
+                    <Route path="/" element={<LandingPage session={session} />} />
+                    <Route path="/login" element={session ? <Navigate to="/dashboard" /> : <Login />} />
+                    
+                    {/* Protected Workspace Routes */}
+                    <Route path="/dashboard" element={session?.user ? <WorkspaceLayout><Dashboard /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/resume" element={session?.user ? <WorkspaceLayout><ResumeMaker /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/ats-checker" element={session?.user ? <WorkspaceLayout><AtsCheckerPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    
+                    <Route path="/cover-letter" element={session?.user ? <WorkspaceLayout><CoverLetterPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/skill-gap" element={session?.user ? <WorkspaceLayout><SkillGapPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/roadmap" element={session?.user ? <WorkspaceLayout><RoadmapGenerator /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/portfolio" element={session?.user ? <WorkspaceLayout><PortfolioPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    
+                    <Route path="/job-search" element={session?.user ? <WorkspaceLayout><JobSearchPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/tracker" element={session?.user ? <WorkspaceLayout><JobTrackerPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/interview-simulator" element={session?.user ? <WorkspaceLayout><InterviewSimulatorPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/youtube" element={session?.user ? <WorkspaceLayout><YoutubeSummarizerAdvanced /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/pdf" element={session?.user ? <WorkspaceLayout><PdfSummarizerPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/notes" element={session?.user ? <WorkspaceLayout><NotesPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/file-tools" element={session?.user ? <WorkspaceLayout><Placeholder title="File Tools" /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/ideas" element={session?.user ? <WorkspaceLayout><Placeholder title="Project Ideas" /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/settings" element={session?.user ? <WorkspaceLayout><SettingsPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    
+                    <Route path="/privacy" element={<PrivacyPolicy />} />
+                    <Route path="/terms" element={<TermsOfService />} />
+                    <Route path="/about" element={<AboutUs />} />
+                    <Route path="/contact" element={<ContactUs />} />
+                    
+                    <Route path="*" element={<ErrorPage type="404" />} />
+                </Routes>
+            </motion.div>
+        </AnimatePresence>
+    );
+};
 
 function App() {
     const [session, setSession] = useState(null);
@@ -72,40 +123,11 @@ function App() {
     }
 
     return (
-        <Router>
-            <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<LandingPage session={session} />} />
-                <Route path="/login" element={session ? <Navigate to="/portfolio" /> : <Login />} />
-                
-                {/* Protected Workspace Routes */}
-                <Route path="/dashboard" element={session ? <WorkspaceLayout><Dashboard /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/resume" element={session ? <WorkspaceLayout><ResumeMaker /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/ats-checker" element={session ? <WorkspaceLayout><AtsCheckerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                
-                <Route path="/cover-letter" element={session ? <WorkspaceLayout><CoverLetterPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/skill-gap" element={session ? <WorkspaceLayout><SkillGapPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/roadmap" element={session ? <WorkspaceLayout><RoadmapGenerator /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/portfolio" element={session ? <WorkspaceLayout><PortfolioPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                
-                <Route path="/job-search" element={session ? <WorkspaceLayout><JobSearchPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/tracker" element={session ? <WorkspaceLayout><JobTrackerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/interview-simulator" element={session ? <WorkspaceLayout><InterviewSimulatorPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/youtube" element={session ? <WorkspaceLayout><YoutubeSummarizerAdvanced /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/pdf" element={session ? <WorkspaceLayout><PdfSummarizerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/notes" element={session ? <WorkspaceLayout><NotesPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/file-tools" element={session ? <WorkspaceLayout><Placeholder title="File Tools" /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/ideas" element={session ? <WorkspaceLayout><Placeholder title="Project Ideas" /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/settings" element={session ? <WorkspaceLayout><SettingsPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                
-                <Route path="/privacy" element={<PrivacyPolicy />} />
-                <Route path="/terms" element={<TermsOfService />} />
-                <Route path="/about" element={<AboutUs />} />
-                <Route path="/contact" element={<ContactUs />} />
-                
-                <Route path="*" element={<ErrorPage type="404" />} />
-            </Routes>
-        </Router>
+        <ButtermaxEffects>
+            <Router>
+                <AnimatedRoutes session={session} Placeholder={Placeholder} />
+            </Router>
+        </ButtermaxEffects>
     );
 }
 

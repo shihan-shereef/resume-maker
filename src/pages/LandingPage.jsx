@@ -1,353 +1,425 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-    FileText, 
-    Sparkles, 
-    Zap, 
-    Target, 
-    LineChart, 
-    Globe, 
-    Layout, 
-    CheckCircle2, 
-    ArrowRight,
-    Search,
-    MessageSquare,
-    StickyNote,
-    Menu,
-    X
+    Zap, Target, Share2, Search, Briefcase, FileText, 
+    ArrowRight, Star, CheckCircle2, Globe, Cpu, 
+    Github, Mail, Layout, Plus, MessageSquare, 
+    Video, Map, Database, Youtube, FileSearch, StickyNote, BarChart
 } from 'lucide-react';
-import { HeroBackground } from '../components/hero-background';
 
-const LandingPage = ({ session }) => {
+import VanillaTilt from 'vanilla-tilt';
+import TextScramble from '../utils/TextScramble';
+import CanvasParticles from '../components/effects/CanvasParticles';
+import Logo from '../components/common/Logo';
+
+const LandingPage = () => {
     const navigate = useNavigate();
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
+    const heroRef = useRef(null);
 
     useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 50);
+        window.addEventListener('scroll', handleScroll);
+        
+        // Vanilla Tilt for cards
+        const cards = document.querySelectorAll('.tilt-card');
+        VanillaTilt.init(Array.from(cards), {
+            max: 8,
+            speed: 400,
+            glare: true,
+            'max-glare': 0.12,
+        });
+
+        // Intersection Observer for Reveal
+        // Parallax Effect
+        const handleParallax = () => {
+            const scrolled = window.scrollY;
+            const parallaxText = document.querySelector('.parallax-text');
+            if (parallaxText) {
+                parallaxText.style.transform = `translateX(-${scrolled * 0.12}px)`;
+            }
+        };
+        window.addEventListener('scroll', handleParallax);
+
+        // Count-up Numbers
+        const countUp = (el) => {
+            const target = parseInt(el.getAttribute('data-target'));
+            const duration = 2000;
+            const start = performance.now();
+            
+            const animate = (now) => {
+                const progress = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 4); // easeOutQuart
+                el.innerText = Math.floor(eased * target).toLocaleString();
+                if (progress < 1) requestAnimationFrame(animate);
+            };
+            requestAnimationFrame(animate);
+        };
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
+                    entry.target.classList.add('visible');
+                    if (entry.target.classList.contains('count-up')) {
+                        countUp(entry.target);
+                        observer.unobserve(entry.target);
+                    }
                 }
             });
         }, { threshold: 0.1 });
 
-        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+        document.querySelectorAll('.scroll-reveal, .letter-reveal, .count-up').forEach(el => observer.observe(el));
+        
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            window.removeEventListener('scroll', handleParallax);
+            observer.disconnect();
+        };
     }, []);
 
+    const splitText = (text) => {
+        return text.split('').map((char, i) => (
+            <span key={i} style={{ transitionDelay: `${i * 30}ms` }}>
+                {char === ' ' ? '\u00A0' : char}
+            </span>
+        ));
+    };
+
     const features = [
-        { icon: FileText, title: 'AI Resume Maker', desc: 'Craft professional, ATS-friendly resumes in minutes.' },
-        { icon: Sparkles, title: 'Cover Letter Gen', desc: 'Personalized cover letters for every job application.' },
-        { icon: MessageSquare, title: 'Interview Prep', desc: 'AI-driven mock interviews with instant feedback.' },
-        { icon: LineChart, title: 'Skill Gap Analysis', desc: 'Identify missing skills based on your dream role.' },
-        { icon: Target, title: 'Roadmap Generator', desc: 'Visual learning paths to reach your career milestones.' },
-        { icon: Globe, title: 'AI Portfolio', desc: 'Stunning portfolio sites generated from your experience.' },
-        { icon: Search, title: 'AI Job Search', desc: 'Real-time job discovery powered by Firecrawl.' },
-        { icon: Layout, title: 'ATS Checker', desc: 'Scan and optimize your resume for screening bots.' }
+        {
+            category: "The Career OS",
+            title: "Resume Intelligence",
+            description: "High-fidelity resume creation with real-time AI optimization and professional templates.",
+            icon: <FileText className="w-6 h-6" />,
+            color: "#ff5c00"
+        },
+        {
+            category: "The Career OS",
+            title: "ATS Optimization",
+            description: "Scan your resume against job descriptions to ensure perfect keyword matching.",
+            icon: <Target className="w-6 h-6" />,
+            color: "#ff008a"
+        },
+        {
+            category: "The Career OS",
+            title: "AI Portfolios",
+            description: "Generate stunning portfolio websites automatically from your resume data.",
+            icon: <Globe className="w-6 h-6" />,
+            color: "#7c3aed"
+        },
+        {
+            category: "Productivity Suite",
+            title: "YouTube Intelligence",
+            description: "Extract core insights and structured summaries from long-form educational videos.",
+            icon: <Youtube className="w-6 h-6" />,
+            color: "#ef4444"
+        },
+        {
+            category: "Productivity Suite",
+            title: "PDF Brain",
+            description: "Interact with your PDF documents using AI to extract data, summaries, and facts.",
+            icon: <FileSearch className="w-6 h-6" />,
+            color: "#3b82f6"
+        },
+        {
+            category: "Productivity Suite",
+            title: "Dynamic AI Notes",
+            description: "An intelligent note-taking companion that organizes your thoughts and research.",
+            icon: <StickyNote className="w-6 h-6" />,
+            color: "#10b981"
+        },
+        {
+            category: "Growth & Intelligence",
+            title: "Growth Roadmaps",
+            description: "Node-based career paths that visualize the skills needed for your next promotion.",
+            icon: <Map className="w-6 h-6" />,
+            color: "#f59e0b"
+        },
+        {
+            category: "Growth & Intelligence",
+            title: "Skill Gap Analysis",
+            description: "Data-driven insights into what's missing in your current professional profile.",
+            icon: <BarChart className="w-6 h-6" />,
+            color: "#8b5cf6"
+        },
+        {
+            category: "Growth & Intelligence",
+            title: "Interview Simulator",
+            description: "Real-time AI video interviews with posture, confidence, and keyword feedback.",
+            icon: <Video className="w-6 h-6" />,
+            color: "#ec4899"
+        },
+        {
+            category: "Job Discovery",
+            title: "Discovery Matching",
+            description: "AI-powered job matching simulations to find the best opportunities for your profile.",
+            icon: <Search className="w-6 h-6" />,
+            color: "#06b6d4"
+        },
+        {
+            category: "Job Discovery",
+            title: "Unified Tracker",
+            description: "A centralized command center to manage all your job applications and deadlines.",
+            icon: <Database className="w-6 h-6" />,
+            color: "#6366f1"
+        },
+        {
+            category: "Job Discovery",
+            title: "Cover Letter Engine",
+            description: "Context-aware AI that writes tailored cover letters for every unique application.",
+            icon: <Plus className="w-6 h-6" />,
+            color: "#f97316"
+        }
     ];
 
     return (
-        <div className="landing-page" style={{ background: 'var(--bg-light)' }}>
-            {/* Navbar */}
+        <div style={{ backgroundColor: '#ffffff', minHeight: '100vh', overflowX: 'hidden' }}>
+            {/* Navigation */}
             <nav style={{
-                position: 'fixed',
-                top: 0, left: 0, right: 0,
-                height: 'var(--topbar-height)',
-                background: 'rgba(255, 255, 255, 0.8)',
-                backdropFilter: 'blur(20px)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '0 min(8%, 32px)',
-                borderBottom: '1px solid #f1f5f9',
-                zIndex: 1000
+                position: 'fixed', top: 0, width: '100%', zIndex: 1000,
+                padding: '20px 5%', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                backgroundColor: scrolled ? 'rgba(255, 255, 255, 0.8)' : 'transparent',
+                backdropFilter: scrolled ? 'blur(20px)' : 'none',
+                transition: 'all 0.3s ease',
+                borderBottom: scrolled ? '1px solid #f1f5f9' : 'none'
             }}>
-                <div 
-                    style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', cursor: 'pointer' }}
-                    onClick={() => {
-                        const audio = new Audio('/splash.wav');
-                        audio.volume = 0.5;
-                        audio.play().catch(e => console.log('Audio manually triggered', e));
-                    }}
-                >
-                    Takshila<span style={{ color: 'var(--primary)' }}>.</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Logo size="1.8rem" withSound={true} onClick={() => navigate('/')} />
                 </div>
-                
-                {/* Desktop Menu */}
-                <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>
-                        EN <span style={{ fontSize: '0.7rem' }}>▼</span>
-                    </div>
-                    <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Log in</button>
-                    <button onClick={() => navigate('/login')} className="btn-primary" style={{ padding: '10px 24px', fontSize: '0.9rem' }}>Sign up</button>
-                </div>
-
-                {/* Mobile Toggle */}
-                <button 
-                    className="mobile-only"
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                    style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}
-                >
-                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
-                </button>
-
-                {/* Mobile Menu Overlay */}
-                {isMenuOpen && (
-                    <div style={{
-                        position: 'fixed',
-                        top: 'var(--topbar-height)',
-                        left: 0, right: 0,
-                        background: 'white',
-                        padding: '30px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '24px',
-                        borderBottom: '1px solid #f1f5f9',
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-                        zIndex: 999
-                    }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '1rem', fontWeight: 600, paddingBottom: '16px', borderBottom: '1px solid #f8fafc' }}>
-                            Language: EN
-                        </div>
-                        <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', fontWeight: 600, textAlign: 'left', fontSize: '1.1rem' }}>Log in</button>
-                        <button onClick={() => navigate('/login')} className="btn-primary" style={{ width: '100%', height: '56px' }}>Sign up for free</button>
-                    </div>
-                )}
+                <div style={{ display: 'flex', gap: '32px', alignItems: 'center', zIndex: 10 }}>
+                    <span onClick={() => navigate('/login')} className="hover-underline" style={{ fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>Login</span>
+                    <button onClick={() => navigate('/signup')} className="btn-primary" style={{ padding: '10px 24px', fontSize: '0.85rem' }}>
+                        Join Now
+                    </button>
+</div>
             </nav>
 
             {/* Hero Section */}
-            <section style={{
-                padding: 'min(200px, 20vh) 5% 80px',
-                textAlign: 'center',
-                position: 'relative',
-                overflow: 'hidden',
-                background: 'transparent'
+            <header style={{ 
+                padding: '160px 5% 100px', textAlign: 'center', position: 'relative',
+                background: 'radial-gradient(circle at 10% 20%, rgba(255, 92, 0, 0.03) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(255, 0, 138, 0.03) 0%, transparent 40%)',
+                overflow: 'hidden'
             }}>
-                <HeroBackground />
-                <div className="animate-fade-in-up" style={{ position: 'relative', zIndex: 20 }}>
-                    <div style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '10px',
-                        padding: '8px 16px',
-                        background: 'white',
-                        borderRadius: '100px',
-                        fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
-                        fontWeight: 600,
-                        boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-                        marginBottom: '32px'
+                <CanvasParticles />
+                <div className="animate-fade-in-up" style={{ maxWidth: '900px', margin: '0 auto' }}>
+                    <div style={{ 
+                        display: 'inline-flex', alignItems: 'center', gap: '8px', 
+                        padding: '8px 16px', borderRadius: '100px', background: 'rgba(255, 92, 0, 0.05)',
+                        color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700, marginBottom: '24px'
                     }}>
-                        <Sparkles size={14} color="var(--primary)" />
-                        The World's Most Advanced AI Career OS
+                        <Zap size={14} /> THE COMPLETE CAREER ECOSYSTEM
                     </div>
-                    
-                    <h1 style={{ 
-                        fontSize: 'clamp(32px, 8vw, 64px)', 
-                        fontWeight: 800, 
-                        lineHeight: 1.1, 
-                        marginBottom: '20px',
-                        letterSpacing: '-0.04em'
-                    }}>
-                        Elevate Your Career with <br /> 
-                        <span className="gradient-text">Takshila AI</span>
+                    <h1 className="letter-reveal" style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', fontWeight: 900, lineHeight: 1.1, letterSpacing: '-0.04em', marginBottom: '24px' }}>
+                        {splitText("Your Professional Life,")}<br />
+                        <span className="gradient-text scramble-text">Unified by Intelligence.</span>
                     </h1>
-                    
-                    <p style={{ 
-                        fontSize: 'clamp(1rem, 3vw, 1.25rem)', 
-                        color: 'var(--text-secondary)', 
-                        maxWidth: '700px', 
-                        margin: '0 auto 40px',
-                        lineHeight: 1.6,
-                        padding: '0 20px'
-                    }}>
-                        Everything you need for your career growth in one intelligent workspace. 
-                        Resume builder, job tracker, interview prep, and learning roadmaps.
+                    <p style={{ fontSize: 'clamp(1.1rem, 3vw, 1.4rem)', color: 'var(--text-secondary)', lineHeight: 1.6, maxWidth: '700px', margin: '0 auto 40px' }}>
+                        Stop juggling a dozen career tools. Discover the only workspace where Resume Building, Interview Simulation, and Career Roadmapping live in perfect harmony.
                     </p>
-                    
-                    <div className="mobile-stack" style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        gap: '16px',
-                        padding: '0 20px'
-                    }}>
-                        {session ? (
-                            <button className="btn-primary" onClick={() => navigate('/portfolio')}>
-                                Enter Portfolio Workspace <ArrowRight size={20} />
-                            </button>
-                        ) : (
-                            <>
-                                <button className="btn-primary" onClick={() => navigate('/login')}>
-                                    Start Using Takshila <ArrowRight size={20} />
-                                </button>
-                                <button className="btn-secondary" onClick={() => navigate('/login')} style={{ 
-                                    background: 'white', 
-                                    border: '1px solid #e2e8f0', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'center',
-                                    gap: '8px', 
-                                    padding: '0 24px'
-                                }}>
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style={{ width: '20px' }} />
-                                    Sign in with Google
-                                </button>
-                            </>
-                        )}
+                    <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                        <button onClick={() => navigate('/login')} className="btn-primary" style={{ padding: '18px 40px', fontSize: '1.1rem' }}>
+                            Start Your Journey <ArrowRight size={20} />
+                        </button>
+                        <button onClick={() => navigate('/login')} className="btn-secondary" style={{ padding: '18px 40px', fontSize: '1.1rem' }}>
+                            Explore Workspace
+                        </button>
                     </div>
                 </div>
+            </header>
 
-                {/* Decorative Elements */}
-                <div className="animate-float desktop-only" style={{ position: 'absolute', top: '20%', right: '5%', opacity: 0.1 }}>
-                    <Zap size={120} color="var(--primary)" />
-                </div>
-            </section>
-
-            {/* Features Section */}
-            <section style={{ padding: '80px 5%', background: '#fff' }}>
-                <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-                    <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800, marginBottom: '16px' }}>Powering Your Career Journey</h2>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>A complete suite of AI tools designed for modern professionals.</p>
-                </div>
-
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(max(280px, 45%), 1fr))',
-                    gap: '24px'
+            {/* Visual Showcase - Resume Maker */}
+            <section className="scroll-reveal" style={{ padding: '60px 5%' }}>
+                <div style={{ 
+                    maxWidth: '1200px', margin: '0 auto', display: 'flex', 
+                    alignItems: 'center', gap: '60px', flexWrap: 'wrap' 
                 }}>
-                    {features.map((f, i) => (
-                        <div 
-                            key={i} 
-                            className="glass-card reveal" 
-                            style={{ 
-                                padding: 'clamp(24px, 5vw, 40px)', 
-                                border: '1px solid #f1f5f9',
-                                transitionDelay: `${i * 0.05}s`
-                            }}
-                            onMouseMove={(e) => {
-                                if (window.innerWidth <= 1024) return;
-                                const rect = e.currentTarget.getBoundingClientRect();
-                                const x = e.clientX - rect.left;
-                                const y = e.clientY - rect.top;
-                                e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
-                                e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
-                            }}
-                        >
-                            <div className="icon-container" style={{
-                                width: '48px',
-                                height: '48px',
-                                borderRadius: '12px',
-                                background: 'rgba(255, 92, 0, 0.05)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginBottom: '20px',
-                                color: 'var(--primary)'
-                            }}>
-                                <f.icon size={24} />
+                    <div style={{ flex: '1', minWidth: '320px' }}>
+                        <div style={{ color: 'var(--primary)', fontWeight: 700, marginBottom: '12px' }}>01. RESUME INTELLIGENCE</div>
+                        <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '20px' }}>Build the best resume <br/>of your life.</h2>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '32px' }}>
+                            Our real-time editor uses AI to help you articulate your achievements with precision. Choose from premium templates designed for top-tier tech and corporate roles.
+                        </p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <CheckCircle2 size={18} style={{ color: '#10b981' }} /> AI Content Suggestions
                             </div>
-                            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '10px' }}>{f.title}</h3>
-                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem' }}>{f.desc}</p>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <CheckCircle2 size={18} style={{ color: '#10b981' }} /> ATS Keyphrase Matching
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <CheckCircle2 size={18} style={{ color: '#10b981' }} /> Premium PDF Export
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', fontSize: '0.9rem', fontWeight: 600 }}>
+                                <CheckCircle2 size={18} style={{ color: '#10b981' }} /> One-Click Portfolios
+                            </div>
                         </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* How it Works */}
-            <section style={{ padding: '80px 5%', background: '#f8fafc' }}>
-                <div style={{ textAlign: 'center', marginBottom: '60px' }}>
-                    <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800 }}>Seamless Career Growth</h2>
-                </div>
-                
-                <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
-                    {[
-                        'Sign in with Google instantly',
-                        'Create or upload your existing resume',
-                        'AI analyzes your skills and formatting',
-                        'Receive personalized job recommendations',
-                        'Track applications and grow your career'
-                    ].map((step, i) => (
-                        <div key={i} className="reveal" style={{ 
-                            display: 'flex', 
-                            gap: 'clamp(16px, 4vw, 32px)', 
-                            marginBottom: '32px',
-                            transitionDelay: `${i * 0.1}s`
-                        }}>
-                            <div style={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '50%',
-                                background: 'var(--primary)',
-                                color: 'white',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 800,
-                                fontSize: '0.9rem',
-                                flexShrink: 0
-                            }}>{i + 1}</div>
-                            <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: 600, color: 'var(--text-primary)', paddingTop: '6px' }}>{step}</div>
-                        </div>
-                    ))}
-                </div>
-            </section>
-
-            {/* CTA Section */}
-            <div style={{ padding: '0 5%' }}>
-                <section style={{ 
-                    padding: 'clamp(60px, 10vw, 100px) 5%', 
-                    textAlign: 'center',
-                    background: 'var(--text-primary)',
-                    color: 'white',
-                    borderRadius: 'var(--radius-lg)',
-                    margin: '40px 0 80px',
-                    boxShadow: '0 40px 100px rgba(0,0,0,0.1)'
-                }}>
-                    <h2 style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', fontWeight: 800, marginBottom: '20px' }}>Ready to Launch Your Career?</h2>
-                    <p style={{ fontSize: '1.1rem', opacity: 0.8, marginBottom: '40px', maxWidth: '600px', margin: '0 auto 40px' }}>
-                        Join thousands of professionals using Takshila to navigate their career path.
-                    </p>
-                    <div className="mobile-stack" style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        gap: '16px' 
-                    }}>
-                        <button className="btn-primary" onClick={() => navigate('/login')} style={{ height: '56px', padding: '0 32px' }}>
-                            Start Using Takshila
-                        </button>
-                        <button onClick={() => navigate('/login')} style={{ 
-                            background: 'white', 
-                            color: 'var(--text-primary)',
-                            padding: '16px 32px',
-                            borderRadius: '100px',
-                            fontWeight: 700,
-                            border: 'none',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '12px'
-                        }}>
-                             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style={{ width: '20px' }} />
-                             Sign in with Google
-                        </button>
                     </div>
-                </section>
+                    <div style={{ flex: '1.5', minWidth: '320px' }}>
+                        <div className="glass-card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }}>
+                            <img 
+                                src="/Users/apple/.gemini/antigravity/brain/7a1a696a-9763-458c-818e-a5c257229961/resume_maker_mockup_1773748337446.png" 
+                                alt="AI Resume Maker Interface" 
+                                style={{ width: '100%', height: 'auto', display: 'block' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Feature Ecosystem Grid */}
+            <section className="scroll-reveal" style={{ padding: '100px 5%', backgroundColor: '#f8fafc' }}>
+                <div style={{ textAlign: 'center', marginBottom: '80px' }}>
+                    <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '20px' }}>The Complete <span className="gradient-text">Career Ecosystem</span></h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto' }}>
+                        Every professional tool you need, built into a single, cohesive interface. From skill discovery to job mastery.
+                    </p>
+                </div>
+                <div className="responsive-grid" style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                    {features.map((f, i) => (
+                        <div key={i} className="glass-card tilt-card" style={{ padding: '40px', background: '#ffffff', textAlign: 'left' }}>
+                            <div style={{ 
+                                width: '50px', height: '50px', borderRadius: '12px', 
+                                backgroundColor: `${f.color}15`, color: f.color,
+                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                marginBottom: '24px'
+                            }}>
+                                {f.icon}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 800, color: f.color, letterSpacing: '0.05em', marginBottom: '8px' }}>
+                                {f.category.toUpperCase()}
+                            </div>
+                            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '12px' }}>{f.title}</h3>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem' }}>
+                                {f.description}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* Visual Showcase - Interview Simulator */}
+            <section className="scroll-reveal" style={{ padding: '100px 5%' }}>
+                <div style={{ 
+                    maxWidth: '1200px', margin: '0 auto', display: 'flex', 
+                    alignItems: 'center', gap: '60px', flexWrap: 'wrap-reverse' 
+                }}>
+                    <div style={{ flex: '1.5', minWidth: '320px' }}>
+                        <div className="glass-card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }}>
+                            <img 
+                                src="/Users/apple/.gemini/antigravity/brain/7a1a696a-9763-458c-818e-a5c257229961/interview_simulator_mockup_1773748365170.png" 
+                                alt="AI Interview Simulator" 
+                                style={{ width: '100%', height: 'auto', display: 'block' }}
+                            />
+                        </div>
+                    </div>
+                    <div style={{ flex: '1', minWidth: '320px' }}>
+                        <div style={{ color: 'var(--primary)', fontWeight: 700, marginBottom: '12px' }}>02. INTERVIEW INTELLIGENCE</div>
+                        <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '20px' }}>Simulate success, <br/>before you apply.</h2>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: 1.7, marginBottom: '32px' }}>
+                            Face professional interviewers built with advanced AI. Get pinpoint feedback on your facial expressions, keyword relevance, and technical accuracy.
+                        </p>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontWeight: 600 }}>
+                                <CheckCircle2 size={20} style={{ color: '#ec4899' }} /> Live Video Feedback Loop
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontWeight: 600 }}>
+                                <CheckCircle2 size={20} style={{ color: '#ec4899' }} /> Technical Response Analysis
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontWeight: 600 }}>
+                                <CheckCircle2 size={20} style={{ color: '#ec4899' }} /> Confidence & Posture Coaching
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Growth Roadmaps Showcase */}
+            <section style={{ padding: '100px 5%', background: '#0f172a', color: '#ffffff' }}>
+                <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                    <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                        <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '20px' }}>Visualize Your <span className="gradient-text">Future.</span></h2>
+                        <p style={{ color: '#94a3b8', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto' }}>
+                            Experience the ecosystem's intelligence through interactive career roadmaps that evolve with your progress.
+                        </p>
+                    </div>
+                    <div className="glass-card" style={{ padding: '0', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                        <img 
+                            src="/Users/apple/.gemini/antigravity/brain/7a1a696a-9763-458c-818e-a5c257229961/roadmap_generator_mockup_1773748385126.png" 
+                            alt="AI Career Roadmaps" 
+                            style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }}
+                        />
+                    </div>
+                </div>
+            </section>
+
+            {/* Parallax Strip */}
+            <div style={{ padding: '40px 0', background: 'var(--primary)', overflow: 'hidden', whiteSpace: 'nowrap' }}>
+                <div className="parallax-text" style={{ fontSize: '5rem', fontWeight: 900, color: 'rgba(255,255,255,0.1)', WebkitTextStroke: '1px rgba(255,255,255,0.3)', textTransform: 'uppercase' }}>
+                    RESUME INTELLIGENCE • INTERVIEW SIMULATION • CAREER ROADMAP • SKILL GAP ANALYSIS • ATS OPTIMIZATION • DISCOVERY MATCHING • RESUME INTELLIGENCE • INTERVIEW SIMULATION • 
+                </div>
             </div>
 
-            {/* Footer */}
-            <footer style={{ padding: '60px 5%', borderTop: '1px solid #f1f5f9' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '40px' }}>
-                    <div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px' }}>
-                            Takshila<span style={{ color: 'var(--primary)' }}>.</span>
+            {/* CTA Section */}
+            <section className="scroll-reveal" style={{ padding: '120px 5%', textAlign: 'center' }}>
+                <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+                    <div style={{ display: 'flex', justifyContent: 'center', gap: '80px', marginBottom: '60px' }}>
+                        <div>
+                            <div className="count-up" data-target="50000" style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--primary)' }}>0</div>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', fontWeight: 700 }}>RESUMES OPTIMIZED</div>
                         </div>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>© 2026 Takshila AI. All rights reserved.</p>
+                        <div>
+                            <div className="count-up" data-target="12000" style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--primary)' }}>0</div>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', fontWeight: 700 }}>INTERVIEWS SIMULATED</div>
+                        </div>
+                        <div>
+                            <div className="count-up" data-target="98" style={{ fontSize: '3rem', fontWeight: 900, color: 'var(--primary)' }}>0</div>
+                            <div style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', fontWeight: 700 }}>MATCHING ACCURACY %</div>
+                        </div>
                     </div>
-                    <div style={{ display: 'flex', gap: 'max(20px, 4vw)', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.9rem', flexWrap: 'wrap' }}>
-                        <span onClick={() => navigate('/about')} style={{ cursor: 'pointer' }}>About Us</span>
-                        <span onClick={() => navigate('/privacy')} style={{ cursor: 'pointer' }}>Privacy Policy</span>
-                        <span onClick={() => navigate('/terms')} style={{ cursor: 'pointer' }}>Terms of Service</span>
-                        <span onClick={() => navigate('/contact')} style={{ cursor: 'pointer' }}>Contact</span>
+                    <h2 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '24px', letterSpacing: '-0.03em' }}>
+                        Ready to join the <br/><span className="gradient-text">Career Ecosystem?</span>
+                    </h2>
+                    <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', marginBottom: '40px' }}>
+                        Join thousands of professionals using Takshila AI to automate their growth and mastery.
+                    </p>
+                    <button onClick={() => navigate('/signup')} className="btn-primary" style={{ padding: '20px 60px', fontSize: '1.2rem' }}>
+                        Create My Free Account
+                    </button>
+                    <p style={{ marginTop: '24px', fontSize: '0.9rem', color: 'var(--text-tertiary)' }}>No credit card required. Instant access to core workspace.</p>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer style={{ padding: '80px 5% 40px', borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px' }}>
+                    <div style={{ flex: '1', minWidth: '250px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+                            <Logo size="1.4rem" withSound={true} onClick={() => navigate('/')} />
+                        </div>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '24px' }}>
+                            The world's most comprehensive career operating system. Built with modern professionals in mind.
+                        </p>
                     </div>
+                    <div style={{ display: 'flex', gap: '60px', flexWrap: 'wrap' }}>
+                        <div>
+                            <h4 style={{ fontWeight: 700, marginBottom: '20px', fontSize: '0.9rem' }}>Navigation</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                <span onClick={() => navigate('/about')} style={{ cursor: 'pointer' }}>About Us</span>
+                                <span onClick={() => navigate('/contact')} style={{ cursor: 'pointer' }}>Support</span>
+                                <span onClick={() => navigate('/login')} style={{ cursor: 'pointer' }}>Workspace</span>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style={{ fontWeight: 700, marginBottom: '20px', fontSize: '0.9rem' }}>Legal</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                                <span onClick={() => navigate('/privacy')} style={{ cursor: 'pointer' }}>Privacy Policy</span>
+                                <span onClick={() => navigate('/terms')} style={{ cursor: 'pointer' }}>Terms of Service</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style={{ maxWidth: '1200px', margin: '40px auto 0', paddingTop: '40px', borderTop: '1px solid #f1f5f9', textAlign: 'center' }}>
+                    <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>© 2026 Takshila AI. All rights reserved. Designed for the future of work.</p>
                 </div>
             </footer>
 

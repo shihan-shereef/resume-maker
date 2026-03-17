@@ -75,22 +75,39 @@ const AtsCheckerPage = () => {
             // Using "openai/gpt-4o-mini" which is very fast
             const response = await generateResumeContent(prompt, "You are a senior HR recruitment technologist.", "openai/gpt-4o-mini");
             
-            // Robust Parsing
-            const score = parseInt(response.match(/SCORE:\s*(\d+)/)?.[1] || "0");
-            const keywords = response.match(/KEYWORDS:\s*(.*)/)?.[1] || "None found";
-            const gaps = response.match(/GAPS:\s*(.*)/)?.[1] || "None found";
-            const formatting = response.match(/FORMATTING:\s*(.*)/)?.[1] || "None found";
-            const suggestions = response.match(/SUGGESTIONS:\s*([\s\S]*?)(?=HIGHLIGHTS:|$)/)?.[1] || "No specific suggestions.";
-            const highlightStrings = (response.match(/HIGHLIGHTS:\s*(.*)/)?.[1] || "").split('|').map(s => s.trim()).filter(Boolean);
+            // Robust Parsing with fallbacks
+            const scoreMatch = response.match(/SCORE:\s*(\d+)/i);
+            const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
+            
+            const keywordsMatch = response.match(/KEYWORDS:\s*([\s\S]*?)(?=GAPS:|FORMATTING:|SUGGESTIONS:|HIGHLIGHTS:|$)/i);
+            const keywords = keywordsMatch ? keywordsMatch[1].trim() : "Analysis pending...";
+            
+            const gapsMatch = response.match(/GAPS:\s*([\s\S]*?)(?=FORMATTING:|SUGGESTIONS:|HIGHLIGHTS:|$)/i);
+            const gaps = gapsMatch ? gapsMatch[1].trim() : "Analysis pending...";
+            
+            const formattingMatch = response.match(/FORMATTING:\s*([\s\S]*?)(?=SUGGESTIONS:|HIGHLIGHTS:|$)/i);
+            const formatting = formattingMatch ? formattingMatch[1].trim() : "Standard structure detected.";
+            
+            const suggestionsMatch = response.match(/SUGGESTIONS:\s*([\s\S]*?)(?=HIGHLIGHTS:|$)/i);
+            const suggestions = suggestionsMatch ? suggestionsMatch[1].trim() : "Focus on quantifying your achievements.";
+            
+            const highlightsMatch = response.match(/HIGHLIGHTS:\s*([\s\S]*?)$/i);
+            const highlightStrings = highlightsMatch 
+                ? highlightsMatch[1].split('|').map(s => s.trim()).filter(s => s.length > 5)
+                : [];
 
             // Dynamically mark the original text
             let processedText = text;
-            highlightStrings.forEach(str => {
-                if (str.length > 5) { // Avoid masking tiny punctuation or single words
-                    const regex = new RegExp(`(${str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
-                    processedText = processedText.replace(regex, '<mark class="ats-weak">$1</mark>');
-                }
-            });
+            if (highlightStrings.length > 0) {
+                highlightStrings.forEach(str => {
+                    try {
+                        const regex = new RegExp(`(${str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+                        processedText = processedText.replace(regex, '<mark class="ats-weak">$1</mark>');
+                    } catch (e) {
+                        console.warn("Regex failure for highlight:", str);
+                    }
+                });
+            }
             
             setResult({
                 score,

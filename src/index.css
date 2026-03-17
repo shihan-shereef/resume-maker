@@ -460,8 +460,9 @@ img, video, canvas, svg {
     height: 100vh;
     transition: var(--transition-smooth);
     z-index: 1000;
-    position: relative;
-    left: 0;
+    position: sticky;
+    top: 0;
+    overflow-y: auto;
 }
 
 @media (max-width: 1024px) {
@@ -485,7 +486,10 @@ img, video, canvas, svg {
 .scroll-container {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     padding: 32px;
+    height: calc(100vh - var(--topbar-height));
+    -webkit-overflow-scrolling: touch;
 }
 
 @media (max-width: 480px) {
@@ -600,4 +604,96 @@ mark {
 
 .animate-fade-in {
     animation: fade-in 0.5s ease-out forwards;
+}
+
+/* Buttermax Global Effects */
+.grain-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.025;
+    mix-blend-mode: overlay;
+}
+
+.magnetic-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    background: var(--primary);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    mix-blend-mode: difference;
+    transition: transform 0.1s ease-out;
+}
+
+.cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--primary);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.2s ease-out;
+}
+
+/* Hover Underline Draw */
+.hover-underline {
+    position: relative;
+    text-decoration: none;
+}
+
+.hover-underline::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 2px;
+    bottom: -2px;
+    left: 0;
+    background-color: var(--primary);
+    transition: width 0.3s ease-out;
+}
+
+.hover-underline:hover::after {
+    width: 100%;
+}
+
+/* Scroll Reveal Base */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    will-change: opacity, transform;
+}
+
+.scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Letter Stagger */
+.letter-reveal span {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(1em);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.letter-reveal.visible span {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Grain SVG Filter */
+#grain-filter {
+    display: none;
 }

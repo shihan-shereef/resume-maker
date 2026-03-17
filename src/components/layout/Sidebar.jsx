@@ -1,6 +1,7 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from '../common/Logo';
 import { 
     LayoutDashboard, 
     FileText, 
@@ -23,12 +24,13 @@ import {
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose }) => {
+    const navigate = useNavigate();
     const mainModules = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
         { id: 'resume', icon: FileText, label: 'AI Resume Maker', path: '/resume' },
-        { id: 'ats', icon: CheckCircle, label: 'Resume ATS Checker', path: '/ats' },
+        { id: 'ats', icon: CheckCircle, label: 'Resume ATS Checker', path: '/ats-checker' },
         { id: 'cover-letter', icon: Mail, label: 'AI Cover Letter', path: '/cover-letter' },
-        { id: 'interview', icon: MessageSquare, label: 'AI Interview Prep', path: '/interview' },
+        { id: 'interview', icon: MessageSquare, label: 'AI Interview Prep', path: '/interview-simulator' },
         { id: 'skill-gap', icon: LineChart, label: 'AI Skill Gap', path: '/skill-gap' },
         { id: 'roadmap', icon: Briefcase, label: 'AI Roadmap', path: '/roadmap' },
         { id: 'portfolio', icon: FileCode, label: 'AI Portfolio', path: '/portfolio' },
@@ -49,15 +51,15 @@ const Sidebar = ({ isOpen, onClose }) => {
             className={`sidebar ${isOpen ? 'open' : ''}`}
         >
             <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <NavLink 
-                    to="/" 
+                <div 
+                    onClick={() => {
+                        navigate('/');
+                        onClose();
+                    }}
                     style={{ textDecoration: 'none' }}
-                    onClick={onClose}
                 >
-                    <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-                        Takshila<span style={{ color: 'var(--primary)' }}>.</span>
-                    </div>
-                </NavLink>
+                    <Logo size="1.8rem" />
+                </div>
 
                 <button 
                     onClick={onClose}

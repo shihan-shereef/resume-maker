@@ -37,7 +37,26 @@ const ResumeMaker = () => {
                 gap: '12px'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'max(12px, 2vw)' }}>
-                    <h2 style={{ fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap' }} className="desktop-only">AI Resume Maker</h2>
+                    <button 
+                        onClick={() => navigate('/dashboard')}
+                        style={{
+                            background: '#f8fafc',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '10px',
+                            padding: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                            color: 'var(--text-secondary)',
+                            transition: 'var(--transition-smooth)'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                        onMouseOut={(e) => e.currentTarget.style.background = '#f8fafc'}
+                    >
+                        <ArrowLeft size={18} />
+                    </button>
+                    <h2 style={{ fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap' }}>AI Resume Maker</h2>
                     <div style={{ 
                         background: '#f1f5f9', 
                         borderRadius: '12px', 
