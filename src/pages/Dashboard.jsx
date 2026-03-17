@@ -37,10 +37,10 @@ const Dashboard = () => {
                     <Sparkles size={16} />
                     Career Workspace
                 </div>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
                     Welcome to <span className="gradient-text">Takshila</span> AI
                 </h1>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 3vw, 1.1rem)' }}>
                     Manage your professional growth with intelligent AI tools.
                 </p>
             </header>
@@ -70,7 +70,11 @@ const Dashboard = () => {
             </div>
 
             {/* Main Content Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '32px' }}>
+            <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', 
+                gap: '32px' 
+            }}>
                 <div className="glass-card" style={{ padding: '32px', background: 'white' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                         <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Recommended Jobs</h2>

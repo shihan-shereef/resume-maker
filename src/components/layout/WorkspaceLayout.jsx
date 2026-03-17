@@ -1,13 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
 const WorkspaceLayout = ({ children }) => {
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+    const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+    const closeMenu = () => setIsMenuOpen(false);
+
     return (
         <div className="workspace-layout">
-            <Sidebar />
+            {/* Mobile Overlay */}
+            {isMenuOpen && (
+                <div 
+                    className="mobile-overlay mobile-only"
+                    onClick={closeMenu}
+                />
+            )}
+            
+            <Sidebar isOpen={isMenuOpen} onClose={closeMenu} />
+            
             <main className="main-content">
-                <Topbar />
+                <Topbar onMenuClick={toggleMenu} />
                 <div className="scroll-container">
                     {children}
                 </div>

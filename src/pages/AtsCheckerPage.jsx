@@ -110,7 +110,7 @@ const AtsCheckerPage = () => {
     };
 
     return (
-        <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '32px' }} className="animate-fade-in">
+        <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 'clamp(20px, 5vw, 32px)', padding: 'min(20px, 3%)' }} className="animate-fade-in">
             <header>
                 <div style={{
                     display: 'flex',
@@ -126,10 +126,10 @@ const AtsCheckerPage = () => {
                     <Target size={16} />
                     ATS Optimization
                 </div>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                <h1 className="responsive-title">
                     Takshila <span className="gradient-text">ATS Resume Checker</span>
                 </h1>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+                <p className="responsive-subtitle">
                     Upload your resume and let our AI analyze its compatibility with modern Applicant Tracking Systems.
                 </p>
             </header>
@@ -138,7 +138,7 @@ const AtsCheckerPage = () => {
                 <div 
                     className="glass-card" 
                     style={{ 
-                        padding: '100px 40px', 
+                        padding: 'min(100px, 15%) min(40px, 10%)', 
                         background: 'white', 
                         border: '2px dashed #e2e8f0', 
                         display: 'flex', 
@@ -146,7 +146,8 @@ const AtsCheckerPage = () => {
                         alignItems: 'center', 
                         justifyContent: 'center',
                         gap: '24px',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        textAlign: 'center'
                     }}
                     onClick={() => !loading && fileInputRef.current.click()}
                 >
@@ -181,7 +182,10 @@ const AtsCheckerPage = () => {
                     )}
                 </div>
             ) : (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '32px' }}>
+                <div className="ats-result-layout" style={{ 
+                    display: 'grid', 
+                    gap: '32px' 
+                }}>
                     {/* Score Card */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                         <div className="glass-card" style={{ padding: '40px', background: 'white', border: 'none', textAlign: 'center' }}>

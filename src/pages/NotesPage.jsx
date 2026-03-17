@@ -147,7 +147,7 @@ const NotesPage = () => {
         .sort((a, b) => (b.isPinned ? 1 : 0) - (a.isPinned ? 1 : 0));
 
     return (
-        <div style={{ display: 'grid', gridTemplateColumns: '240px 1fr', gap: '32px', minHeight: 'calc(100vh - 100px)' }}>
+        <div className="notes-layout">
             {/* Sidebar / Folders */}
             <aside style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                 <div className="glass-card" style={{ padding: '20px' }}>
@@ -212,7 +212,7 @@ const NotesPage = () => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                        <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px' }}>
+                        <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', fontWeight: 800, marginBottom: '8px' }}>
                             Takshila <span className="gradient-text">AI Notes</span>
                         </h1>
                         <p style={{ color: 'var(--text-secondary)' }}>
@@ -338,10 +338,15 @@ const NotesPage = () => {
                         </div>
 
                         {/* Editor Main Content Area */}
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', height: '100%' }}>
+                        <div style={{ 
+                            display: 'flex', 
+                            flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                            height: '100%',
+                            overflow: 'hidden'
+                        }}>
                             <div 
                                 ref={printRef}
-                                style={{ padding: '24px', overflowY: 'auto' }}
+                                style={{ flex: 1, padding: '24px', overflowY: 'auto' }}
                                 onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); }}
                                 onDrop={(e) => {
                                     e.preventDefault();
@@ -372,7 +377,17 @@ const NotesPage = () => {
                             </div>
 
                             {/* Floating AI Toolbar Sidebar */}
-                            <div style={{ background: '#f8fafc', borderLeft: '1px solid #f1f5f9', padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <div style={{ 
+                                background: '#f8fafc', 
+                                borderLeft: window.innerWidth <= 768 ? 'none' : '1px solid #f1f5f9',
+                                borderTop: window.innerWidth <= 768 ? '1px solid #f1f5f9' : 'none',
+                                padding: '24px', 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                gap: '24px',
+                                overflowY: 'auto',
+                                width: window.innerWidth <= 768 ? '100%' : '280px'
+                            }}>
                                 <div>
                                     <h4 style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                                         <Sparkles size={14} style={{ color: 'var(--primary)' }} /> AI Intelligence

@@ -56,28 +56,26 @@ const Login = () => {
     };
 
     return (
-        <div style={{ display: 'flex', minHeight: '100vh', background: 'white' }}>
+        <div className="login-layout">
             {/* Left Column: Login Form */}
-            <div style={{
-                flex: '0 0 50%',
-                display: 'flex',
-                flexDirection: 'column',
-                padding: '60px 10%',
-                justifyContent: 'center',
-                position: 'relative',
-                background: 'white'
-            }}>
-                <div style={{ position: 'absolute', top: '60px', left: '10%' }}>
-                    <Link to="/" style={{ textDecoration: 'none', fontSize: '1.75rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+            <div className="login-form-side">
+                <div className="login-logo-container">
+                    <Link to="/" style={{ textDecoration: 'none', fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
                         Takshila<span style={{ color: 'var(--primary)' }}>.</span>
                     </Link>
                 </div>
 
                 <div style={{ maxWidth: '440px', width: '100%', margin: '0 auto' }}>
-                    <h1 style={{ fontSize: '2.8rem', fontWeight: 800, marginBottom: '12px', letterSpacing: '-0.04em', color: 'var(--text-primary)' }}>
+                    <h1 style={{ 
+                        fontSize: 'clamp(2.2rem, 8vw, 2.8rem)', 
+                        fontWeight: 800, 
+                        marginBottom: '12px', 
+                        letterSpacing: '-0.04em', 
+                        color: 'var(--text-primary)' 
+                    }}>
                         {isLogin ? 'Sign In' : 'Join Takshila'}
                     </h1>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '40px', fontSize: '1.1rem', fontWeight: 500 }}>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '32px', fontSize: '1rem', fontWeight: 500 }}>
                         Experience the AI productivity revolution.
                     </p>
 
@@ -96,7 +94,7 @@ const Login = () => {
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', gap: '16px', marginBottom: '32px' }}>
+                    <div className="auth-social-buttons">
                         <button
                             type="button"
                             onClick={handleGoogleLogin}
@@ -115,7 +113,8 @@ const Login = () => {
                                 cursor: 'pointer',
                                 fontSize: '1rem',
                                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                transition: 'all 0.2s ease'
+                                transition: 'all 0.2s ease',
+                                width: '100%'
                             }}
                             onMouseOver={(e) => {
                                 e.currentTarget.style.background = '#f9fafb';
@@ -148,7 +147,8 @@ const Login = () => {
                                 cursor: 'pointer',
                                 fontSize: '1rem',
                                 boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-                                transition: 'all 0.2s ease'
+                                transition: 'all 0.2s ease',
+                                width: '100%'
                             }}
                             onMouseOver={(e) => {
                                 e.currentTarget.style.background = '#f9fafb';
@@ -171,7 +171,7 @@ const Login = () => {
                         color: 'var(--text-tertiary)'
                     }}>
                         <div style={{ flex: 1, height: '1.5px', background: '#f1f5f9' }}></div>
-                        <span style={{ fontSize: '0.75rem', padding: '0 20px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Or continue with email</span>
+                        <span style={{ fontSize: '0.7rem', padding: '0 16px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', textAlign: 'center' }}>Or continue with email</span>
                         <div style={{ flex: 1, height: '1.5px', background: '#f1f5f9' }}></div>
                     </div>
 
@@ -193,7 +193,7 @@ const Login = () => {
                         </div>
 
                         <div className="form-group" style={{ marginBottom: 0 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', flexWrap: 'wrap', gap: '4px' }}>
                                 <label className="form-label" style={{ fontSize: '0.9rem', fontWeight: 700, color: '#64748b' }}>Password</label>
                                 {isLogin && <a href="#" style={{ color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700, textDecoration: 'none' }}>Forgot password?</a>}
                             </div>
@@ -272,16 +272,19 @@ const Login = () => {
             </div>
 
             {/* Right Column: Visual Panel */}
-            <div style={{
-                flex: '0 0 50%',
-                background: 'linear-gradient(135deg, #ff5c00 0%, #ff008a 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '60px',
-                position: 'relative',
-                overflow: 'hidden'
-            }}>
+            <div 
+                className="desktop-only"
+                style={{
+                    flex: '0 0 50%',
+                    background: 'linear-gradient(135deg, #ff5c00 0%, #ff008a 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '60px',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}
+            >
                 <div className="animate-float" style={{ textAlign: 'center', zIndex: 10 }}>
                     <div style={{
                         width: '320px',

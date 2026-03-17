@@ -5,6 +5,12 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    screens: {
+      'mobile': '320px',
+      'tablet-sm': '481px',
+      'tablet': '769px',
+      'desktop': '1025px',
+    },
     extend: {
       animation: {
         first: "moveVertical 30s ease infinite",

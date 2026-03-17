@@ -18,10 +18,11 @@ import {
     FolderOpen, 
     Settings,
     UserCircle,
-    BookOpenCheck
+    BookOpenCheck,
+    X
 } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen, onClose }) => {
     const mainModules = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
         { id: 'resume', icon: FileText, label: 'AI Resume Maker', path: '/resume' },
@@ -44,16 +45,27 @@ const Sidebar = () => {
     ];
 
     return (
-        <aside className="sidebar">
-            <div style={{ padding: '32px 24px' }}>
+        <aside 
+            className={`sidebar ${isOpen ? 'open' : ''}`}
+        >
+            <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <NavLink 
                     to="/" 
                     style={{ textDecoration: 'none' }}
+                    onClick={onClose}
                 >
                     <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
                         Takshila<span style={{ color: 'var(--primary)' }}>.</span>
                     </div>
                 </NavLink>
+
+                <button 
+                    onClick={onClose}
+                    className="mobile-only"
+                    style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                >
+                    <X size={24} />
+                </button>
             </div>
 
             <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px' }}>
@@ -65,6 +77,7 @@ const Sidebar = () => {
                         <NavLink
                             key={item.id}
                             to={item.path}
+                            onClick={onClose}
                             className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
                             style={({ isActive }) => ({
                                 display: 'flex',
@@ -123,6 +136,7 @@ const Sidebar = () => {
             <div style={{ padding: '24px 16px', borderTop: '1px solid #f1f5f9' }}>
                 <NavLink
                     to="/settings"
+                    onClick={onClose}
                     style={({ isActive }) => ({
                         display: 'flex',
                         alignItems: 'center',

@@ -28,14 +28,16 @@ const ResumeMaker = () => {
             <header style={{
                 display: 'flex',
                 justifyContent: 'space-between',
+                flexWrap: 'wrap',
                 alignItems: 'center',
-                padding: '16px 24px',
+                padding: 'min(16px, 3%) min(24px, 4%)',
                 background: 'white',
                 borderBottom: '1px solid #e2e8f0',
-                zIndex: 50
+                zIndex: 50,
+                gap: '12px'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <h2 style={{ fontSize: '1.2rem', fontWeight: 800 }}>AI Resume Maker</h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 'max(12px, 2vw)' }}>
+                    <h2 style={{ fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap' }} className="desktop-only">AI Resume Maker</h2>
                     <div style={{ 
                         background: '#f1f5f9', 
                         borderRadius: '12px', 
@@ -77,15 +79,15 @@ const ResumeMaker = () => {
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <button className="btn-secondary" style={{ height: '40px', padding: '0 16px', fontSize: '0.85rem' }}>
-                        <Save size={16} /> Save Draft
+                <div className="resume-maker-header-actions">
+                    <button className="btn-secondary" style={{ height: '36px', padding: '0 12px', fontSize: '0.8rem' }}>
+                        <Save size={14} /> <span className="desktop-only">Save Draft</span>
                     </button>
-                    <button className="btn-primary" style={{ height: '40px', padding: '0 16px', fontSize: '0.85rem', boxShadow: 'none' }}>
-                        <Download size={16} /> Download PDF
+                    <button className="btn-primary" style={{ height: '36px', padding: '0 12px', fontSize: '0.8rem', boxShadow: 'none' }}>
+                        <Download size={14} /> <span className="desktop-only">Download</span>
                     </button>
-                    <button style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer' }}>
-                        <MoreVertical size={20} />
+                    <button style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}>
+                        <MoreVertical size={18} />
                     </button>
                 </div>
             </header>
@@ -96,15 +98,7 @@ const ResumeMaker = () => {
                 {/* Left Side: Editor Form */}
                 <section
                     className={`workspace-pane ${activeTab === 'edit' ? 'active' : ''}`}
-                    style={{
-                        width: '50%',
-                        minWidth: '400px',
-                        height: '100%',
-                        overflowY: 'auto',
-                        borderRight: '1px solid #e2e8f0',
-                        background: 'white',
-                        transition: 'var(--transition-smooth)'
-                    }}
+                    style={{ background: 'white' }}
                 >
                     <Editor />
                 </section>
@@ -113,38 +107,16 @@ const ResumeMaker = () => {
                 <section
                     className={`workspace-pane ${activeTab === 'preview' ? 'active' : ''}`}
                     style={{
-                        width: '50%',
-                        height: '100%',
-                        overflowY: 'auto',
                         background: '#f1f5f9',
-                        display: 'flex',
+                        display: activeTab === 'preview' ? 'flex' : 'none',
                         justifyContent: 'center',
-                        padding: '40px',
-                        transition: 'var(--transition-smooth)'
+                        padding: 'min(40px, 5%)'
                     }}
                 >
                     <Preview />
                 </section>
             </main>
 
-            <style>{`
-                @media (max-width: 1024px) {
-                    .workspace-pane {
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        width: 100% !important;
-                        min-width: 100% !important;
-                        visibility: hidden;
-                        transform: translateX(100%);
-                    }
-                    
-                    .workspace-pane.active {
-                        visibility: visible;
-                        transform: translateX(0);
-                    }
-                }
-            `}</style>
         </div>
     );
 };

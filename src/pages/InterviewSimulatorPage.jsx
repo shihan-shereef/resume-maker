@@ -35,15 +35,23 @@ const InterviewSimulatorPage = () => {
     };
 
     return (
-        <div style={{ padding: '40px', maxWidth: '1400px', margin: '0 auto', display: 'flex', flexDirection: 'column', minHeight: '100vh', gap: '32px' }}>
+        <div style={{ 
+            padding: 'min(40px, 5%)', 
+            maxWidth: '1400px', 
+            margin: '0 auto', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            minHeight: '100vh', 
+            gap: 'clamp(20px, 5vw, 32px)' 
+        }}>
             <header>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--primary)', fontWeight: 700, fontSize: '0.9rem', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.1em' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--primary)', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', marginBottom: '12px', letterSpacing: '0.1em' }}>
                     <Video size={16} /> Virtual Interview Environment
                 </div>
-                <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
+                <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em', color: 'var(--text-primary)', lineHeight: 1.1 }}>
                     Takshila <span className="gradient-text">Interview Simulator</span>
                 </h1>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '1.1rem' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 4vw, 1.1rem)' }}>
                     Professional AI-driven mock interviews with behavioral analysis, coding tests, and direct feedback.
                 </p>
             </header>
