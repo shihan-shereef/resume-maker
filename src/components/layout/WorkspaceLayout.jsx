@@ -22,7 +22,7 @@ const WorkspaceLayout = ({ children }) => {
             
             <main className="main-content">
                 <Topbar onMenuClick={toggleMenu} />
-                <div className="scroll-container">
+                <div className="scroll-container" data-lenis-prevent>
                     {children}
                 </div>
             </main>

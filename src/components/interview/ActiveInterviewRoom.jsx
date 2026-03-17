@@ -41,14 +41,8 @@ const ActiveInterviewRoom = ({ config, onEnd }) => {
 
     useEffect(() => {
         // Load ML Model
-        setAiSubtitle("Connecting to career intelligence... Please wait.");
         cocoSsd.load().then(loadedModel => {
             setModel(loadedModel);
-            startRecording();
-            beginInterviewLoop();
-        }).catch(err => {
-            console.error("TensorFlow/CocoSSD failed to load:", err);
-            setAiSubtitle("Vision AI offline, continuing with audio only.");
             startRecording();
             beginInterviewLoop();
         });

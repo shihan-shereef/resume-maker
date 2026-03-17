@@ -10,7 +10,6 @@ import {
 import VanillaTilt from 'vanilla-tilt';
 import TextScramble from '../utils/TextScramble';
 import CanvasParticles from '../components/effects/CanvasParticles';
-import Logo from '../components/common/Logo';
 
 const LandingPage = () => {
     const navigate = useNavigate();
@@ -183,8 +182,11 @@ const LandingPage = () => {
                 transition: 'all 0.3s ease',
                 borderBottom: scrolled ? '1px solid #f1f5f9' : 'none'
             }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Logo size="1.8rem" withSound={true} onClick={() => navigate('/')} />
+                <div 
+                    onClick={() => navigate('/')} 
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
+                >
+                    <img src="/logo.png" alt="Takshila Logo" style={{ height: '32px', width: 'auto' }} />
                 </div>
                 <div style={{ display: 'flex', gap: '32px', alignItems: 'center', zIndex: 10 }}>
                     <span onClick={() => navigate('/login')} className="hover-underline" style={{ fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>Login</span>
@@ -394,7 +396,7 @@ const LandingPage = () => {
                 <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px' }}>
                     <div style={{ flex: '1', minWidth: '250px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                            <Logo size="1.4rem" withSound={true} onClick={() => navigate('/')} />
+                            <img src="/logo.png" alt="Takshila Logo" style={{ height: '24px', width: 'auto' }} />
                         </div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '24px' }}>
                             The world's most comprehensive career operating system. Built with modern professionals in mind.

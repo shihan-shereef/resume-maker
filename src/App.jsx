@@ -22,7 +22,6 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
-import ResumeEditorPage from './pages/ResumeEditorPage';
 import WorkspaceLayout from './components/layout/WorkspaceLayout';
 // Placeholder components for modules
 const Placeholder = ({ title }) => (
@@ -52,11 +51,11 @@ const AnimatedRoutes = ({ session, Placeholder }) => {
                     {/* Public Routes */}
                     <Route path="/" element={<LandingPage session={session} />} />
                     <Route path="/login" element={session ? <Navigate to="/dashboard" /> : <Login />} />
+                    <Route path="/signup" element={session ? <Navigate to="/dashboard" /> : <Login />} />
                     
                     {/* Protected Workspace Routes */}
                     <Route path="/dashboard" element={session?.user ? <WorkspaceLayout><Dashboard /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     <Route path="/resume" element={session?.user ? <WorkspaceLayout><ResumeMaker /></WorkspaceLayout> : <Navigate to="/login" replace />} />
-                    <Route path="/editor/:templateId" element={session?.user ? <ResumeEditorPage /> : <Navigate to="/login" replace />} />
                     <Route path="/ats-checker" element={session?.user ? <WorkspaceLayout><AtsCheckerPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     
                     <Route path="/cover-letter" element={session?.user ? <WorkspaceLayout><CoverLetterPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />

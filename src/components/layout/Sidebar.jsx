@@ -1,7 +1,6 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Logo from '../common/Logo';
 import { 
     LayoutDashboard, 
     FileText, 
@@ -24,7 +23,6 @@ import {
 } from 'lucide-react';
 
 const Sidebar = ({ isOpen, onClose }) => {
-    const navigate = useNavigate();
     const mainModules = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
         { id: 'resume', icon: FileText, label: 'AI Resume Maker', path: '/resume' },
@@ -53,12 +51,14 @@ const Sidebar = ({ isOpen, onClose }) => {
             <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div 
                     onClick={() => {
-                        navigate('/');
+                        const audio = new Audio('/splash.wav');
+                        audio.play().catch(e => console.error("Sound play failed", e));
                         onClose();
-                    }}
-                    style={{ textDecoration: 'none' }}
+                        window.location.href = '/';
+                    }} 
+                    style={{ cursor: 'pointer' }}
                 >
-                    <Logo size="1.8rem" />
+                    <img src="/logo.png" alt="Takshila Logo" style={{ height: '32px', width: 'auto' }} />
                 </div>
 
                 <button 
@@ -70,7 +70,10 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </button>
             </div>
 
-            <div style={{ flex: 1, overflowY: 'auto', padding: '0 16px' }}>
+            <div 
+                style={{ flex: 1, overflowY: 'auto', padding: '0 16px' }}
+                data-lenis-prevent
+            >
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '32px' }}>
                     <div style={{ color: 'var(--text-tertiary)', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', padding: '0 12px 12px' }}>
                         Career Suite
