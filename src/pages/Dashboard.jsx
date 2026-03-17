@@ -96,8 +96,6 @@ const Dashboard = () => {
                                 cursor: 'pointer',
                                 transition: 'all 0.2s'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'}
-                            onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
                             >
                                 <div style={{ 
                                     width: '12px', 

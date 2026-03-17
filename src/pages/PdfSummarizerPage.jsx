@@ -6,7 +6,8 @@ import { generateResumeContent } from '../lib/openrouter';
 
 import LoadingMascot from '../components/common/LoadingMascot';
 
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+// Set worker source for pdfjs - Using unpkg for better reliability
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const PdfSummarizerPage = () => {
     const [activeTab, setActiveTab] = useState('summarizer');
@@ -22,6 +23,7 @@ const PdfSummarizerPage = () => {
 
     const extractText = async (file) => {
             try {
+                const fileType = file.name.split('.').pop().toLowerCase();
                 if (fileType === 'pdf') {
                     const arrayBuffer = await file.arrayBuffer();
                     const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;

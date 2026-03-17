@@ -1,9 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Plus, Search, Filter, Calendar, MapPin, DollarSign, Clock, MoreVertical, Layout, List, CheckCircle2 } from 'lucide-react';
+import { Briefcase, Plus, Search, Filter, Calendar, MapPin, DollarSign, Clock, MoreVertical, Layout, List, CheckCircle2, ExternalLink, Trash2 } from 'lucide-react';
 
 const JobTrackerPage = () => {
     const [view, setView] = useState('board'); // 'board' or 'list'
     const [jobs, setJobs] = useState([]);
+
+    const addJob = (job) => setJobs([job, ...jobs]);
+    const deleteJob = (id) => {
+        if (window.confirm("Are you sure you want to withdraw or delete this job application?")) {
+            setJobs(jobs.filter(j => j.id !== id));
+            localStorage.setItem('tracked_jobs', JSON.stringify(jobs.filter(j => j.id !== id)));
+        }
+    };
 
     useEffect(() => {
         const storedJobs = JSON.parse(localStorage.getItem('tracked_jobs') || '[]');

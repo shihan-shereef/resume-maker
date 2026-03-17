@@ -2,7 +2,10 @@
 import { z } from 'zod';
 import DOMPurify from 'isomorphic-dompurify';
 
-// Simple in-memory rate limiter
+// Simple in-memory rate limiter.
+// WARNING: This is not a robust solution for a serverless environment, as each
+// invocation may run on a different instance. For a production environment,
+// consider using a centralized data store like Redis or a database.
 const rateLimitMap = new Map();
 const LIMIT = 30; // 30 requests per minute for speech
 const WINDOW = 60 * 1000;

@@ -30,7 +30,7 @@ const Login = () => {
                 setIsLogin(true);
                 setLoading(false);
             } else {
-                navigate('/portfolio');
+                navigate('/dashboard');
             }
         }
     };
@@ -39,7 +39,7 @@ const Login = () => {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: window.location.origin + '/portfolio'
+                redirectTo: window.location.origin + '/dashboard'
             }
         });
         if (error) setError(error.message);
@@ -49,7 +49,7 @@ const Login = () => {
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
-                redirectTo: window.location.origin + '/portfolio'
+                redirectTo: window.location.origin + '/dashboard'
             }
         });
         if (error) setError(error.message);

@@ -2,7 +2,10 @@
 import { z } from 'zod';
 import DOMPurify from 'isomorphic-dompurify';
 
-// Simple in-memory rate limiter
+// Simple in-memory rate limiter.
+// WARNING: This is not a robust solution for a serverless environment, as each
+// invocation may run on a different instance. For a production environment,
+// consider using a centralized data store like Redis or a database.
 const rateLimitMap = new Map();
 const LIMIT = 5; // 5 requests per minute for AI
 const WINDOW = 60 * 1000;
@@ -24,7 +27,11 @@ const rateLimit = (ip) => {
 const AiSchema = z.object({
     prompt: z.string().min(1).max(5000),
     systemPrompt: z.string().max(2000).optional(),
-    model: z.string().optional()
+    model: z.enum([
+        "openai/gpt-3.5-turbo",
+        "openai/gpt-4",
+        "anthropic/claude-2"
+    ]).optional()
 });
 
 export default async function handler(req, res) {
@@ -58,6 +65,8 @@ export default async function handler(req, res) {
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json",
+                // TODO: The 'HTTP-Referer' and 'X-Title' headers are hardcoded.
+                // You may want to make these configurable or remove them if they are not necessary.
                 "HTTP-Referer": "https://takshila.ai",
                 "X-Title": "Takshila AI"
             },

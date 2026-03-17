@@ -5,9 +5,13 @@ import '@tensorflow/tfjs';
 import { Mic, MicOff, AlertTriangle, Clock, Activity, StopCircle, Code2, Settings as SettingsIcon, Volume2 } from 'lucide-react';
 import { generateResumeContent } from '../../lib/openrouter';
 import { textToSpeech, VOICES } from '../../lib/elevenlabs';
+import { useResume } from '../../context/ResumeContext';
 import CodingEnvironment from './CodingEnvironment';
 
 const ActiveInterviewRoom = ({ config, onEnd }) => {
+    const { resumeData } = useResume();
+    const userName = resumeData.personalInfo.firstName || "Candidate";
+    
     // Media & Vision Refs
     const webcamRef = useRef(null);
     const mediaRecorderRef = useRef(null);
@@ -199,19 +203,20 @@ const ActiveInterviewRoom = ({ config, onEnd }) => {
     const beginInterviewLoop = async () => {
         setIsThinking(true);
         const isResumeProvided = config.resumeText && !config.resumeText.includes("No resume provided");
+        const systemPrompt = `You are Taylor, an elite Technical Interviewer with 15+ years of experience at top silicon valley firms.
+    
+        CANDIDATE NAME: ${userName || 'Candidate'}
+        INTERVIEW TIME: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        RESUME CONTEXT: ${config.resumeText || 'No resume provided'}
         
-        const systemPrompt = `You are a professional ${config.type} Interviewer at a top-tier tech company. 
-        Forget you are an AI. Speak as a human interviewer would.
-        Start the interview by introducing yourself naturally and asking the first question.
-        ${isResumeProvided 
-            ? `CONTEXT: Use the following resume data to tailor your questions: ${config.resumeText.substring(0, 3000)}` 
-            : `CONTEXT: No resume was provided. Ask a general high-quality introductory question based on a ${config.type} interview path.`}
-        
-        RULES:
-        - Use natural conversational fillers (e.g., "Right", "Got it", "Interesting").
-        - Keep your response UNDER 3 sentences.
-        - NEVER use asterisks or actions (e.g., *nods*).
-        - DO NOT say "As an AI...". Simply speak.`;
+        CORE DIRECTIVES:
+        1. **Personalization**: ALWAYS address the candidate as ${userName || 'Candidate'}. At the start, acknowledge the current time (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}).
+        2. **Tone**: Be professional yet human. Use natural fillers like "I see," "That's interesting," or "Makes sense".
+        3. **Flow**: Introduce yourself as Taylor. Ask for a brief introduction if not provided. Then ask 3-5 technical/behavioral questions.
+        4. **Rules**:
+           - Keep responses under 3 sentences.
+           - NEVER say "As an AI".
+           - No asterisks or actions.`;
         
         try {
             const firstQuestion = await generateResumeContent(systemPrompt, "You are a realistic AI interviewer.", "openai/gpt-4o-mini");
@@ -231,25 +236,29 @@ const ActiveInterviewRoom = ({ config, onEnd }) => {
 
         window.speechSynthesis.cancel();
         
-        // Try ElevenLabs first if key exists
-        const ttsUrl = await textToSpeech(text, VOICES.INTERVIEWER);
-        
-        if (ttsUrl) {
-            const audio = new Audio(ttsUrl);
-            audio.onended = () => {
-                setTimeout(() => {
-                    setUserSubtitle("Listening...");
-                    setIsListening(true);
-                    if(recognitionRef.current) {
-                        try { recognitionRef.current.start(); } catch(e){}
-                    }
-                }, 500);
-            };
-            audio.play().catch(e => {
-                console.warn("ElevenLabs Playback failed, falling back to system voice.");
-                fallbackSpeak(text);
-            });
-            return;
+        try {
+            // Try ElevenLabs first if key exists
+            const ttsUrl = await textToSpeech(text, VOICES.INTERVIEWER);
+            
+            if (ttsUrl) {
+                const audio = new Audio(ttsUrl);
+                audio.onended = () => {
+                    setTimeout(() => {
+                        setUserSubtitle("Listening...");
+                        setIsListening(true);
+                        if(recognitionRef.current) {
+                            try { recognitionRef.current.start(); } catch(e){}
+                        }
+                    }, 500);
+                };
+                audio.play().catch(e => {
+                    console.warn("ElevenLabs Playback failed, falling back to system voice.");
+                    fallbackSpeak(text);
+                });
+                return;
+            }
+        } catch (err) {
+            console.error("TTS Error:", err);
         }
 
         fallbackSpeak(text);

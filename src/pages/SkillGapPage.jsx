@@ -17,8 +17,8 @@ const SkillGapPage = () => {
         try {
             const prompt = `Perform a skill gap analysis for the following:
             Target Role: ${targetRole}
-            Current Skills: ${resumeData.skills.map(s => s.name).join(', ')}
-            Current Title: ${resumeData.personalInfo.title}
+            Current Skills: ${resumeData.skills.length > 0 ? resumeData.skills.map(s => s.name).join(', ') : 'Not provided'}
+            Current Title: ${resumeData.personalInfo.jobTitle || 'Not provided'}
             
             Identify:
             1. Core Skills Match (%)
@@ -28,16 +28,19 @@ const SkillGapPage = () => {
             
             Response format:
             Match: [number]%
-            Missing Technical: [list]
-            Missing Soft: [list]
-            Path: [list]`;
+            Missing Technical:
+            - [skill]
+            Missing Soft:
+            - [skill]
+            Path:
+            - [step]`;
 
-            const response = await generateResumeContent(prompt, "You are a specialized career growth coach.");
+            const response = await generateResumeContent(prompt, "You are a specialized career growth coach.", "openai/gpt-4o-mini");
             
             const match = response.match(/Match:\s*(\d+)%/i)?.[1] || '0';
-            const tech = response.match(/Missing Technical:\s*([\s\S]*?)(?=Missing Soft:|$)/i)?.[1].trim().split('\n').filter(l => l.trim()) || [];
-            const soft = response.match(/Missing Soft:\s*([\s\S]*?)(?=Path:|$)/i)?.[1].trim().split('\n').filter(l => l.trim()) || [];
-            const path = response.match(/Path:\s*([\s\S]*)/i)?.[1].trim().split('\n').filter(l => l.trim()) || [];
+            const tech = response.match(/Missing Technical:\s*([\s\S]*?)(?=Missing Soft:|$)/i)?.[1].split('\n').map(l => l.trim().replace(/^[*-]\s*/, '')).filter(Boolean) || [];
+            const soft = response.match(/Missing Soft:\s*([\s\S]*?)(?=Path:|$)/i)?.[1].split('\n').map(l => l.trim().replace(/^[*-]\s*/, '')).filter(Boolean) || [];
+            const path = response.match(/Path:\s*([\s\S]*)/i)?.[1].split('\n').map(l => l.trim().replace(/^[*\d-]\s*/, '')).filter(Boolean) || [];
 
             setAnalysis({ match, tech, soft, path });
         } catch (error) {

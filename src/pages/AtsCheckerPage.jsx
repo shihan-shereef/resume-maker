@@ -5,8 +5,8 @@ import mammoth from 'mammoth';
 import { generateResumeContent } from '../lib/openrouter';
 import LoadingMascot from '../components/common/LoadingMascot';
 
-// Set worker source for pdfjs
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+// Set worker source for pdfjs - Using unpkg for better reliability
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const AtsCheckerPage = () => {
     const [file, setFile] = useState(null);

@@ -30,8 +30,16 @@ const RoadmapGenerator = () => {
                 "tools": ["Tool 1", "Tool 2"]
             }`;
 
-            const response = await generateResumeContent(prompt, "You are a Senior Career Coach and Technical Architect.");
-            const data = JSON.parse(response.replace(/```json|```/g, '').trim());
+            const response = await generateResumeContent(prompt, "You are a Senior Career Coach and Technical Architect.", "openai/gpt-4o-mini");
+            
+            let jsonStr = response;
+            if (response.includes('```json')) {
+                jsonStr = response.split('```json')[1].split('```')[0].trim();
+            } else if (response.includes('```')) {
+                jsonStr = response.split('```')[1].split('```')[0].trim();
+            }
+            
+            const data = JSON.parse(jsonStr);
             setRoadmap(data);
         } catch (error) {
             console.error(error);

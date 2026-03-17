@@ -104,43 +104,48 @@ const YoutubeSummarizerAdvanced = () => {
             SUMMARY LENGTH: ${summaryLength}
             
             TASK: 
-            Analyze the video content thoroughly. You must provide a high-fidelity, EXACT summary of the video.
+            Analyze the video content thoroughly. You must provide a high-fidelity, EXACT, and EXTREMELY DETAILED summary of the video.
+            I need you to extract the core narrative, key arguments, and specific technical or informational details mentioned.
+            
             Output the following strict sections in Markdown format, precisely as requested, in ${selectedLanguage}.
 
             # QUICK_SUMMARY
-            [Provide a 2-3 sentence explanation of the whole video here.]
+            [Provide a 3-4 sentence high-level executive summary.]
 
             # STANDARD_SUMMARY
-            [Provide a clear paragraph explaining the video content in detail. Adjust length based on the ${summaryLength} setting.]
+            [Provide a comprehensive 2-3 paragraph overview of the video's flow and main points.]
 
             # DETAILED_BREAKDOWN
-            [Provide a deep, structured explanation covering the full video content. This should be the longest section.]
+            [Provide a very deep, section-by-section analysis. If it's a tutorial, list the steps. If it's a talk, list the arguments. This must be at least 500 words if possible.]
 
             # KEY_POINTS
-            - [Key insight 1]
-            - [Key insight 2]
-            - [Add more bullet points. Maximum clarity. No repeated ideas.]
+            - [Major Insight 1: Detailed explanation]
+            - [Major Insight 2: Detailed explanation]
+            - [Major Insight 3: Detailed explanation]
+            - [Major Insight 4: Detailed explanation]
+            - [Major Insight 5: Detailed explanation]
 
             # TIMESTAMPS
-            [Provide chapters in this exact format:]
-            **0:00** - Introduction: [Explanation of what happens]
-            **[MM:SS]** - [Topic]: [Explanation]
+            [Provide chapters in this exact format, estimate them if exact ones aren't available but make them realistic:]
+            **0:00** - Introduction: Overview of the topic.
+            **[MM:SS]** - [Topic]: Specific detail.
             
             # QUOTES
             > "[Impactful quote from the video]"
             > "[Another impactful quote]"
 
             # KEYWORDS
-            [Keyword 1], [Keyword 2], [Keyword 3], [Keyword 4]
+            [Keyword 1], [Keyword 2], [Keyword 3], [Keyword 4], [Keyword 5]
 
             # ACTIONABLE_TAKEAWAYS
-            - [Practical advice or instruction 1]
+            - [Practical advice 1]
             - [Practical advice 2]
+            - [Practical advice 3]
 
             CRITICAL VERIFICATION:
-            - If the video ID is 9G69n11o3z8, this is "Cleopatra's Lost Tomb" by National Geographic. 
             - DO NOT INCLUDE ANY PREAMBLE OR CONVERSATIONAL TEXT.
-            - Only output the headings and the content under them. Ensure the exact headings like "# QUICK_SUMMARY" are used so my parser can read it.`;
+            - Only output the headings and the content under them.
+            - Ensure the exact headings like "# QUICK_SUMMARY" are used for parsing.`;
 
             // Using gemini-2.0-flash-001 for web search and multi-modal intelligence via OpenRouter
             const response = await generateResumeContent(prompt, `You are Takshila AI Advanced Video Engine. Output EVERYTHING accurately in ${selectedLanguage}. STRICTLY NO PREAMBLES.`, "google/gemini-2.0-flash-001");

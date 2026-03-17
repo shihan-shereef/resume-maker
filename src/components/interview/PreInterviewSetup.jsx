@@ -1,9 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Camera, Mic, Settings, UserCheck, Code, Briefcase, ChevronRight, FileText, CheckCircle2, AlertCircle, Cpu } from 'lucide-react';
-import * as pdfjsLib from 'pdfjs-dist/build/pdf.mjs';
+import * as pdfjsLib from 'pdfjs-dist';
 import LoadingMascot from '../common/LoadingMascot';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.mjs`;
+// Set worker source for pdfjs - Using unpkg for better reliability
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 const PreInterviewSetup = ({ onStart }) => {
     const [fileStats, setFileStats] = useState(null);

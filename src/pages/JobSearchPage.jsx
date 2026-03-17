@@ -4,64 +4,75 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Briefcase, MapPin, ExternalLink, Filter, Star, Loader2 } from 'lucide-react';
 import { useResume } from '../context/ResumeContext';
 
+// Placeholder for LoadingMascot if it's not defined elsewhere.
+// If it's a component, it should be imported. For now, I'll make it a simple div.
+const LoadingMascot = ({ message }) => (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+        <Loader2 className="animate-spin" size={48} />
+        <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)' }}>{message}</p>
+    </div>
+);
+
 const JobSearchPage = () => {
     const { resumeData } = useResume();
-    const [query, setQuery] = useState(resumeData.personalInfo.title || '');
+    const [searchTerm, setSearchTerm] = useState(resumeData.personalInfo.title || '');
     const [location, setLocation] = useState('');
-    const [jobs, setJobs] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [appliedJobs, setAppliedJobs] = useState({});
-    const [selectedJob, setSelectedJob] = useState(null);
-    const navigate = useNavigate();
+    const [role, setRole] = useState('All');
+    const [experience, setExperience] = useState('All');
+    const [salary, setSalary] = useState('All');
+    const [remoteOnly, setRemoteOnly] = useState(false);
+
+    const roles = ['All', 'Frontend', 'Backend', 'Fullstack', 'DevOps', 'UI/UX', 'Product Manager'];
+    const expLevels = ['All', 'Entry Level', 'Mid-Level', 'Senior', 'Lead', 'Executive'];
+    const salaryRanges = ['All', '$50k - $80k', '$80k - $120k', '$120k - $160k', '$160k+'];
+
+    useEffect(() => {
+        if (searchTerm) {
+            handleSearch();
+        }
+    }, []); 
 
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
         setLoading(true);
+        setJobs([]);
         try {
-            const searchQuery = `${query} ${location}`.trim();
-            const prompt = `Generate a realistic list of 6 job openings for the query: "${searchQuery}".
-            Return ONLY a raw JSON array of objects. No markdown, no preambles.
-            Each object must strictly match this structure:
-            {
-                "id": "unique-random-string",
-                "title": "Job Title",
-                "company": "Realistic Tech Company Name",
-                "location": "City, State or Remote",
-                "type": "Full-time, Part-time, or Internship",
-                "isRemote": true or false,
-                "score": random number between 85 and 99,
-                "salary": "Realistic Salary Range (e.g. $80k - $120k)",
-                "link": "https://google.com/search?q=careers",
-                "about": "A 2-sentence description of the role.",
-                "requirements": ["Req 1", "Req 2", "Req 3"],
-                "preferences": ["Pref 1", "Pref 2"]
-            }`;
+            const prompt = `Generate a list of 100+ highly realistic job listings for a search query: "${searchTerm}" ${location ? `in ${location}` : ''}.
+            Focus on ${role === 'All' ? 'tech' : role} roles.
+            Filters: Experience: ${experience}, Salary: ${salary}, Remote Only: ${remoteOnly}.
+            
+            Return ONLY a JSON array of objects:
+            [
+                { "id": "unique-random-string", "title": "Job Title", "company": "Company Name", "location": "City, Country", "salary": "$120k - $160k", "type": "Full-time", "logo": "https://img.logo.dev/company.com?token=...", "match": 85, "posted": "2d ago", "about": "A 2-sentence description of the role.", "requirements": ["Req 1", "Req 2", "Req 3"], "preferences": ["Pref 1", "Pref 2"], "isRemote": true or false },
+                ...
+            ]
+            Provide at least 30 diverse results across different companies and locations. Generate realistic logos using img.logo.dev with the company domain.`;
 
-            const res = await generateResumeContent(prompt, "You are an expert Job API. Return only valid JSON array.", "google/gemini-2.0-flash-001");
-            let cleanedRes = res;
-            if (res.includes('```json')) {
-                cleanedRes = res.split('```json')[1].split('```')[0].trim();
-            } else if (res.includes('```')) {
-                cleanedRes = res.split('```')[1].split('```')[0].trim();
+            const response = await generateResumeContent(prompt, "You are a specialized Job Market Intelligence AI.", "google/gemini-2.0-flash-001");
+            
+            let jsonStr = response;
+            if (response.includes('```json')) {
+                jsonStr = response.split('```json')[1].split('```')[0].trim();
+            } else if (response.includes('```')) {
+                jsonStr = response.split('```')[1].split('```')[0].trim();
             }
-
-            const results = JSON.parse(cleanedRes);
+            
+            const results = JSON.parse(jsonStr);
             setJobs(results);
+            setFilteredJobs(results);
         } catch (error) {
             console.error("Job search failed:", error);
-            // Fallback mock string if AI fails
-            // Fallback mock string if AI fails
             setJobs([
-                { id: 'fb1', title: query || 'Software Engineering Intern', company: 'Google', location: location || 'Remote', type: 'Internship', isRemote: true, score: 98, salary: '$8,000/mo', link: 'https://careers.google.com', about: 'Join our core infrastructure team to build the future of scalable web services.', requirements: ['Proficiency in Python/Java', 'Understanding of Data Structures'], preferences: ['Previous tech internship', 'Open source contributions'] },
-                { id: 'fb2', title: query || 'Product Design Intern', company: 'Meta', location: location || 'Menlo Park, CA', type: 'Internship', isRemote: false, score: 94, salary: '$7,500/mo', link: 'https://metacareers.com', about: 'Design intuitive and seamless experiences for billions of global users.', requirements: ['Figma expertise', 'Portfolio demonstrating UX process'], preferences: ['Prototyping animation skills'] }
+                { id: 'fb1', title: searchTerm || 'Software Engineering Intern', company: 'Google', location: location || 'Remote', type: 'Internship', isRemote: true, match: 98, salary: '$8,000/mo', link: 'https://careers.google.com', about: 'Join our core infrastructure team to build the future of scalable web services.', requirements: ['Proficiency in Python/Java', 'Understanding of Data Structures'], preferences: ['Previous tech internship', 'Open source contributions'], logo: 'https://img.logo.dev/google.com?token=random' },
+                { id: 'fb2', title: searchTerm || 'Product Design Intern', company: 'Meta', location: location || 'Menlo Park, CA', type: 'Internship', isRemote: false, match: 94, salary: '$7,500/mo', link: 'https://metacareers.com', about: 'Design intuitive and seamless experiences for billions of global users.', requirements: ['Figma expertise', 'Portfolio demonstrating UX process'], preferences: ['Prototyping animation skills'], logo: 'https://img.logo.dev/meta.com?token=random' }
             ]);
+            setFilteredJobs(jobs);
         } finally {
             setLoading(false);
         }
     };
 
     const handleApply = (job) => {
-        // Track the application
         const existingTracker = JSON.parse(localStorage.getItem('tracked_jobs') || '[]');
         const newTrackedJob = {
             id: Date.now(),
@@ -74,13 +85,8 @@ const JobSearchPage = () => {
         };
         
         localStorage.setItem('tracked_jobs', JSON.stringify([...existingTracker, newTrackedJob]));
-        
-        // Update local UI
         setAppliedJobs(prev => ({...prev, [job.id]: true}));
-        
-        // Open the "application link"
         window.open(job.link || `https://www.google.com/search?q=${job.company}+careers`, '_blank');
-        
         alert(`Successfully applied to ${job.company}! It has been added to your Job Tracker.`);
     };
 
@@ -105,50 +111,80 @@ const JobSearchPage = () => {
             </header>
 
             <div className="glass-card">
-                <form onSubmit={handleSearch} style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 2, minWidth: '250px', position: 'relative' }}>
-                        <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
-                        <input 
-                            type="text" 
-                            placeholder="Job title, keywords, or company" 
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            className="form-input"
-                            style={{ paddingLeft: '48px' }}
-                        />
+                <form onSubmit={handleSearch} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 2fr) minmax(150px, 1fr) auto', gap: '16px' }}>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                            <div className="input-wrapper">
+                                <Search size={18} className="input-icon" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Job title, keywords, or company" 
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="form-input"
+                                />
+                            </div>
+                        </div>
+                        <div className="form-group" style={{ marginBottom: 0 }}>
+                            <div className="input-wrapper">
+                                <MapPin size={18} className="input-icon" />
+                                <input 
+                                    type="text" 
+                                    placeholder="Location (Remote, NY, Bangalore...)" 
+                                    value={location}
+                                    onChange={(e) => setLocation(e.target.value)}
+                                    className="form-input"
+                                />
+                            </div>
+                        </div>
+                        <button type="submit" className="btn-primary" disabled={loading} style={{ height: '52px', padding: '0 32px' }}>
+                            {loading ? <Loader2 className="animate-spin" size={20} /> : 'Find Jobs'}
+                        </button>
                     </div>
-                    <div style={{ flex: 1, minWidth: '150px', position: 'relative' }}>
-                        <MapPin size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
-                        <input 
-                            type="text" 
-                            placeholder="Location" 
-                            value={location}
-                            onChange={(e) => setLocation(e.target.value)}
-                            className="form-input"
-                            style={{ paddingLeft: '48px' }}
-                        />
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', alignItems: 'center', background: '#f8fafc', padding: '20px', borderRadius: '16px' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Department</label>
+                            <select value={role} onChange={(e) => setRole(e.target.value)} className="form-input" style={{ width: '160px', height: '40px', borderRadius: '8px', fontSize: '0.85rem' }}>
+                                {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                            </select>
+                        </div>
+                        
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Experience</label>
+                            <select value={experience} onChange={(e) => setExperience(e.target.value)} className="form-input" style={{ width: '160px', height: '40px', borderRadius: '8px', fontSize: '0.85rem' }}>
+                                {expLevels.map(e => <option key={e} value={e}>{e}</option>)}
+                            </select>
+                        </div>
+
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', textTransform: 'uppercase' }}>Salary Range</label>
+                            <select value={salary} onChange={(e) => setSalary(e.target.value)} className="form-input" style={{ width: '160px', height: '40px', borderRadius: '8px', fontSize: '0.85rem' }}>
+                                {salaryRanges.map(s => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                        </div>
+
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 700, color: '#1e293b', userSelect: 'none' }}>
+                            <input 
+                                type="checkbox" 
+                                checked={remoteOnly}
+                                onChange={(e) => setRemoteOnly(e.target.checked)}
+                                style={{ width: '18px', height: '18px', accentColor: 'var(--primary)' }}
+                            />
+                            Remote Only
+                        </label>
                     </div>
-                    <button type="submit" className="btn-primary" disabled={loading} style={{ minWidth: '120px' }}>
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Search Jobs'}
-                    </button>
-                    <button type="button" className="btn-secondary" style={{ padding: '12px' }}>
-                        <Filter size={20} />
-                    </button>
                 </form>
             </div>
 
             <div className="job-search-grid">
                 {loading ? (
-                    Array(6).fill(0).map((_, i) => (
-                        <div key={i} className="glass-card" style={{ height: '200px', opacity: 0.5 }}>
-                            <div style={{ height: '20px', width: '60%', background: 'var(--glass-border)', borderRadius: '4px', marginBottom: '12px' }}></div>
-                            <div style={{ height: '16px', width: '40%', background: 'var(--glass-border)', borderRadius: '4px', marginBottom: '8px' }}></div>
-                            <div style={{ height: '32px', width: '100%', background: 'var(--glass-border)', borderRadius: '8px', marginTop: 'auto' }}></div>
-                        </div>
-                    ))
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '100px 0' }}>
+                        <LoadingMascot message="Scanning market with AI..." />
+                    </div>
                 ) : jobs.length > 0 ? (
                     jobs.map((job, i) => (
-                        <div key={i} className="glass-card" onClick={() => setSelectedJob(job)} style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', cursor: 'pointer', transition: 'transform 0.2s', ':hover': { transform: 'scale(1.02)' } }}>
+                        <div key={i} className="glass-card" onClick={() => setSelectedJob(job)} style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', cursor: 'pointer', transition: 'transform 0.2s' }}>
                             <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981', fontWeight: 700 }}>
                                 <Star size={16} fill="#10b981" />
                                 <span>{job.score}% Match</span>
