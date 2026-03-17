@@ -19,7 +19,6 @@ import {
     Settings,
     UserCircle,
     BookOpenCheck,
-    BookOpenCheck,
     X,
     ChevronLeft,
     ChevronRight
