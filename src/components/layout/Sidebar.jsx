@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from '../common/Logo';
 import { 
     LayoutDashboard, 
     FileText, 
@@ -61,9 +62,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                         onClose();
                         window.location.href = '/';
                     }} 
-                    style={{ cursor: 'pointer', display: isCollapsed ? 'none' : 'block' }}
+                    style={{ padding: isCollapsed ? '24px 0' : '24px', display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'flex-start', gap: '12px' }}
                 >
-                    <img src="/logo.png" alt="Takshila Logo" style={{ height: '32px', width: 'auto' }} />
+                    <Logo size={isCollapsed ? 28 : 32} />
                 </div>
 
                 <div style={{ display: 'flex', gap: '8px' }}>

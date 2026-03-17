@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Youtube, Search, Sparkles, Globe, MessageSquare, AlertTriangle, Headphones, Copy, Check, Play, SkipBack, SkipForward, Pause, Download, Volume2, VolumeX, Clock, Calendar, Type, List, MessageCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { generateResumeContent } from '../lib/openrouter';
+import TranscriptClient from 'youtube-transcript-api';
 import LoadingMascot from '../components/common/LoadingMascot';
 import { useReactToPrint } from 'react-to-print';
 
@@ -93,6 +94,19 @@ const YoutubeSummarizerAdvanced = () => {
             if (!videoId) throw new Error("Invalid YouTube URL. Please check the link.");
 
             const fetchedTitle = await fetchVideoMetadata(videoId);
+            
+            // Try fetching transcript for better accuracy
+            let transcriptText = "";
+            try {
+                const client = new TranscriptClient();
+                await client.ready;
+                const transcriptData = await client.getTranscript(videoId);
+                if (transcriptData && transcriptData.segments) {
+                    transcriptText = transcriptData.segments.map(s => s.text).join(' ');
+                }
+            } catch (tErr) {
+                console.warn("Transcript retrieval failed, AI will attempt inference.", tErr);
+            }
 
             // Constructing a mega-prompt for structured output
             const prompt = `Act as an expert Video Intelligence and Transcription Specialist. 
@@ -102,53 +116,42 @@ const YoutubeSummarizerAdvanced = () => {
             VIDEO TITLE: ${fetchedTitle}
             TARGET LANGUAGE: ${selectedLanguage}
             SUMMARY LENGTH: ${summaryLength}
+            TRANSCRIPT_CONTEXT: ${transcriptText ? transcriptText.substring(0, 15000) : "No direct transcript available. Use search/video knowledge."}
             
             TASK: 
-            Analyze the video content thoroughly. You must provide a high-fidelity, EXACT, and EXTREMELY DETAILED summary of the video.
-            I need you to extract the core narrative, key arguments, and specific technical or informational details mentioned.
+            Analyze the video content thoroughly. You must provide a high-fidelity, EXACT, and EXTREMELY DETAILED summary.
+            If transcript is provided, use it as the primary source of truth.
             
-            Output the following strict sections in Markdown format, precisely as requested, in ${selectedLanguage}.
+            Output strictly in Markdown format, in ${selectedLanguage}.
 
             # QUICK_SUMMARY
             [Provide a 3-4 sentence high-level executive summary.]
 
             # STANDARD_SUMMARY
-            [Provide a comprehensive 2-3 paragraph overview of the video's flow and main points.]
+            [Provide a comprehensive overview.]
 
             # DETAILED_BREAKDOWN
-            [Provide a very deep, section-by-section analysis. If it's a tutorial, list the steps. If it's a talk, list the arguments. This must be at least 500 words if possible.]
+            [Provide a deep analysis. This must be significant if transcript is available.]
 
             # KEY_POINTS
-            - [Major Insight 1: Detailed explanation]
-            - [Major Insight 2: Detailed explanation]
-            - [Major Insight 3: Detailed explanation]
-            - [Major Insight 4: Detailed explanation]
-            - [Major Insight 5: Detailed explanation]
+            - [Major Insight 1]
+            - [Major Insight 2]
+            - [Major Insight 3]
 
             # TIMESTAMPS
-            [Provide chapters in this exact format, estimate them if exact ones aren't available but make them realistic:]
-            **0:00** - Introduction: Overview of the topic.
-            **[MM:SS]** - [Topic]: Specific detail.
+            [Provide realistic chapters.]
             
             # QUOTES
-            > "[Impactful quote from the video]"
-            > "[Another impactful quote]"
+            > "[Exact or paraphrased impactful quote]"
 
             # KEYWORDS
-            [Keyword 1], [Keyword 2], [Keyword 3], [Keyword 4], [Keyword 5]
+            [Keywords list]
 
             # ACTIONABLE_TAKEAWAYS
-            - [Practical advice 1]
-            - [Practical advice 2]
-            - [Practical advice 3]
+            - [Practical advice]`;
 
-            CRITICAL VERIFICATION:
-            - DO NOT INCLUDE ANY PREAMBLE OR CONVERSATIONAL TEXT.
-            - Only output the headings and the content under them.
-            - Ensure the exact headings like "# QUICK_SUMMARY" are used for parsing.`;
-
-            // Using gemini-2.0-flash-001 for web search and multi-modal intelligence via OpenRouter
-            const response = await generateResumeContent(prompt, `You are Takshila AI Advanced Video Engine. Output EVERYTHING accurately in ${selectedLanguage}. STRICTLY NO PREAMBLES.`, "google/gemini-2.0-flash-001");
+            // Using gemini-2.0-flash-001
+            const response = await generateResumeContent(prompt, `You are Takshila AI Video Engine. Output EVERYTHING accurately in ${selectedLanguage}. STRICTLY NO PREAMBLES.`, "google/gemini-2.0-flash-001");
             
             if (!response) throw new Error("Analysis failed. The AI could not retrieve video intelligence.");
 

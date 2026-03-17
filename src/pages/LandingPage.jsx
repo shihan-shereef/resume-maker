@@ -9,6 +9,8 @@ import {
 
 import VanillaTilt from 'vanilla-tilt';
 import TextScramble from '../utils/TextScramble';
+import SplashScreen from '../components/common/SplashScreen';
+import Logo from '../components/common/Logo';
 import CanvasParticles from '../components/effects/CanvasParticles';
 
 const LandingPage = () => {
@@ -186,7 +188,7 @@ const LandingPage = () => {
                     onClick={() => navigate('/')} 
                     style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
                 >
-                    <img src="/logo.png" alt="Takshila Logo" style={{ height: '32px', width: 'auto' }} />
+                    <Logo size={32} />
                 </div>
                 <div style={{ display: 'flex', gap: '32px', alignItems: 'center', zIndex: 10 }}>
                     <span onClick={() => navigate('/login')} className="hover-underline" style={{ fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>Login</span>
@@ -396,7 +398,7 @@ const LandingPage = () => {
                 <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px' }}>
                     <div style={{ flex: '1', minWidth: '250px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                            <img src="/logo.png" alt="Takshila Logo" style={{ height: '24px', width: 'auto' }} />
+                            <Logo size={32} />
                         </div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '24px' }}>
                             The world's most comprehensive career operating system. Built with modern professionals in mind.

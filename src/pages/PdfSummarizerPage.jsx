@@ -57,21 +57,29 @@ const PdfSummarizerPage = () => {
         setConvertStatus(null);
     };
 
-    const handleConvert = () => {
+    const handleConvert = async () => {
         if (!file) return;
         setConvertStatus('converting');
-        // Simulate heavy conversion process via AI/Cloud
-        setTimeout(() => {
+        setError(null);
+        
+        try {
+            const text = await extractText(file);
             setConvertStatus('done');
-        }, 3000);
+            // Store extracted text for download
+            setSummary({ ...summary, convertedText: text }); 
+        } catch (err) {
+            console.error("Conversion failed:", err);
+            setError("Conversion failed. Please try a different format.");
+            setConvertStatus(null);
+        }
     };
 
     const downloadConvertedFile = () => {
-        // Mock download trigger
+        if (!file || !summary?.convertedText) return;
         const element = document.createElement('a');
-        const fileBlob = new Blob(['Mock converted content bytes'], { type: 'text/plain' });
+        const fileBlob = new Blob([summary.convertedText], { type: 'text/plain' });
         element.href = URL.createObjectURL(fileBlob);
-        element.download = `converted_${file.name.split('.')[0]}.${convertType.split('-to-')[1]}`;
+        element.download = `converted_${file.name.split('.')[0]}.txt`;
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
