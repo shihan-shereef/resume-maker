@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
     FileText, 
@@ -12,12 +12,15 @@ import {
     ArrowRight,
     Search,
     MessageSquare,
-    StickyNote
+    StickyNote,
+    Menu,
+    X
 } from 'lucide-react';
 import { HeroBackground } from '../components/hero-background';
 
 const LandingPage = ({ session }) => {
     const navigate = useNavigate();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         const observer = new IntersectionObserver((entries) => {
@@ -54,7 +57,7 @@ const LandingPage = ({ session }) => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                padding: '0 8%',
+                padding: '0 min(8%, 32px)',
                 borderBottom: '1px solid #f1f5f9',
                 zIndex: 1000
             }}>
@@ -69,18 +72,51 @@ const LandingPage = ({ session }) => {
                     Takshila<span style={{ color: 'var(--primary)' }}>.</span>
                 </div>
                 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
+                {/* Desktop Menu */}
+                <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer' }}>
                         EN <span style={{ fontSize: '0.7rem' }}>▼</span>
                     </div>
                     <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', fontWeight: 600, cursor: 'pointer' }}>Log in</button>
                     <button onClick={() => navigate('/login')} className="btn-primary" style={{ padding: '10px 24px', fontSize: '0.9rem' }}>Sign up</button>
                 </div>
+
+                {/* Mobile Toggle */}
+                <button 
+                    className="mobile-only"
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer' }}
+                >
+                    {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+                </button>
+
+                {/* Mobile Menu Overlay */}
+                {isMenuOpen && (
+                    <div style={{
+                        position: 'fixed',
+                        top: 'var(--topbar-height)',
+                        left: 0, right: 0,
+                        background: 'white',
+                        padding: '30px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '24px',
+                        borderBottom: '1px solid #f1f5f9',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+                        zIndex: 999
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '1rem', fontWeight: 600, paddingBottom: '16px', borderBottom: '1px solid #f8fafc' }}>
+                            Language: EN
+                        </div>
+                        <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', fontWeight: 600, textAlign: 'left', fontSize: '1.1rem' }}>Log in</button>
+                        <button onClick={() => navigate('/login')} className="btn-primary" style={{ width: '100%', height: '56px' }}>Sign up for free</button>
+                    </div>
+                )}
             </nav>
 
             {/* Hero Section */}
             <section style={{
-                padding: '200px 8% 120px',
+                padding: 'min(200px, 20vh) 5% 80px',
                 textAlign: 'center',
                 position: 'relative',
                 overflow: 'hidden',
@@ -92,23 +128,23 @@ const LandingPage = ({ session }) => {
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '10px',
-                        padding: '10px 20px',
+                        padding: '8px 16px',
                         background: 'white',
                         borderRadius: '100px',
-                        fontSize: '0.85rem',
+                        fontSize: 'clamp(0.75rem, 2vw, 0.85rem)',
                         fontWeight: 600,
                         boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
-                        marginBottom: '40px'
+                        marginBottom: '32px'
                     }}>
-                        <Sparkles size={16} color="var(--primary)" />
+                        <Sparkles size={14} color="var(--primary)" />
                         The World's Most Advanced AI Career OS
                     </div>
                     
                     <h1 style={{ 
-                        fontSize: 'max(48px, 5vw)', 
+                        fontSize: 'clamp(32px, 8vw, 64px)', 
                         fontWeight: 800, 
                         lineHeight: 1.1, 
-                        marginBottom: '24px',
+                        marginBottom: '20px',
                         letterSpacing: '-0.04em'
                     }}>
                         Elevate Your Career with <br /> 
@@ -116,17 +152,23 @@ const LandingPage = ({ session }) => {
                     </h1>
                     
                     <p style={{ 
-                        fontSize: '1.25rem', 
+                        fontSize: 'clamp(1rem, 3vw, 1.25rem)', 
                         color: 'var(--text-secondary)', 
                         maxWidth: '700px', 
-                        margin: '0 auto 48px',
-                        lineHeight: 1.6
+                        margin: '0 auto 40px',
+                        lineHeight: 1.6,
+                        padding: '0 20px'
                     }}>
                         Everything you need for your career growth in one intelligent workspace. 
                         Resume builder, job tracker, interview prep, and learning roadmaps.
                     </p>
                     
-                    <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
+                    <div className="mobile-stack" style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        gap: '16px',
+                        padding: '0 20px'
+                    }}>
                         {session ? (
                             <button className="btn-primary" onClick={() => navigate('/portfolio')}>
                                 Enter Portfolio Workspace <ArrowRight size={20} />
@@ -136,7 +178,15 @@ const LandingPage = ({ session }) => {
                                 <button className="btn-primary" onClick={() => navigate('/login')}>
                                     Start Using Takshila <ArrowRight size={20} />
                                 </button>
-                                <button className="btn-secondary" onClick={() => navigate('/login')} style={{ background: 'white', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '8px', padding: '0 24px' }}>
+                                <button className="btn-secondary" onClick={() => navigate('/login')} style={{ 
+                                    background: 'white', 
+                                    border: '1px solid #e2e8f0', 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    justifyContent: 'center',
+                                    gap: '8px', 
+                                    padding: '0 24px'
+                                }}>
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style={{ width: '20px' }} />
                                     Sign in with Google
                                 </button>
@@ -146,33 +196,34 @@ const LandingPage = ({ session }) => {
                 </div>
 
                 {/* Decorative Elements */}
-                <div className="animate-float" style={{ position: 'absolute', top: '20%', right: '5%', opacity: 0.1 }}>
+                <div className="animate-float desktop-only" style={{ position: 'absolute', top: '20%', right: '5%', opacity: 0.1 }}>
                     <Zap size={120} color="var(--primary)" />
                 </div>
             </section>
 
             {/* Features Section */}
-            <section style={{ padding: '120px 8%', background: '#fff' }}>
-                <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '16px' }}>Powering Your Career Journey</h2>
-                    <p style={{ color: 'var(--text-secondary)' }}>A complete suite of AI tools designed for modern professionals.</p>
+            <section style={{ padding: '80px 5%', background: '#fff' }}>
+                <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                    <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800, marginBottom: '16px' }}>Powering Your Career Journey</h2>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '1rem' }}>A complete suite of AI tools designed for modern professionals.</p>
                 </div>
 
                 <div style={{
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                    gap: '32px'
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(max(280px, 45%), 1fr))',
+                    gap: '24px'
                 }}>
                     {features.map((f, i) => (
                         <div 
                             key={i} 
                             className="glass-card reveal" 
                             style={{ 
-                                padding: '40px', 
+                                padding: 'clamp(24px, 5vw, 40px)', 
                                 border: '1px solid #f1f5f9',
-                                transitionDelay: `${i * 0.1}s`
+                                transitionDelay: `${i * 0.05}s`
                             }}
                             onMouseMove={(e) => {
+                                if (window.innerWidth <= 1024) return;
                                 const rect = e.currentTarget.getBoundingClientRect();
                                 const x = e.clientX - rect.left;
                                 const y = e.clientY - rect.top;
@@ -181,29 +232,29 @@ const LandingPage = ({ session }) => {
                             }}
                         >
                             <div className="icon-container" style={{
-                                width: '56px',
-                                height: '56px',
-                                borderRadius: '16px',
+                                width: '48px',
+                                height: '48px',
+                                borderRadius: '12px',
                                 background: 'rgba(255, 92, 0, 0.05)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                marginBottom: '24px',
+                                marginBottom: '20px',
                                 color: 'var(--primary)'
                             }}>
-                                <f.icon size={28} />
+                                <f.icon size={24} />
                             </div>
-                            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '12px' }}>{f.title}</h3>
-                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6 }}>{f.desc}</p>
+                            <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: '10px' }}>{f.title}</h3>
+                            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.6, fontSize: '0.95rem' }}>{f.desc}</p>
                         </div>
                     ))}
                 </div>
             </section>
 
             {/* How it Works */}
-            <section style={{ padding: '120px 8%', background: '#f8fafc' }}>
-                <div style={{ textAlign: 'center', marginBottom: '80px' }}>
-                    <h2 style={{ fontSize: '2.5rem', fontWeight: 800 }}>Seamless Career Growth</h2>
+            <section style={{ padding: '80px 5%', background: '#f8fafc' }}>
+                <div style={{ textAlign: 'center', marginBottom: '60px' }}>
+                    <h2 style={{ fontSize: 'clamp(1.8rem, 5vw, 2.5rem)', fontWeight: 800 }}>Seamless Career Growth</h2>
                 </div>
                 
                 <div style={{ maxWidth: '800px', margin: '0 auto', position: 'relative' }}>
@@ -216,13 +267,13 @@ const LandingPage = ({ session }) => {
                     ].map((step, i) => (
                         <div key={i} className="reveal" style={{ 
                             display: 'flex', 
-                            gap: '32px', 
-                            marginBottom: '40px',
-                            transitionDelay: `${i * 0.2}s`
+                            gap: 'clamp(16px, 4vw, 32px)', 
+                            marginBottom: '32px',
+                            transitionDelay: `${i * 0.1}s`
                         }}>
                             <div style={{
-                                width: '40px',
-                                height: '40px',
+                                width: '36px',
+                                height: '36px',
                                 borderRadius: '50%',
                                 background: 'var(--primary)',
                                 color: 'white',
@@ -230,62 +281,72 @@ const LandingPage = ({ session }) => {
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 fontWeight: 800,
+                                fontSize: '0.9rem',
                                 flexShrink: 0
                             }}>{i + 1}</div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>{step}</div>
+                            <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: 600, color: 'var(--text-primary)', paddingTop: '6px' }}>{step}</div>
                         </div>
                     ))}
                 </div>
             </section>
 
             {/* CTA Section */}
-            <section style={{ 
-                padding: '120px 8%', 
-                textAlign: 'center',
-                background: 'var(--text-primary)',
-                color: 'white',
-                borderRadius: '40px',
-                margin: '80px 4%',
-                boxShadow: '0 40px 100px rgba(0,0,0,0.1)'
-            }}>
-                <h2 style={{ fontSize: '3rem', fontWeight: 800, marginBottom: '24px' }}>Ready to Launch Your Career?</h2>
-                <p style={{ fontSize: '1.25rem', opacity: 0.8, marginBottom: '48px', maxWidth: '600px', margin: '0 auto 48px' }}>
-                    Join thousands of professionals using Takshila to navigate their career path.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '20px' }}>
-                    <button className="btn-primary" onClick={() => navigate('/login')} style={{ height: '60px', padding: '0 40px' }}>
-                        Start Using Takshila
-                    </button>
-                    <button onClick={() => navigate('/login')} style={{ 
-                        background: 'white', 
-                        color: 'var(--text-primary)',
-                        padding: '0 32px',
-                        borderRadius: '100px',
-                        fontWeight: 700,
-                        border: 'none',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px'
+            <div style={{ padding: '0 5%' }}>
+                <section style={{ 
+                    padding: 'clamp(60px, 10vw, 100px) 5%', 
+                    textAlign: 'center',
+                    background: 'var(--text-primary)',
+                    color: 'white',
+                    borderRadius: 'var(--radius-lg)',
+                    margin: '40px 0 80px',
+                    boxShadow: '0 40px 100px rgba(0,0,0,0.1)'
+                }}>
+                    <h2 style={{ fontSize: 'clamp(2rem, 6vw, 3rem)', fontWeight: 800, marginBottom: '20px' }}>Ready to Launch Your Career?</h2>
+                    <p style={{ fontSize: '1.1rem', opacity: 0.8, marginBottom: '40px', maxWidth: '600px', margin: '0 auto 40px' }}>
+                        Join thousands of professionals using Takshila to navigate their career path.
+                    </p>
+                    <div className="mobile-stack" style={{ 
+                        display: 'flex', 
+                        justifyContent: 'center', 
+                        gap: '16px' 
                     }}>
-                         Sign in with Google
-                    </button>
-                </div>
-            </section>
+                        <button className="btn-primary" onClick={() => navigate('/login')} style={{ height: '56px', padding: '0 32px' }}>
+                            Start Using Takshila
+                        </button>
+                        <button onClick={() => navigate('/login')} style={{ 
+                            background: 'white', 
+                            color: 'var(--text-primary)',
+                            padding: '16px 32px',
+                            borderRadius: '100px',
+                            fontWeight: 700,
+                            border: 'none',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '12px'
+                        }}>
+                             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style={{ width: '20px' }} />
+                             Sign in with Google
+                        </button>
+                    </div>
+                </section>
+            </div>
 
             {/* Footer */}
-            <footer style={{ padding: '80px 8%', borderTop: '1px solid #f1f5f9' }}>
+            <footer style={{ padding: '60px 5%', borderTop: '1px solid #f1f5f9' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '40px' }}>
                     <div>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '16px' }}>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '12px' }}>
                             Takshila<span style={{ color: 'var(--primary)' }}>.</span>
                         </div>
-                        <p style={{ color: 'var(--text-secondary)' }}>© 2026 Takshila AI. All rights reserved.</p>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>© 2026 Takshila AI. All rights reserved.</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '40px', color: 'var(--text-secondary)', fontWeight: 500 }}>
+                    <div style={{ display: 'flex', gap: 'max(20px, 4vw)', color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.9rem', flexWrap: 'wrap' }}>
+                        <span onClick={() => navigate('/about')} style={{ cursor: 'pointer' }}>About Us</span>
                         <span onClick={() => navigate('/privacy')} style={{ cursor: 'pointer' }}>Privacy Policy</span>
                         <span onClick={() => navigate('/terms')} style={{ cursor: 'pointer' }}>Terms of Service</span>
-                        <span style={{ cursor: 'pointer' }}>Contact</span>
+                        <span onClick={() => navigate('/contact')} style={{ cursor: 'pointer' }}>Contact</span>
                     </div>
                 </div>
             </footer>

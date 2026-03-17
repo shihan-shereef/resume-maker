@@ -19,6 +19,8 @@ import JobTrackerPage from './pages/JobTrackerPage';
 import PortfolioPage from './pages/PortfolioPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
+import AboutUs from './pages/AboutUs';
+import ContactUs from './pages/ContactUs';
 import WorkspaceLayout from './components/layout/WorkspaceLayout';
 // Placeholder components for modules
 const Placeholder = ({ title }) => (
@@ -79,7 +81,7 @@ function App() {
                 {/* Protected Workspace Routes */}
                 <Route path="/dashboard" element={session ? <WorkspaceLayout><Dashboard /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/resume" element={session ? <WorkspaceLayout><ResumeMaker /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/ats" element={session ? <WorkspaceLayout><AtsCheckerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
+                <Route path="/ats-checker" element={session ? <WorkspaceLayout><AtsCheckerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 
                 <Route path="/cover-letter" element={session ? <WorkspaceLayout><CoverLetterPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/skill-gap" element={session ? <WorkspaceLayout><SkillGapPage /></WorkspaceLayout> : <Navigate to="/login" />} />
@@ -88,7 +90,7 @@ function App() {
                 
                 <Route path="/job-search" element={session ? <WorkspaceLayout><JobSearchPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/tracker" element={session ? <WorkspaceLayout><JobTrackerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
-                <Route path="/interview" element={session ? <WorkspaceLayout><InterviewSimulatorPage /></WorkspaceLayout> : <Navigate to="/login" />} />
+                <Route path="/interview-simulator" element={session ? <WorkspaceLayout><InterviewSimulatorPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/youtube" element={session ? <WorkspaceLayout><YoutubeSummarizerAdvanced /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/pdf" element={session ? <WorkspaceLayout><PdfSummarizerPage /></WorkspaceLayout> : <Navigate to="/login" />} />
                 <Route path="/notes" element={session ? <WorkspaceLayout><NotesPage /></WorkspaceLayout> : <Navigate to="/login" />} />
@@ -98,6 +100,8 @@ function App() {
                 
                 <Route path="/privacy" element={<PrivacyPolicy />} />
                 <Route path="/terms" element={<TermsOfService />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/contact" element={<ContactUs />} />
                 
                 <Route path="*" element={<ErrorPage type="404" />} />
             </Routes>
