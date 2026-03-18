@@ -22,47 +22,49 @@ const AtsCheckerPage = () => {
                 throw new Error("The resume file seems empty or contains too little text for analysis.");
             }
             
-            const prompt = `Perform a comprehensive ATS (Applicant Tracking System) check on the following resume text.
-            
-            Resume Text:
-            ${text.substring(0, 8000)}
-            
-            Output strictly in the following JSON-like format:
-            SCORE: [number]
-            KEYWORDS: [comma separated list of missing keywords]
-            GAPS: [comma separated list of skill gaps]
-            FORMATTING: [comma separated list of layout issues]
-            SUGGESTIONS: [list of actionable feedback]
-            HIGHLIGHTS: [List 3-5 specific short sentences or phrases from the resume that are weak or lack metrics, separated by " | "]
-            
-            Be critical and professional. Target a 100% compatibility score in your suggestions.`;
+            const prompt = `Act as a high-end ATS (Applicant Tracking System) used by Fortune 500 companies. 
+Perform a brutal, honest analysis of the following resume. 
+Evaluate it based on:
+1. Impact: Quantified results (numbers, %, $)? 
+2. Readability: Concise or wordy? 
+3. Keyword Density: Industry-specific skills present?
+4. Formatting: Complex elements that might break parsing?
 
-            // Using "openai/gpt-4o-mini" which is very fast
+Format your response as a JSON object with these EXACT fields:
+{
+  "score": number (0-100),
+  "breakdown": {
+    "impact": number (0-100),
+    "readability": number (0-100),
+    "keywords": number (0-100)
+  },
+  "high_impact_points": ["string", ...],
+  "critical_fixes": ["string", ...],
+  "keyword_suggestions": ["string", ...],
+  "formatting_verdict": "string (concise verdict)",
+  "expert_advice": "string (one powerful piece of advice)",
+  "highlight_phrases": ["string", ...]
+}
+
+Resume Content:
+${text.substring(0, 8000)}
+
+Response must be ONLY valid JSON and nothing else. No preamble.`;
+
             const response = await generateResumeContent(prompt, "You are a senior HR recruitment technologist.", "openai/gpt-4o-mini");
-            
-            // Robust Parsing
-            const score = parseInt(response.match(/SCORE:\s*(\d+)/)?.[1] || "0");
-            const keywords = response.match(/KEYWORDS:\s*(.*)/)?.[1] || "None found";
-            const gaps = response.match(/GAPS:\s*(.*)/)?.[1] || "None found";
-            const formatting = response.match(/FORMATTING:\s*(.*)/)?.[1] || "None found";
-            const suggestions = response.match(/SUGGESTIONS:\s*([\s\S]*?)(?=HIGHLIGHTS:|$)/)?.[1] || "No specific suggestions.";
-            const highlightStrings = (response.match(/HIGHLIGHTS:\s*(.*)/)?.[1] || "").split('|').map(s => s.trim()).filter(Boolean);
+            const data = JSON.parse(response.replace(/```json|```/g, '').trim());
 
-            // Dynamically mark the original text
+            // Dynamically mark the original text using highlight_phrases from AI
             let processedText = text;
-            highlightStrings.forEach(str => {
-                if (str.length > 5) { // Avoid masking tiny punctuation or single words
+            (data.highlight_phrases || []).forEach(str => {
+                if (str.length > 5) {
                     const regex = new RegExp(`(${str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
                     processedText = processedText.replace(regex, '<mark class="ats-weak">$1</mark>');
                 }
             });
             
             setResult({
-                score,
-                keywords,
-                gaps,
-                formatting,
-                suggestions,
+                ...data,
                 highlightedText: processedText,
                 fileName: uploadedFile.name
             });
@@ -154,8 +156,8 @@ const AtsCheckerPage = () => {
                     display: 'grid', 
                     gap: '32px' 
                 }}>
-                    {/* Score Card */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        {/* Score Card */}
                         <div className="glass-card" style={{ padding: '40px', background: 'white', border: 'none', textAlign: 'center' }}>
                             <div style={{ position: 'relative', width: '180px', height: '180px', margin: '0 auto 24px' }}>
                                 <svg width="180" height="180" viewBox="0 0 180 180">
@@ -176,75 +178,97 @@ const AtsCheckerPage = () => {
                                     <div style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>ATS Match</div>
                                 </div>
                             </div>
-                            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '8px' }}>
-                                {result.score >= 80 ? 'Excellent Match!' : result.score >= 60 ? 'Good Potential' : 'Needs Improvement'}
-                            </h3>
-                            <button className="btn-secondary" onClick={() => setResult(null)} style={{ width: '100%', marginTop: '20px' }}>
-                                <FileUp size={16} /> Re-scan Resume
+                            
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '32px' }}>
+                                {[
+                                    { label: 'Impact', val: result.breakdown.impact },
+                                    { label: 'Readability', val: result.breakdown.readability },
+                                    { label: 'Keywords', val: result.breakdown.keywords }
+                                ].map(b => (
+                                    <div key={b.label}>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase' }}>{b.label}</div>
+                                        <div style={{ height: '6px', background: '#f1f5f9', borderRadius: '3px', overflow: 'hidden' }}>
+                                            <div style={{ height: '100%', width: `${b.val}%`, background: 'var(--primary)', borderRadius: '3px' }}></div>
+                                        </div>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: 800, marginTop: '6px' }}>{b.val}%</div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button className="btn-secondary" onClick={() => setResult(null)} style={{ width: '100%' }}>
+                                <FileUp size={16} /> Re-scan Different Resume
                             </button>
                         </div>
 
-                        <div className="glass-card" style={{ padding: '32px', background: 'white', border: 'none' }}>
-                            <h4 style={{ fontSize: '1rem', fontWeight: 800, marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Eye size={18} color="var(--primary)" /> Smart Highlight Preview
-                            </h4>
-                            <div style={{ 
-                                background: '#f8fafc', 
-                                padding: '24px', 
-                                borderRadius: '16px', 
-                                border: '1px solid #e2e8f0', 
-                                maxHeight: '500px', 
-                                overflowY: 'auto' 
-                            }}>
-                                <div style={{ fontWeight: 800, marginBottom: '12px', color: 'var(--text-secondary)' }}>{result.fileName}</div>
-                                <div 
-                                    className="resume-preview-content"
-                                    style={{ fontSize: '0.85rem', lineHeight: '1.6', color: '#475569', whiteSpace: 'pre-wrap' }}
-                                    dangerouslySetInnerHTML={{ __html: result.highlightedText }}
-                                />
-                                <div style={{ marginTop: '24px', fontSize: '0.75rem', color: 'var(--primary)', fontWeight: 700, background: 'rgba(255, 92, 0, 0.05)', padding: '12px', borderRadius: '8px' }}>
-                                    <AlertTriangle size={14} style={{ marginRight: '6px', verticalAlign: 'middle' }} />
-                                    Highlighted sections above indicate low-impact language or missing data.
-                                </div>
+                        {/* Expert Advice */}
+                        <div style={{ 
+                            padding: '32px', 
+                            borderRadius: '24px', 
+                            background: 'var(--text-primary)', 
+                            color: 'white',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', opacity: 0.1 }}>
+                                <Zap size={100} />
                             </div>
+                            <h4 style={{ margin: '0 0 12px', fontSize: '1rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Honest Expert Advice</h4>
+                            <p style={{ margin: 0, fontSize: '1.2rem', fontWeight: 600, lineHeight: '1.6' }}>
+                                "{result.expert_advice}"
+                            </p>
                         </div>
                     </div>
 
                     {/* Detailed Analysis */}
-                    <div className="glass-card" style={{ padding: '48px', background: 'white', border: 'none' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
-                            <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255, 92, 0, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)' }}>
-                                <MessageSquare size={24} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                        <div className="glass-card" style={{ padding: '40px', background: 'white', border: 'none' }}>
+                            <h4 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <Eye size={24} color="var(--primary)" /> Smart Audit Preview
+                            </h4>
+                            <div style={{ 
+                                background: '#f8fafc', 
+                                padding: '32px', 
+                                borderRadius: '20px', 
+                                border: '1px solid #e2e8f0', 
+                                maxHeight: '400px', 
+                                overflowY: 'auto' 
+                            }}>
+                                <div style={{ fontWeight: 800, marginBottom: '16px', color: '#64748b' }}>{result.fileName}</div>
+                                <div 
+                                    className="resume-preview-content"
+                                    style={{ fontSize: '0.95rem', lineHeight: '1.7', color: '#334155', whiteSpace: 'pre-wrap' }}
+                                    dangerouslySetInnerHTML={{ __html: result.highlightedText }}
+                                />
                             </div>
-                            <h2 style={{ fontSize: '1.8rem', fontWeight: 800 }}>AI Performance Report</h2>
                         </div>
-                        
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            {[
-                                { title: 'Missing Keywords', icon: Target, color: '#f59e0b', content: result.keywords },
-                                { title: 'Skill Gaps', icon: Zap, color: '#10b981', content: result.gaps },
-                                { title: 'Formatting Issues', icon: AlertTriangle, color: '#ef4444', content: result.formatting }
-                            ].map((item, i) => (
-                                <div key={i} style={{ padding: '24px', borderRadius: '16px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                                        <item.icon size={20} color={item.color} />
-                                        <h4 style={{ fontWeight: 800, fontSize: '1.1rem' }}>{item.title}</h4>
-                                    </div>
-                                    <p style={{ color: '#475569', lineHeight: '1.6', fontSize: '1rem' }}>{item.content}</p>
-                                </div>
-                            ))}
 
-                            <div style={{ marginTop: '12px' }}>
-                                <h4 style={{ fontWeight: 800, fontSize: '1.2rem', marginBottom: '20px', color: 'var(--text-primary)' }}>Actionable Suggestions</h4>
-                                <div style={{ 
-                                    padding: '32px', 
-                                    borderRadius: '20px', 
-                                    background: 'var(--text-primary)', 
-                                    color: 'white',
-                                    lineHeight: '1.8'
-                                }}>
-                                    {result.suggestions}
-                                </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                            <div style={{ padding: '24px', borderRadius: '20px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)' }}>
+                                <h4 style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', fontSize: '1rem', fontWeight: 800 }}>High Impact Points</h4>
+                                <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {result.high_impact_points.map((p, i) => (
+                                        <li key={i} style={{ fontSize: '0.95rem', color: '#334155' }}>{p}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                            <div style={{ padding: '24px', borderRadius: '20px', background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
+                                <h4 style={{ color: '#ef4444', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', fontSize: '1rem', fontWeight: 800 }}>Critical Fixes</h4>
+                                <ul style={{ paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {result.critical_fixes.map((p, i) => (
+                                        <li key={i} style={{ fontSize: '0.95rem', color: '#334155' }}>{p}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                         <div style={{ padding: '32px', borderRadius: '20px', background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                            <h4 style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', fontSize: '1rem', fontWeight: 800 }}>Recommended Keywords</h4>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                                {result.keyword_suggestions.map((p, i) => (
+                                    <span key={i} style={{ padding: '6px 14px', borderRadius: '100px', background: 'white', border: '1px solid rgba(99, 102, 241, 0.2)', color: 'var(--primary)', fontSize: '0.9rem', fontWeight: 700 }}>
+                                        {p}
+                                    </span>
+                                ))}
                             </div>
                         </div>
                     </div>

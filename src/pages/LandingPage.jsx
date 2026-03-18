@@ -355,7 +355,7 @@ const LandingPage = () => {
                     </div>
                     <div className="glass-card" style={{ padding: '0', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
                         <img 
-                            src="/Users/apple/.gemini/antigravity/brain/7a1a696a-9763-458c-818e-a5c257229961/roadmap_generator_mockup_1773748385126.png" 
+                            src="src/images/hero-image-3.png" 
                             alt="AI Career Roadmaps" 
                             style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }}
                         />

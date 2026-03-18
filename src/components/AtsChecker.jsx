@@ -34,22 +34,36 @@ const AtsChecker = () => {
             return;
         }
 
-        const prompt = `Act as an expert ATS (Applicant Tracking System) Specialist. Analyze the following resume text or data and provide a detailed ATS compatibility score.
-        
-        Format your response as a JSON object with these fields:
-        1. score: (number 0-100)
-        2. high_impact_points: (array of strings, positive things)
-        3. critical_fixes: (array of strings, things that will get it filtered out)
-        4. keyword_suggestions: (array of strings, missing industry keywords)
-        5. formatting_verdict: (string, short comment on layout)
+        const prompt = `Act as a high-end ATS (Applicant Tracking System) used by Fortune 500 companies. 
+        Perform a brutal, honest analysis of the following resume. 
+        Evaluate it based on:
+        1. Impact: Are there quantified results (numbers, %, $)? 
+        2. Readability: Is it concise or too wordy? 
+        3. Keyword Density: Are industry-specific skills present?
+        4. Formatting: Are there complex elements that might break parsing?
+
+        Format your response as a JSON object with these EXACT fields:
+        {
+          "score": number (0-100),
+          "breakdown": {
+            "impact": number (0-100),
+            "readability": number (0-100),
+            "keywords": number (0-100)
+          },
+          "high_impact_points": ["string", ...],
+          "critical_fixes": ["string", ...],
+          "keyword_suggestions": ["string", ...],
+          "formatting_verdict": "string (concise verdict)",
+          "expert_advice": "string (one powerful piece of advice)"
+        }
 
         Resume Content: ${resumeText}
         
-        Response must be ONLY valid JSON.`;
+        Response must be ONLY valid JSON and nothing else. No preamble.`;
 
         try {
             // Use gpt-4o-mini for significantly faster processing and lower latency instead of default 3.5 turbo or 4
-            const response = await generateResumeContent(prompt, "You are a senior HR recruitment technologist.", "openai/gpt-4o-mini");
+            const response = await generateResumeContent(prompt, "You are a senior HR recruitment technologist at a top tech firm.", "openai/gpt-4o-mini");
             
             // Clean response to ensure it's valid JSON
             const jsonStr = response.replace(/```json|```/g, '').trim();
@@ -57,7 +71,7 @@ const AtsChecker = () => {
             setResult(data);
         } catch (err) {
             console.error(err);
-            setError('Analysis failed. Please try again.');
+            setError('Analysis failed. The AI might be busy. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -232,35 +246,67 @@ const AtsChecker = () => {
                 </div>
             ) : (
                 <div className="animate-fade-in">
-                    {/* Score Header */}
+                    {/* Score Header & Breakdown */}
                     <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
                         padding: '24px',
                         background: 'rgba(255,255,255,0.03)',
-                        borderRadius: '20px',
+                        borderRadius: '24px',
                         marginBottom: '24px',
                         border: '1px solid var(--glass-border)'
                     }}>
-                        <div>
-                            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                Overall ATS Score
-                            </span>
-                            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, color: getScoreColor(result.score), margin: '4px 0' }}>
-                                {result.score}<span style={{ fontSize: '1.2rem', opacity: 0.7 }}>/100</span>
-                            </h2>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <ShieldCheck size={16} color={getScoreColor(result.score)} />
-                                <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{result.formatting_verdict}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                            <div>
+                                <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                    Match Score
+                                </span>
+                                <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: getScoreColor(result.score), margin: '0' }}>
+                                    {result.score}<span style={{ fontSize: '1.2rem', opacity: 0.6 }}>/100</span>
+                                </h2>
                             </div>
+                            <button
+                                onClick={analyzeResume}
+                                style={{ background: 'rgba(99, 102, 241, 0.1)', border: '1px solid rgba(99, 102, 241, 0.2)', color: 'var(--primary)', padding: '8px 16px', borderRadius: '100px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 700 }}
+                            >
+                                Fresh Scan
+                            </button>
                         </div>
-                        <button
-                            onClick={analyzeResume}
-                            style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 700 }}
-                        >
-                            Re-Scan App
-                        </button>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                            {[
+                                { label: 'Impact', val: result.breakdown?.impact || 0 },
+                                { label: 'Readability', val: result.breakdown?.readability || 0 },
+                                { label: 'Keywords', val: result.breakdown?.keywords || 0 }
+                            ].map(b => (
+                                <div key={b.label}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 700, opacity: 0.7 }}>{b.label}</span>
+                                        <span style={{ fontSize: '0.7rem', fontWeight: 800, color: getScoreColor(b.val) }}>{b.val}%</span>
+                                    </div>
+                                    <div style={{ height: '4px', background: 'rgba(255,255,255,0.05)', borderRadius: '2px', overflow: 'hidden' }}>
+                                        <div style={{ height: '100%', width: `${b.val}%`, background: getScoreColor(b.val), borderRadius: '2px' }}></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Expert Advice Card */}
+                    <div style={{ 
+                        padding: '20px', 
+                        borderRadius: '20px', 
+                        background: 'linear-gradient(135deg, rgba(255, 92, 0, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%)', 
+                        border: '1px solid rgba(255, 92, 0, 0.2)',
+                        marginBottom: '24px',
+                        position: 'relative',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{ position: 'absolute', top: '-10px', right: '-10px', opacity: 0.1 }}>
+                            <Zap size={80} />
+                        </div>
+                        <h4 style={{ margin: '0 0 8px', fontSize: '0.9rem', fontWeight: 800, color: 'var(--primary)', textTransform: 'uppercase' }}>Expert Advice</h4>
+                        <p style={{ margin: 0, fontSize: '0.95rem', fontWeight: 600, color: 'white', lineHeight: 1.5 }}>
+                            "{result.expert_advice}"
+                        </p>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
