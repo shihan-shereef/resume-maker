@@ -1,4 +1,5 @@
 // api/speak.js
+/* global process, Buffer */
 import { z } from 'zod';
 import DOMPurify from 'isomorphic-dompurify';
 
@@ -9,6 +10,14 @@ import DOMPurify from 'isomorphic-dompurify';
 const rateLimitMap = new Map();
 const LIMIT = 30; // 30 requests per minute for speech
 const WINDOW = 60 * 1000;
+const DEFAULT_MODEL_ID = 'eleven_multilingual_v2';
+const DEFAULT_VOICE_SETTINGS = {
+    stability: 0.4,
+    similarity_boost: 0.88,
+    style: 0.28,
+    use_speaker_boost: true,
+    speed: 0.96,
+};
 
 const rateLimit = (ip) => {
     const now = Date.now();
@@ -26,7 +35,15 @@ const rateLimit = (ip) => {
 
 const SpeakSchema = z.object({
     text: z.string().min(1).max(2000),
-    voiceId: z.string().min(1)
+    voiceId: z.string().min(1),
+    modelId: z.string().min(1).optional(),
+    voiceSettings: z.object({
+        stability: z.number().min(0).max(1).optional(),
+        similarity_boost: z.number().min(0).max(1).optional(),
+        style: z.number().min(0).max(1).optional(),
+        use_speaker_boost: z.boolean().optional(),
+        speed: z.number().min(0.7).max(1.2).optional(),
+    }).optional(),
 });
 
 export default async function handler(req, res) {
@@ -45,7 +62,11 @@ export default async function handler(req, res) {
     try {
         const validatedData = SpeakSchema.parse(req.body);
         const text = DOMPurify.sanitize(validatedData.text);
-        const { voiceId } = validatedData;
+        const {
+            voiceId,
+            modelId = DEFAULT_MODEL_ID,
+            voiceSettings = {},
+        } = validatedData;
         
         const apiKey = process.env.ELEVENLABS_API_KEY;
 
@@ -62,10 +83,10 @@ export default async function handler(req, res) {
             },
             body: JSON.stringify({
                 text,
-                model_id: 'eleven_multilingual_v2',
+                model_id: modelId,
                 voice_settings: {
-                    stability: 0.4,
-                    similarity_boost: 0.8
+                    ...DEFAULT_VOICE_SETTINGS,
+                    ...voiceSettings,
                 }
             })
         });

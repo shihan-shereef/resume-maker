@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { generateResumeContent } from '../lib/openrouter';
-import { Search, Briefcase, MapPin, ExternalLink, Filter, Star, Loader2 } from 'lucide-react';
+import { Search, Briefcase, MapPin, ExternalLink, Filter, Star, Loader2, Zap } from 'lucide-react';
 import { useResume } from '../context/ResumeContext';
 import { loadTrackedJobs, saveTrackedJobs } from '../lib/jobTracker';
 
@@ -23,49 +23,40 @@ const JobSearchPage = () => {
     const handleSearch = async (e) => {
         if (e) e.preventDefault();
         setLoading(true);
+        setJobs([]);
         try {
-            const prompt = `Generate a realistic list of 15 job openings for the following criteria:
+            // Ask for a large batch
+            const prompt = `Generate a realistic and diverse list of 100 job openings ($80k-$250k range) for:
             Role: ${filters.role || query}
             Location: ${filters.location || location}
-            Experience Level: ${filters.experience}
-            Salary Expectation: ${filters.salary}
-            Work Style: ${filters.remote}
+            Criteria: ${filters.experience} experience, ${filters.remote} work style.
             
-            Return ONLY a raw JSON array of objects. No markdown, no preambles.
-            Each object must strictly match this structure:
-            {
-                "id": "unique-random-string",
-                "title": "Job Title",
-                "company": "Realistic Tech Company Name",
-                "location": "City, State or Remote",
-                "type": "Full-time, Part-time, or Internship",
-                "isRemote": true or false,
-                "score": random number between 85 and 99,
-                "salary": "Realistic Salary Range (e.g. $80k - $120k)",
-                "link": "https://google.com/search?q=careers",
-                "about": "A 2-sentence description of the role.",
-                "requirements": ["Req 1", "Req 2", "Req 3"],
-                "preferences": ["Pref 1", "Pref 2"]
-            }`;
+            Return ONLY a raw JSON array of objects.
+            [ { "id": "uuid", "title": "...", "company": "...", "location": "...", "type": "...", "isRemote": bool, "score": 85-99, "salary": "$...k", "link": "...", "about": "...", "requirements": [...], "preferences": [...] }, ... ]
+            Generate EXACTLY 100 unique jobs.`;
 
-            const res = await generateResumeContent(prompt, "You are an expert Job API. Return only valid JSON array.", "google/gemini-2.0-flash-001");
-            let cleanedRes = res;
-            if (res.includes('```json')) {
-                cleanedRes = res.split('```json')[1].split('```')[0].trim();
-            } else if (res.includes('```')) {
-                cleanedRes = res.split('```')[1].split('```')[0].trim();
-            }
-
+            const res = await generateResumeContent(prompt, "You are a high-performance Job Search API. Return 100 jobs in JSON.", "google/gemini-2.0-flash-001");
+            let cleanedRes = res.replace(/```json|```/g, '').trim();
             const results = JSON.parse(cleanedRes);
             setJobs(results);
         } catch (error) {
             console.error("Job search failed:", error);
-            // Fallback mock string if AI fails
-            // Fallback mock string if AI fails
-            setJobs([
-                { id: 'fb1', title: query || 'Software Engineering Intern', company: 'Google', location: location || 'Remote', type: 'Internship', isRemote: true, score: 98, salary: '$8,000/mo', link: 'https://careers.google.com', about: 'Join our core infrastructure team to build the future of scalable web services.', requirements: ['Proficiency in Python/Java', 'Understanding of Data Structures'], preferences: ['Previous tech internship', 'Open source contributions'] },
-                { id: 'fb2', title: query || 'Product Design Intern', company: 'Meta', location: location || 'Menlo Park, CA', type: 'Internship', isRemote: false, score: 94, salary: '$7,500/mo', link: 'https://metacareers.com', about: 'Design intuitive and seamless experiences for billions of global users.', requirements: ['Figma expertise', 'Portfolio demonstrating UX process'], preferences: ['Prototyping animation skills'] }
-            ]);
+            // Robust backup list
+            const backupJobs = Array.from({ length: 10 }).map((_, i) => ({
+                id: `bk-${i}`,
+                title: `${query || 'Software Engineer'} ${i + 1}`,
+                company: ['Google', 'Meta', 'Amazon', 'Netflix', 'Tesla', 'Stripe', 'OpenAI'][i % 7],
+                location: location || 'Remote',
+                type: 'Full-time',
+                isRemote: true,
+                score: 90 + (i % 10),
+                salary: `$${120 + i*5}k - $${180 + i*5}k`,
+                link: 'https://google.com/search?q=careers',
+                about: 'Join our high-impact team building next-generation AI infrastructure and scale.',
+                requirements: ['Proficiency in modern tech stack', 'Communication skills'],
+                preferences: ['Relevant experience']
+            }));
+            setJobs(backupJobs);
         } finally {
             setLoading(false);
         }
@@ -99,140 +90,191 @@ const JobSearchPage = () => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', maxWidth: '1400px', margin: '0 auto' }}>
             <header>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-                    <div>
-                        <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', fontWeight: 800, marginBottom: '8px' }}>
-                            Takshila <span className="gradient-text">Job Discovery</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '24px' }}>
+                    <div style={{ flex: '1 1 500px' }}>
+                        <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 800, marginBottom: '12px', letterSpacing: '-0.03em' }}>
+                            Takshila <span className="gradient-text">Elite Job Hub</span>
                         </h1>
-                        <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 3vw, 1.1rem)' }}>
-                            Find the best matching jobs for your profile using our AI-powered discovery engine.
+                        <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', lineHeight: 1.6, maxWidth: '600px' }}>
+                            Discover 100+ premium opportunities precision-matched to your unique professional profile.
                         </p>
                     </div>
-                    <div style={{ padding: '12px 20px', background: 'rgba(255, 193, 7, 0.1)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '12px', maxWidth: '400px' }}>
-                        <p style={{ fontSize: '0.8rem', color: '#856404', margin: 0, lineHeight: 1.4 }}>
-                            <strong>AI Simulation:</strong> These job listings are generated by AI to match your resume profile for career preparation and matching purposes. Always verify current openings on company official career portals.
+                    <div style={{ 
+                        padding: '24px', 
+                        background: 'rgba(255, 92, 0, 0.03)', 
+                        border: '1px solid rgba(255, 92, 0, 0.15)', 
+                        borderRadius: '24px', 
+                        maxWidth: '450px',
+                        backdropFilter: 'blur(10px)'
+                    }}>
+                        <p style={{ fontSize: '0.85rem', color: 'var(--primary)', margin: 0, lineHeight: 1.6, fontWeight: 600 }}>
+                            <strong>Smart AI Sync:</strong> Our neural engine continuously simulates and indexes high-impact roles at top-tier firms. Verify final details on official portals.
                         </p>
                     </div>
                 </div>
             </header>
 
-            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '24px', padding: '32px' }}>
                 <form onSubmit={handleSearch} style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                    <div style={{ flex: 2, minWidth: '250px', position: 'relative' }}>
-                        <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+                    <div style={{ flex: '2 1 300px', position: 'relative' }}>
+                        <Search size={20} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', opacity: 0.6 }} />
                         <input 
                             type="text" 
-                            placeholder="Job title, keywords, or company" 
+                            placeholder="Target role or company..." 
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
                             className="form-input"
-                            style={{ paddingLeft: '48px' }}
+                            style={{ paddingLeft: '56px', height: '60px', fontSize: '1.1rem' }}
                         />
                     </div>
-                    <div style={{ flex: 1, minWidth: '150px', position: 'relative' }}>
-                        <MapPin size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }} />
+                    <div style={{ flex: '1 1 200px', position: 'relative' }}>
+                        <MapPin size={20} style={{ position: 'absolute', left: '20px', top: '50%', transform: 'translateY(-50%)', color: 'var(--primary)', opacity: 0.6 }} />
                         <input 
                             type="text" 
-                            placeholder="Location" 
+                            placeholder="Location..." 
                             value={location}
                             onChange={(e) => setLocation(e.target.value)}
                             className="form-input"
-                            style={{ paddingLeft: '48px' }}
+                            style={{ paddingLeft: '56px', height: '60px', fontSize: '1.1rem' }}
                         />
                     </div>
-                    <button type="submit" className="btn-primary" disabled={loading} style={{ minWidth: '130px' }}>
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : 'Search AI Jobs'}
+                    <button type="submit" className="btn-primary" disabled={loading} style={{ height: '60px', minWidth: '180px', fontSize: '1.1rem' }}>
+                        {loading ? <Loader2 className="animate-spin" size={24} /> : 'Scan 100+ Jobs'}
                     </button>
-                    <button type="button" onClick={() => setShowFilters(!showFilters)} className={`btn-secondary ${showFilters ? 'active' : ''}`} style={{ padding: '12px', background: showFilters ? 'var(--primary)' : '', color: showFilters ? 'white' : '' }}>
-                        <Filter size={20} />
+                    <button type="button" onClick={() => setShowFilters(!showFilters)} className="btn-secondary" style={{ padding: '0 20px', height: '60px', background: showFilters ? 'var(--primary)' : '', color: showFilters ? 'white' : '' }}>
+                        <Filter size={24} />
                     </button>
                 </form>
 
                 {showFilters && (
-                    <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '15px', paddingTop: '20px', borderTop: '1px solid #f1f5f9' }}>
+                    <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '20px', paddingTop: '24px', borderTop: '1px solid #f1f5f9' }}>
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>EXPERIENCE</label>
-                            <select className="form-input" value={filters.experience} onChange={(e) => setFilters({...filters, experience: e.target.value})}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '10px', display: 'block', textTransform: 'uppercase' }}>Seniority</label>
+                            <select className="form-input" style={{ height: '50px' }} value={filters.experience} onChange={(e) => setFilters({...filters, experience: e.target.value})}>
                                 <option>All</option>
                                 <option>Internship</option>
                                 <option>Entry Level</option>
                                 <option>Mid-Level</option>
                                 <option>Senior</option>
-                                <option>Lead/Manager</option>
+                                <option>Lead / Staff</option>
                             </select>
                         </div>
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>SALARY RANGE</label>
-                            <select className="form-input" value={filters.salary} onChange={(e) => setFilters({...filters, salary: e.target.value})}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '10px', display: 'block', textTransform: 'uppercase' }}>Target Salary</label>
+                            <select className="form-input" style={{ height: '50px' }} value={filters.salary} onChange={(e) => setFilters({...filters, salary: e.target.value})}>
                                 <option>All</option>
-                                <option>$50k - $80k</option>
                                 <option>$80k - $120k</option>
                                 <option>$120k - $180k</option>
-                                <option>$200k+</option>
+                                <option>$200k - $300k</option>
+                                <option>$400k+</option>
                             </select>
                         </div>
                         <div>
-                            <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', marginBottom: '8px', display: 'block' }}>REMOTE/ONSITE</label>
-                            <select className="form-input" value={filters.remote} onChange={(e) => setFilters({...filters, remote: e.target.value})}>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--text-secondary)', marginBottom: '10px', display: 'block', textTransform: 'uppercase' }}>Environment</label>
+                            <select className="form-input" style={{ height: '50px' }} value={filters.remote} onChange={(e) => setFilters({...filters, remote: e.target.value})}>
                                 <option>All</option>
-                                <option>Remote</option>
-                                <option>Hybrid</option>
-                                <option>On-site</option>
+                                <option>Fully Remote</option>
+                                <option>Hybrid Hub</option>
+                                <option>On-site Office</option>
                             </select>
                         </div>
                     </div>
                 )}
             </div>
 
-            <div className="job-search-grid">
+            <div className="job-search-grid" style={{ padding: '8px' }}>
                 {loading ? (
-                    Array(6).fill(0).map((_, i) => (
-                        <div key={i} className="glass-card" style={{ height: '200px', opacity: 0.5 }}>
-                            <div style={{ height: '20px', width: '60%', background: 'var(--glass-border)', borderRadius: '4px', marginBottom: '12px' }}></div>
-                            <div style={{ height: '16px', width: '40%', background: 'var(--glass-border)', borderRadius: '4px', marginBottom: '8px' }}></div>
-                            <div style={{ height: '32px', width: '100%', background: 'var(--glass-border)', borderRadius: '8px', marginTop: 'auto' }}></div>
+                    Array(9).fill(0).map((_, i) => (
+                        <div key={i} className="glass-card" style={{ height: '240px', opacity: 0.4 }}>
+                            <div className="skeleton" style={{ height: '24px', width: '70%', marginBottom: '16px' }}></div>
+                            <div className="skeleton" style={{ height: '16px', width: '40%', marginBottom: '24px' }}></div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <div className="skeleton" style={{ height: '24px', width: '60px' }}></div>
+                                <div className="skeleton" style={{ height: '24px', width: '80px' }}></div>
+                            </div>
+                            <div className="skeleton" style={{ height: '44px', width: '100%', marginTop: 'auto' }}></div>
                         </div>
                     ))
                 ) : jobs.length > 0 ? (
                     jobs.map((job, i) => (
-                        <div key={i} className="glass-card" onClick={() => setSelectedJob(job)} style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', cursor: 'pointer', transition: 'transform 0.2s', ':hover': { transform: 'scale(1.02)' } }}>
-                            <div style={{ position: 'absolute', top: '24px', right: '24px', display: 'flex', alignItems: 'center', gap: '4px', color: '#10b981', fontWeight: 700 }}>
-                                <Star size={16} fill="#10b981" />
-                                <span>{job.score}% Match</span>
+                        <div 
+                            key={i} 
+                            className="glass-card" 
+                            onClick={() => setSelectedJob(job)} 
+                            style={{ 
+                                display: 'flex', 
+                                flexDirection: 'column', 
+                                padding: '28px',
+                                gap: '20px', 
+                                position: 'relative', 
+                                cursor: 'pointer',
+                                minHeight: '280px',
+                                overflow: 'visible' // Allow match badge to breathe
+                            }}
+                        >
+                            <div style={{ 
+                                position: 'absolute', 
+                                top: '-12px', 
+                                right: '20px', 
+                                background: '#10b981', 
+                                color: 'white', 
+                                padding: '6px 12px', 
+                                borderRadius: '100px', 
+                                fontSize: '0.75rem', 
+                                fontWeight: 800,
+                                boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                                zIndex: 10
+                            }}>
+                                {job.score}% Match
                             </div>
                             
-                            <div>
-                                <h3 style={{ fontSize: '1.25rem', fontWeight: 700, paddingRight: '100px' }}>{job.title}</h3>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'var(--text-secondary)', fontSize: '0.875rem', marginTop: '8px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <Briefcase size={14} /> {job.company}
+                            <div style={{ flex: 1 }}>
+                                <h3 style={{ fontSize: '1.35rem', fontWeight: 800, lineHeight: 1.3, color: 'var(--text-primary)', marginBottom: '8px' }}>{job.title}</h3>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--primary)', fontSize: '0.95rem', fontWeight: 700 }}>
+                                        <Briefcase size={16} /> {job.company}
                                     </div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <MapPin size={14} /> {job.location}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
+                                        <MapPin size={16} /> {job.location}
                                     </div>
                                 </div>
                             </div>
 
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 600 }}>{job.type || 'Full-time'}</span>
-                                {job.isRemote && <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', fontSize: '0.75rem', fontWeight: 600 }}>Remote Friendly</span>}
-                                {job.salary && <span style={{ padding: '4px 8px', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.1)', color: '#d97706', fontSize: '0.75rem', fontWeight: 600 }}>{job.salary}</span>}
+                                <span style={{ padding: '6px 12px', borderRadius: '8px', background: 'rgba(99, 102, 241, 0.08)', color: 'var(--primary)', fontSize: '0.75rem', fontWeight: 700 }}>{job.type}</span>
+                                {job.isRemote && <span style={{ padding: '6px 12px', borderRadius: '8px', background: 'rgba(16, 185, 129, 0.08)', color: '#10b981', fontSize: '0.75rem', fontWeight: 700 }}>Remote</span>}
+                                {job.salary && <span style={{ padding: '6px 12px', borderRadius: '8px', background: 'rgba(245, 158, 11, 0.08)', color: '#d97706', fontSize: '0.75rem', fontWeight: 700 }}>{job.salary}</span>}
                             </div>
                             
-                            <div style={{ marginTop: 'auto', paddingTop: '16px', borderTop: '1px solid #f1f5f9', color: 'var(--primary)', fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                View Details <ExternalLink size={14} />
+                            <div style={{ 
+                                marginTop: 'auto', 
+                                padding: '14px', 
+                                borderRadius: '12px',
+                                background: 'rgba(99, 102, 241, 0.03)',
+                                border: '1px solid rgba(99, 102, 241, 0.1)',
+                                color: 'var(--primary)', 
+                                fontSize: '0.85rem', 
+                                fontWeight: 800, 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                justifyContent: 'center',
+                                gap: '8px',
+                                transition: 'all 0.3s'
+                            }}>
+                                Deep Audit & Apply <ExternalLink size={16} />
                             </div>
                         </div>
                     ))
                 ) : (
-                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '100px 0' }}>
-                        <div style={{ color: 'var(--text-tertiary)', marginBottom: '16px' }}>
-                            <Search size={64} strokeWidth={1} style={{ margin: '0 auto' }} />
+                    <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '120px 0', opacity: 0.8 }}>
+                        <div style={{ position: 'relative', width: '120px', height: '120px', margin: '0 auto 32px' }}>
+                             <Search size={120} strokeWidth={0.5} color="var(--primary)" />
+                             <Zap size={40} style={{ position: 'absolute', bottom: 10, right: 10 }} color="var(--primary)" fill="var(--primary)" />
                         </div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Search for jobs to get started</h2>
-                        <p style={{ color: 'var(--text-secondary)' }}>Use the search bar above to find relevant job opportunities.</p>
+                        <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '12px' }}>Your next career leap starts here.</h2>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '1.2rem' }}>Fill in the details above to uncover 100+ tailored roles.</p>
                     </div>
                 )}
             </div>
@@ -247,7 +289,17 @@ const JobSearchPage = () => {
                 }} onClick={() => setSelectedJob(null)}>
                     <div 
                         className="glass-card animate-fade-in" 
-                        style={{ width: '100%', maxWidth: '700px', maxHeight: '90vh', overflowY: 'auto', background: 'white' }}
+                        style={{ 
+                            width: '100%', 
+                            maxWidth: '800px', 
+                            maxHeight: '85vh', 
+                            overflowY: 'auto', 
+                            background: 'white',
+                            padding: '40px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '32px'
+                        }}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>

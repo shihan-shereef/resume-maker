@@ -4,9 +4,37 @@ import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import '@tensorflow/tfjs';
 import { Mic, MicOff, AlertTriangle, Clock, Activity, StopCircle, Code2, Settings as SettingsIcon, Volume2 } from 'lucide-react';
 import { generateResumeContent } from '../../lib/openrouter';
-import { textToSpeech, VOICES } from '../../lib/elevenlabs';
+import { textToSpeech, VOICES, VOICE_PRESETS } from '../../lib/elevenlabs';
 import { useResume } from '../../context/ResumeContext';
 import CodingEnvironment from './CodingEnvironment';
+import { cleanInterviewReply, isLikelyDuplicate, normalizeDialogueText } from '../../lib/dialogue';
+
+const INTERVIEW_FALLBACK_QUESTIONS = {
+    HR: [
+        "Tell me about a time you had to adapt quickly to a change at work or school.",
+        "What kind of team environment helps you do your best work?",
+        "Describe a challenge you faced recently and how you handled it.",
+        "What motivates you most in the roles you are applying for?",
+    ],
+    Technical: [
+        "Can you walk me through a project where you made an important technical decision?",
+        "How do you usually debug an issue when you do not know the root cause yet?",
+        "Tell me about a time you improved performance, reliability, or maintainability in a system.",
+        "How do you decide between shipping quickly and improving code quality?",
+    ],
+    Coding: [
+        "Explain your approach before you start coding so I can follow your reasoning.",
+        "How would you test your solution once the main logic is in place?",
+        "What edge cases would you check first for this kind of problem?",
+        "If your first approach felt too slow, how would you optimize it?",
+    ],
+    Mixed: [
+        "Start by telling me about a project you are proud of and why it mattered.",
+        "How do you balance collaboration, delivery speed, and technical quality?",
+        "What kind of problems do you most enjoy solving?",
+        "Describe a time you had to explain something complex in a simple way.",
+    ],
+};
 
 const ActiveInterviewRoom = ({ config, onEnd }) => {
     const { resumeData } = useResume();
@@ -42,6 +70,8 @@ const ActiveInterviewRoom = ({ config, onEnd }) => {
     const [detectedEmotion, setDetectedEmotion] = useState("Neutral");
     const [emotionConfidence, setEmotionConfidence] = useState(0);
     const recognitionRef = useRef(null);
+    const lastSubmittedRef = useRef({ text: '', timestamp: 0 });
+    const fallbackQuestionIndexRef = useRef(0);
 
     useEffect(() => {
         // Load ML Model
@@ -217,35 +247,51 @@ Rules:
 4. Ask one question at a time.
 5. Evaluate the candidate's technical and soft skills based on their resume and the job description.
 6. If the candidate asks for feedback, give brief, constructive points.
+7. Do not repeat any sentence, greeting, or question.
 ${isResumeProvided 
             ? `CONTEXT: Use the following resume data to tailor your questions: ${config.resumeText.substring(0, 3000)}` 
             : `CONTEXT: No resume was provided. Ask a general high-quality introductory question based on a ${config.type} interview path.`}
         - Keep your response UNDER 3 sentences.
+        - Ask exactly one fresh opening question.
         - NEVER use asterisks or actions (e.g., *nods*).
         - DO NOT say "As an AI...". Simply speak.
         - Be warm but professional.`;
         
         try {
             const firstQuestion = await generateResumeContent(systemPrompt, "You are a realistic AI interviewer.", "openai/gpt-4o-mini");
-            speakAndContinue(firstQuestion, 'ai');
+            const cleanedFirstQuestion = cleanInterviewReply(firstQuestion) || getFallbackInterviewQuestion(config.type, []);
+            speakAndContinue(cleanedFirstQuestion, 'ai');
         } catch(e) {
             console.error(e);
-            speakAndContinue("Hello. We are facing technical difficulties. Let's begin loosely. Tell me about yourself.", 'ai');
+            speakAndContinue(getFallbackInterviewQuestion(config.type, []), 'ai');
         }
+    };
+
+    const getFallbackInterviewQuestion = (type, transcriptSnapshot) => {
+        const options = INTERVIEW_FALLBACK_QUESTIONS[type] || INTERVIEW_FALLBACK_QUESTIONS.Mixed;
+        const priorAiTurns = transcriptSnapshot
+            .filter((entry) => entry.role === 'ai')
+            .map((entry) => entry.content);
+
+        const nextUnique = options.find((question) => !priorAiTurns.some((previous) => isLikelyDuplicate(previous, question)));
+        const fallback = nextUnique || options[fallbackQuestionIndexRef.current % options.length];
+        fallbackQuestionIndexRef.current += 1;
+        return fallback;
     };
 
     const speakAndContinue = async (text, role) => {
         setIsThinking(false);
-        setAiSubtitle(text);
+        const cleanedText = role === 'ai' ? cleanInterviewReply(text) : text;
+        setAiSubtitle(cleanedText);
         
         // Append to transcript
-        setTranscript(prev => [...prev, { role, content: text }]);
+        setTranscript(prev => [...prev, { role, content: cleanedText }]);
 
         window.speechSynthesis.cancel();
         
         try {
             // Try ElevenLabs first if key exists
-            const ttsUrl = await textToSpeech(text, VOICES.INTERVIEWER);
+            const ttsUrl = await textToSpeech(cleanedText, VOICES.INTERVIEWER, VOICE_PRESETS.INTERVIEWER);
             
             if (ttsUrl) {
                 const audio = new Audio(ttsUrl);
@@ -254,13 +300,13 @@ ${isResumeProvided
                         setUserSubtitle("Listening...");
                         setIsListening(true);
                         if(recognitionRef.current) {
-                            try { recognitionRef.current.start(); } catch(e){}
+                            try { recognitionRef.current.start(); } catch {}
                         }
                     }, 500);
                 };
-                audio.play().catch(e => {
+                audio.play().catch(() => {
                     console.warn("ElevenLabs Playback failed, falling back to system voice.");
-                    fallbackSpeak(text);
+                    fallbackSpeak(cleanedText);
                 });
                 return;
             }
@@ -268,7 +314,7 @@ ${isResumeProvided
             console.error("TTS Error:", err);
         }
 
-        fallbackSpeak(text);
+        fallbackSpeak(cleanedText);
     };
 
     const fallbackSpeak = (text) => {
@@ -283,7 +329,7 @@ ${isResumeProvided
                 setUserSubtitle("Listening...");
                 setIsListening(true);
                 if(recognitionRef.current) {
-                    try { recognitionRef.current.start(); } catch(e){}
+                    try { recognitionRef.current.start(); } catch {}
                 }
             }, 500);
         };
@@ -292,6 +338,22 @@ ${isResumeProvided
     };
 
     const handleUserSubmit = async (userText) => {
+        const normalizedUserText = normalizeDialogueText(userText);
+        const now = Date.now();
+
+        if (!normalizedUserText) {
+            return;
+        }
+
+        if (
+            lastSubmittedRef.current.text === normalizedUserText &&
+            now - lastSubmittedRef.current.timestamp < 4000
+        ) {
+            return;
+        }
+
+        lastSubmittedRef.current = { text: normalizedUserText, timestamp: now };
+
         if (recognitionRef.current) recognitionRef.current.stop();
         setIsListening(false);
         setIsThinking(true);
@@ -306,6 +368,7 @@ ${isResumeProvided
         const prompt = `You are the ${config.type} Interviewer.
         HISTORY: ${historyText}
         EMOTION_DETECTED: ${detectedEmotion}
+        RECENT_INTERVIEWER_MESSAGES: ${newTranscript.filter((entry) => entry.role === 'ai').slice(-2).map((entry) => entry.content).join(' | ') || 'None yet'}
         
         The candidate just answered. Speak like a real person. 
         If they seem nervous (${detectedEmotion}), acknowledge it warmly (e.g., "Take your time, no rush").
@@ -314,13 +377,38 @@ ${isResumeProvided
         CONVERSATIONAL RULES:
         - Be direct and human. Avoid generic AI praise like "That is a great answer."
         - Keep it strictly UNDER 3 sentences.
+        - Ask a new question that is materially different from your recent interviewer messages.
+        - Do not repeat or paraphrase any earlier question.
+        - Do not repeat a sentence within the same reply.
+        - Do not restate the candidate's last answer unless you are asking for one precise clarification.
         - Only output what you literally say. No markdown.`;
 
         try {
-             const nextResponse = await generateResumeContent(prompt, "You are a realistic AI interviewer.", "openai/gpt-4o-mini");
+             const recentAiTurns = newTranscript.filter((entry) => entry.role === 'ai').slice(-2).map((entry) => entry.content);
+             let nextResponse = cleanInterviewReply(
+                 await generateResumeContent(prompt, "You are a realistic AI interviewer.", "openai/gpt-4o-mini")
+             );
+
+             if (!nextResponse || recentAiTurns.some((previous) => isLikelyDuplicate(previous, nextResponse))) {
+                 const retryPrompt = `${prompt}
+
+IMPORTANT:
+- Your previous draft repeated a recent interviewer message.
+- Ask one clearly different follow-up question right now.
+- No repeated phrasing.`;
+
+                 nextResponse = cleanInterviewReply(
+                     await generateResumeContent(retryPrompt, "You are a realistic AI interviewer.", "openai/gpt-4o-mini")
+                 );
+             }
+
+             if (!nextResponse || recentAiTurns.some((previous) => isLikelyDuplicate(previous, nextResponse))) {
+                 nextResponse = getFallbackInterviewQuestion(config.type, newTranscript);
+             }
+
              speakAndContinue(nextResponse, 'ai');
         } catch (e) {
-             speakAndContinue("I see. Can you elaborate more on your previous experiences?", 'ai');
+             speakAndContinue(getFallbackInterviewQuestion(config.type, newTranscript), 'ai');
         }
     };
 

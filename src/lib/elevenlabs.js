@@ -1,6 +1,7 @@
 /**
  * ElevenLabs Hyper-Realistic Text-to-Speech Utility with Client-side Fallback
  */
+/* global process */
 
 export const VOICES = {
     FATHIMA: 'yj30vwTGJxSHezdAGsv9', 
@@ -9,23 +10,63 @@ export const VOICES = {
     NICOLE: 'AZnzlk1XhkDUDXYG7Sgh'
 };
 
+export const ELEVENLABS_MODELS = {
+    CONVERSATIONAL: 'eleven_multilingual_v2',
+};
+
+export const VOICE_PRESETS = {
+    PODCAST_HOST: {
+        modelId: ELEVENLABS_MODELS.CONVERSATIONAL,
+        voiceSettings: {
+            stability: 0.34,
+            similarity_boost: 0.9,
+            style: 0.42,
+            use_speaker_boost: true,
+            speed: 0.97,
+        },
+    },
+    PODCAST_EXPERT: {
+        modelId: ELEVENLABS_MODELS.CONVERSATIONAL,
+        voiceSettings: {
+            stability: 0.42,
+            similarity_boost: 0.88,
+            style: 0.28,
+            use_speaker_boost: true,
+            speed: 0.95,
+        },
+    },
+    INTERVIEWER: {
+        modelId: ELEVENLABS_MODELS.CONVERSATIONAL,
+        voiceSettings: {
+            stability: 0.45,
+            similarity_boost: 0.86,
+            style: 0.18,
+            use_speaker_boost: true,
+            speed: 0.96,
+        },
+    },
+};
+
 const LOCAL_DEV_HINT = "If you're running locally, start the app with `npm run dev:full` so the `/api/speak` backend is available.";
 
 /**
  * Convert text to speech using Takshila Backend Proxy or Direct client-side call
  * @param {string} text - The text to convert
  * @param {string} voiceId - The ElevenLabs voice ID
+ * @param {{ modelId?: string, voiceSettings?: object }} options
  * @returns {Promise<string|null>} - Returns a Blob URL for the audio or null if failed
  */
-export const textToSpeech = async (text, voiceId = VOICES.INTERVIEWER) => {
+export const textToSpeech = async (text, voiceId = VOICES.INTERVIEWER, options = {}) => {
     try {
+        const { modelId = ELEVENLABS_MODELS.CONVERSATIONAL, voiceSettings = {} } = options;
+
         // Try the backend proxy first
         const response = await fetch('/api/speak', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ text, voiceId })
+            body: JSON.stringify({ text, voiceId, modelId, voiceSettings })
         });
 
         if (response.status === 404) {
@@ -47,10 +88,10 @@ export const textToSpeech = async (text, voiceId = VOICES.INTERVIEWER) => {
                  },
                  body: JSON.stringify({
                      text,
-                     model_id: 'eleven_monolingual_v1',
+                     model_id: modelId,
                      voice_settings: {
-                         stability: 0.5,
-                         similarity_boost: 0.5,
+                         ...VOICE_PRESETS.INTERVIEWER.voiceSettings,
+                         ...voiceSettings,
                      }
                  })
              });

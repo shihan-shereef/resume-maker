@@ -2,7 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Youtube, Search, Sparkles, Globe, MessageSquare, AlertTriangle, Headphones, Copy, Check, Play, SkipBack, SkipForward, Pause, Download, Volume2, VolumeX, Clock, Calendar, Type, List, MessageCircle, Maximize2, Minimize2 } from 'lucide-react';
 import { generateResumeContent } from '../lib/openrouter';
 import LoadingMascot from '../components/common/LoadingMascot';
-import { useReactToPrint } from 'react-to-print';
+import { textToSpeech, VOICES, VOICE_PRESETS } from '../lib/elevenlabs';
+import { cleanPodcastScript, getSpeechLines } from '../lib/dialogue';
 
 const YoutubeSummarizerAdvanced = () => {
     const [url, setUrl] = useState('');
@@ -31,10 +32,6 @@ const YoutubeSummarizerAdvanced = () => {
     const audioObjRef = useRef(null);
     const chatEndRef = useRef(null);
 
-    const handlePrint = useReactToPrint({
-        content: () => summaryRef.current,
-    });
-
     const languages = [
         "English", "Spanish", "French", "German", "Portuguese", "Italian", "Dutch", "Russian", 
         "Arabic", "Hindi", "Malayalam", "Tamil", "Telugu", "Kannada", "Chinese", "Japanese", 
@@ -51,7 +48,7 @@ const YoutubeSummarizerAdvanced = () => {
     };
 
     const getYoutubeId = (url) => {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
         return (match && match[2].length === 11) ? match[2] : null;
     };
@@ -205,15 +202,18 @@ const YoutubeSummarizerAdvanced = () => {
             - Fathima is the host, Sam is the expert.
             - The tone should be natural and engaging.
             - Format each line as "Fathima: [content]" or "Sam: [content]".
+            - Each turn must introduce a fresh point. No repeated lines, repeated examples, or repeated conclusions.
+            - Do not let either speaker paraphrase the previous line unless it adds new value.
+            - Keep it concise and conversational, around 10 to 14 turns.
             
             CRITICAL LANGUAGE RULE:
             - YOU MUST OUTPUT THE ENTIRE SCRIPT STRICTLY AND ONLY IN ${selectedLanguage}.
             - DO NOT MIX IN ENGLISH OR OTHER LANGUAGES.`;
 
             const response = await generateResumeContent(prompt, "You are a professional Podcast producer.", "openai/gpt-4o-mini");
-            setPodcast(response);
+            setPodcast(cleanPodcastScript(response));
             setActiveTab('podcast');
-        } catch (err) {
+        } catch {
             setError("Failed to create podcast script.");
         } finally {
             setLoading(false);
@@ -250,7 +250,7 @@ const YoutubeSummarizerAdvanced = () => {
                 chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
             }, 100);
 
-        } catch (err) {
+        } catch {
             setChatHistory(prev => [...prev, { role: 'ai', content: "Sorry, I encountered an error while trying to answer that." }]);
         } finally {
             setIsChatLoading(false);
@@ -270,13 +270,13 @@ const YoutubeSummarizerAdvanced = () => {
             return;
         }
 
-        const textToRead = activeTab === 'summary' ? summaryData.standard : podcast;
+        const textToRead = activeTab === 'summary' ? summaryData.standard : cleanPodcastScript(podcast || '');
         if (!textToRead) return;
 
-        const utterances = textToRead.split('\n').filter(line => line.trim().length > 0);
+        const utterances = getSpeechLines(textToRead);
         let currentIndex = 0;
         
-        const speakNext = () => {
+        const speakNext = async () => {
             if (currentIndex >= utterances.length) {
                 setIsReading(false);
                 setAudioProgress(100);
@@ -292,15 +292,32 @@ const YoutubeSummarizerAdvanced = () => {
             }
 
             const targetLangCode = langMap[selectedLanguage] || 'en-US';
-            const gtxLang = targetLangCode.split('-')[0];
-            const ttsUrl = `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${gtxLang}&q=${encodeURIComponent(cleanText.substring(0, 200))}`;
-            
+            const isFathima = text.includes('Fathima:');
+            const isSam = text.includes('Sam:');
+            const voiceId = isFathima ? VOICES.FATHIMA : (isSam ? VOICES.SAM : VOICES.INTERVIEWER);
+            const voicePreset = activeTab === 'podcast'
+                ? (isFathima ? VOICE_PRESETS.PODCAST_HOST : VOICE_PRESETS.PODCAST_EXPERT)
+                : VOICE_PRESETS.INTERVIEWER;
+            const ttsUrl = await textToSpeech(cleanText, voiceId, voicePreset);
+
+            if (!ttsUrl) {
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = targetLangCode;
+                utterance.onend = () => {
+                    currentIndex++;
+                    setAudioProgress((currentIndex / utterances.length) * 100);
+                    speakNext();
+                };
+                window.speechSynthesis.speak(utterance);
+                return;
+            }
+
             const audio = new Audio(ttsUrl);
             audioObjRef.current = audio;
 
             if (activeTab === 'podcast') {
-                if (text.includes('Fathima:')) audio.playbackRate = 1.05;
-                if (text.includes('Sam:')) audio.playbackRate = 0.95;
+                if (isFathima) audio.playbackRate = 1.03;
+                if (isSam) audio.playbackRate = 0.97;
             }
 
             audio.onended = () => {
@@ -320,7 +337,7 @@ const YoutubeSummarizerAdvanced = () => {
                 window.speechSynthesis.speak(utterance);
             };
 
-            audio.play().catch(err => {
+            audio.play().catch(() => {
                 audio.onerror(); 
             });
         };

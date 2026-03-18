@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { Youtube, Search, Sparkles, Globe, MessageSquare, AlertTriangle, Headphones, Copy, Check, Play, SkipBack, SkipForward, Pause, Download, Volume2, VolumeX, FileText } from 'lucide-react';
 import { generateResumeContent } from '../lib/openrouter';
 import LoadingMascot from '../components/common/LoadingMascot';
-import { useReactToPrint } from 'react-to-print';
-import { textToSpeech, VOICES } from '../lib/elevenlabs';
+import { textToSpeech, VOICES, VOICE_PRESETS } from '../lib/elevenlabs';
+import { cleanPodcastScript, getSpeechLines } from '../lib/dialogue';
 
 const YoutubeSummarizer = () => {
     const [url, setUrl] = useState('');
@@ -18,11 +18,6 @@ const YoutubeSummarizer = () => {
     const [audioProgress, setAudioProgress] = useState(0);
     const summaryRef = React.useRef();
     const audioObjRef = React.useRef(null);
-    const [totalDuration, setTotalDuration] = useState(0);
-
-    const handlePrint = useReactToPrint({
-        content: () => summaryRef.current,
-    });
 
     const languages = [
         "English", "Spanish", "French", "German", "Portuguese", "Italian", "Dutch", "Russian", 
@@ -40,7 +35,7 @@ const YoutubeSummarizer = () => {
     };
 
     const getYoutubeId = (url) => {
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
         const match = url.match(regExp);
         return (match && match[2].length === 11) ? match[2] : null;
     };
@@ -123,8 +118,12 @@ const YoutubeSummarizer = () => {
             PODCAST FORMAT:
             - A conversation between 2 people (Fathima and Sam).
             - Fathima is the warm host, Sam is the knowledgeable actor-expert.
-            - The tone must be hyper-realistic, including natural fillers like "Hmm", "Umm", or "Exactly".
+            - The tone must be hyper-realistic, including very light natural fillers like "Hmm" or "Exactly" only when needed.
             - Format each line as "Fathima: [content]" or "Sam: [content]".
+            - Each line must add new information and move the discussion forward.
+            - DO NOT repeat the same sentence, idea, example, or question twice.
+            - DO NOT let both speakers restate the same point back to back.
+            - Keep the script tight and conversational, around 10 to 14 turns total.
             
             CRITICAL LANGUAGE RULE:
             - YOU MUST OUTPUT THE ENTIRE SCRIPT STRICTLY AND ONLY IN ${selectedLanguage}.
@@ -132,9 +131,9 @@ const YoutubeSummarizer = () => {
             - If translating to Malayalam or Hindi, use ONLY authentic script. No alien words.`;
 
             const response = await generateResumeContent(prompt, "You are a professional Podcast producer.", "openai/gpt-4o-mini");
-            setPodcast(response);
+            setPodcast(cleanPodcastScript(response));
             setActiveTab('podcast');
-        } catch (err) {
+        } catch {
             setError("Failed to create podcast script.");
         } finally {
             setLoading(false);
@@ -153,12 +152,10 @@ const YoutubeSummarizer = () => {
             return;
         }
 
-        const textToRead = activeTab === 'summary' ? summary : podcast;
-        const utterances = textToRead.split('\n').filter(line => line.trim().length > 0);
+        const textToRead = activeTab === 'summary' ? summary : cleanPodcastScript(podcast || '');
+        const utterances = getSpeechLines(textToRead);
         
         let currentIndex = 0;
-        setTotalDuration(utterances.length);
-        
         const speakNext = async () => {
             if (currentIndex >= utterances.length) {
                 setIsReading(false);
@@ -172,27 +169,33 @@ const YoutubeSummarizer = () => {
             const cleanText = text.replace(/Fathima:|Sam:/gi, '').trim();
             const targetLangCode = langMap[selectedLanguage] || 'en-US';
 
-            // Try ElevenLabs first if key is present
             let ttsUrl = null;
             if (activeTab === 'podcast') {
                 const voiceId = isFathima ? VOICES.FATHIMA : (isSam ? VOICES.SAM : VOICES.INTERVIEWER);
-                ttsUrl = await textToSpeech(cleanText, voiceId);
+                const voicePreset = isFathima ? VOICE_PRESETS.PODCAST_HOST : VOICE_PRESETS.PODCAST_EXPERT;
+                ttsUrl = await textToSpeech(cleanText, voiceId, voicePreset);
             } else {
-                ttsUrl = await textToSpeech(cleanText, VOICES.INTERVIEWER);
+                ttsUrl = await textToSpeech(cleanText, VOICES.INTERVIEWER, VOICE_PRESETS.INTERVIEWER);
             }
 
-            // Universal Fallback: Use Google Translate TTS if ElevenLabs fails or is missing
             if (!ttsUrl) {
-                const gtxLang = targetLangCode.split('-')[0];
-                ttsUrl = `https://translate.googleapis.com/translate_tts?client=gtx&ie=UTF-8&tl=${gtxLang}&q=${encodeURIComponent(cleanText.substring(0, 200))}`;
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = targetLangCode;
+                utterance.onend = () => {
+                    currentIndex++;
+                    setAudioProgress((currentIndex / utterances.length) * 100);
+                    speakNext();
+                };
+                window.speechSynthesis.speak(utterance);
+                return;
             }
             
             const audio = new Audio(ttsUrl);
             audioObjRef.current = audio;
 
             if (activeTab === 'podcast') {
-                if (isFathima) audio.playbackRate = 1.05;
-                if (isSam) audio.playbackRate = 0.95;
+                if (isFathima) audio.playbackRate = 1.03;
+                if (isSam) audio.playbackRate = 0.97;
             }
 
             audio.onended = () => {
@@ -202,7 +205,6 @@ const YoutubeSummarizer = () => {
             };
 
             audio.onerror = () => {
-                // If network fails, gracefully fallback to local macOS speech synthesis
                 const utterance = new SpeechSynthesisUtterance(cleanText);
                 utterance.lang = targetLangCode;
                 utterance.onend = () => {
@@ -213,8 +215,8 @@ const YoutubeSummarizer = () => {
                 window.speechSynthesis.speak(utterance);
             };
 
-            audio.play().catch(err => {
-                audio.onerror(); // trigger local fallback immediately!
+            audio.play().catch(() => {
+                audio.onerror();
             });
         };
 
