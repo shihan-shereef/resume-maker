@@ -13,6 +13,7 @@ import {
     X,
     Pencil,
     Link as LinkIcon,
+    ExternalLink,
     FileText,
 } from 'lucide-react';
 import { loadTrackedJobs, saveTrackedJobs, upsertTrackedJob } from '../lib/jobTracker';
@@ -28,6 +29,12 @@ const emptyForm = {
     location: '',
     salary: '',
     link: '',
+    applyUrl: '',
+    source: 'manual',
+    appliedAt: null,
+    deadlineAt: null,
+    employmentType: '',
+    workMode: '',
     notes: '',
 };
 
@@ -117,6 +124,7 @@ const JobTrackerPage = () => {
         const updatedJobs = upsertTrackedJob({
             ...formData,
             id: formData.id || `${Date.now()}`,
+            source: formData.source || 'manual',
         });
 
         setJobs(updatedJobs);
@@ -275,8 +283,25 @@ const JobTrackerPage = () => {
                                                 <div>
                                                     <div style={{ fontWeight: 800, fontSize: '1rem' }}>{job.company}</div>
                                                     <div style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 600, marginTop: '4px' }}>{job.role}</div>
+                                                    <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                                        {job.source && (
+                                                            <span style={{ padding: '5px 10px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 800, background: job.source === 'search-confirmed' ? 'rgba(16, 185, 129, 0.08)' : '#f8fafc', color: job.source === 'search-confirmed' ? '#047857' : '#475569' }}>
+                                                                {job.source === 'search-confirmed' ? 'Verified search' : 'Manual'}
+                                                            </span>
+                                                        )}
+                                                        {job.deadlineAt && (
+                                                            <span style={{ padding: '5px 10px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 800, background: 'rgba(245, 158, 11, 0.08)', color: '#b45309' }}>
+                                                                Deadline {new Date(job.deadlineAt).toLocaleDateString()}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div style={{ display: 'flex', gap: '8px' }}>
+                                                    {job.applyUrl && (
+                                                        <button onClick={() => window.open(job.applyUrl, '_blank', 'noopener,noreferrer')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '4px' }} title="Open application page">
+                                                            <ExternalLink size={16} />
+                                                        </button>
+                                                    )}
                                                     <button onClick={() => openEditModal(job)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', padding: '4px' }} title="Edit job">
                                                         <Pencil size={16} />
                                                     </button>
@@ -291,11 +316,18 @@ const JobTrackerPage = () => {
                                                     <MapPin size={14} /> {job.location}
                                                 </div>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <Calendar size={14} /> {job.date}
+                                                    <Calendar size={14} /> {job.appliedAt ? new Date(job.appliedAt).toLocaleDateString() : job.date}
                                                 </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                    <DollarSign size={14} /> {job.salary}
-                                                </div>
+                                                {job.salary && (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <DollarSign size={14} /> {job.salary}
+                                                    </div>
+                                                )}
+                                                {job.applyUrl && (
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        <LinkIcon size={14} /> {job.applyUrl.replace(/^https?:\/\//, '')}
+                                                    </div>
+                                                )}
                                             </div>
 
                                             <select
@@ -338,7 +370,21 @@ const JobTrackerPage = () => {
                             {filteredJobs.map((job) => (
                                 <tr key={job.id} style={{ borderBottom: '1px solid #f8fafc' }}>
                                     <td style={{ padding: '20px 24px', fontWeight: 700 }}>{job.company}</td>
-                                    <td style={{ padding: '20px 24px', color: 'var(--text-secondary)', fontWeight: 600 }}>{job.role}</td>
+                                    <td style={{ padding: '20px 24px', color: 'var(--text-secondary)', fontWeight: 600 }}>
+                                        <div>{job.role}</div>
+                                        <div style={{ marginTop: '6px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                            {job.source && (
+                                                <span style={{ padding: '5px 10px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 800, background: job.source === 'search-confirmed' ? 'rgba(16, 185, 129, 0.08)' : '#f8fafc', color: job.source === 'search-confirmed' ? '#047857' : '#475569' }}>
+                                                    {job.source === 'search-confirmed' ? 'Verified search' : 'Manual'}
+                                                </span>
+                                            )}
+                                            {job.deadlineAt && (
+                                                <span style={{ padding: '5px 10px', borderRadius: '999px', fontSize: '0.72rem', fontWeight: 800, background: 'rgba(245, 158, 11, 0.08)', color: '#b45309' }}>
+                                                    Deadline {new Date(job.deadlineAt).toLocaleDateString()}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </td>
                                     <td style={{ padding: '20px 24px' }}>
                                         <select
                                             className="form-input"
@@ -352,9 +398,14 @@ const JobTrackerPage = () => {
                                         </select>
                                     </td>
                                     <td style={{ padding: '20px 24px', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{job.location}</td>
-                                    <td style={{ padding: '20px 24px', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{job.date}</td>
+                                    <td style={{ padding: '20px 24px', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{job.appliedAt ? new Date(job.appliedAt).toLocaleDateString() : job.date}</td>
                                     <td style={{ padding: '20px 24px', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' }}>
+                                            {job.applyUrl && (
+                                                <button onClick={() => window.open(job.applyUrl, '_blank', 'noopener,noreferrer')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)' }} title="Open application page">
+                                                    <ExternalLink size={16} />
+                                                </button>
+                                            )}
                                             <button onClick={() => openEditModal(job)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }} title="Edit job">
                                                 <Pencil size={16} />
                                             </button>

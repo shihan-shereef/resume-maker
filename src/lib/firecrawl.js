@@ -1,88 +1,41 @@
-const FIRECRAWL_API_KEY = import.meta.env.VITE_FIRECRAWL_API_KEY;
-
-/**
- * Search jobs using Firecrawl API
- * @param {string} query - The search query (e.g. "Frontend Developer in New York")
- * @param {number} totalResults - Targeted number of results
- * @returns {Promise<Array>} List of job results
- */
-export const searchJobs = async (query, totalResults = 60) => {
-    if (!FIRECRAWL_API_KEY) {
-        console.warn("Firecrawl API key is missing. Using elite backup simulation.");
-        return [];
+const parseJsonResponse = async (response) => {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+        return {};
     }
 
-    try {
-        const results = [];
-        const perPage = 20;
-        const pages = Math.ceil(totalResults / perPage);
+    return response.json().catch(() => ({}));
+};
 
-        for (let i = 0; i < pages; i++) {
-            const response = await fetch("https://api.firecrawl.dev/v1/search", {
-                method: "POST",
+export const searchJobs = async ({ role, location = '', filters = {}, limit = 18 }) => {
+    const endpoints = ['/api/jobs/search', '/api/jobs-search'];
+    let lastError = new Error('Unable to load live verified jobs right now.');
+
+    for (const endpoint of endpoints) {
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
                 headers: {
-                    "Authorization": `Bearer ${FIRECRAWL_API_KEY}`,
-                    "Content-Type": "application/json"
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    query: `${query} career opportunity "apply" site:lever.co OR site:greenhouse.io OR site:workday.com`,
-                    limit: perPage,
-                    scrapeOptions: {
-                        formats: ["json"]
-                    }
-                })
+                    role,
+                    location,
+                    filters,
+                    limit,
+                }),
             });
 
+            const payload = await parseJsonResponse(response);
             if (!response.ok) {
-                console.error(`Firecrawl Page ${i} failed:`, await response.text());
-                break;
+                throw new Error(payload?.error || 'Unable to load live verified jobs right now.');
             }
 
-            const data = await response.json();
-            if (!data.data || data.data.length === 0) {
-                // Try a broader search on next iteration or break if total fail
-                if (data.results) { // Some versions use 'results'
-                    data.data = data.results;
-                } else {
-                    break;
-                }
-            }
-
-            const processed = (data.data || []).map(res => {
-                // Extract company from title: "Role at Company | Title" or "Role | Company"
-                let company = "Direct Hire";
-                const titleParts = res.title.split(/[|—–-]/).map(s => s.trim());
-                if (titleParts.length > 1) {
-                    // Usually the last or second to last part is company
-                    company = titleParts[titleParts.length - 1];
-                } else if (res.metadata?.hostname) {
-                    company = res.metadata.hostname.replace('jobs.', '').replace('.io', '').replace('.com', '');
-                }
-                
-                return {
-                    id: Math.random().toString(36).substr(2, 9),
-                    title: titleParts[0],
-                    company: company.charAt(0).toUpperCase() + company.slice(1),
-                    location: "Official Portal",
-                    link: res.url,
-                    type: "Full-time",
-                    isRemote: res.url.toLowerCase().includes('remote') || res.title.toLowerCase().includes('remote'),
-                    score: Math.floor(Math.random() * 15) + 85,
-                    salary: "Competitive",
-                    about: res.description || "View full details and requirements on the official career portal.",
-                    requirements: [],
-                    preferences: []
-                };
-            });
-
-            results.push(...processed);
-            if (results.length >= totalResults) break;
+            return Array.isArray(payload?.data) ? payload.data : [];
+        } catch (error) {
+            lastError = error instanceof Error ? error : new Error('Unable to load live verified jobs right now.');
         }
-
-        return results.slice(0, totalResults);
-
-    } catch (error) {
-        console.error("Firecrawl API Error:", error);
-        return [];
     }
+
+    throw lastError;
 };
