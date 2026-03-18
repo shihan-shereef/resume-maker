@@ -255,11 +255,22 @@ const LandingPage = () => {
                         </div>
                     </div>
                     <div style={{ flex: '1.5', minWidth: '320px' }}>
-                        <div className="glass-card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }}>
+                        <div className="hero-image-container" style={{
+                            padding: '20px',
+                            background: 'linear-gradient(145deg, #f8fafc, #e7e5e4)',
+                            borderRadius: '24px',
+                            boxShadow: '0 20px 40px rgba(0,0,0,0.08)',
+                        }}>
                             <img 
-                                src="/Users/apple/.gemini/antigravity/brain/7a1a696a-9763-458c-818e-a5c257229961/resume_maker_mockup_1773748337446.png" 
+                                src="src/images/hero-image.png" 
                                 alt="AI Resume Maker Interface" 
-                                style={{ width: '100%', height: 'auto', display: 'block' }}
+                                style={{ 
+                                    width: '100%', 
+                                    height: 'auto', 
+                                    display: 'block',
+                                    borderRadius: '16px',
+                                    boxShadow: '0 10px 20px rgba(0,0,0,0.1)',
+                                }}
                             />
                         </div>
                     </div>
@@ -306,7 +317,7 @@ const LandingPage = () => {
                     <div style={{ flex: '1.5', minWidth: '320px' }}>
                         <div className="glass-card" style={{ padding: '0', overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.1)' }}>
                             <img 
-                                src="/Users/apple/.gemini/antigravity/brain/7a1a696a-9763-458c-818e-a5c257229961/interview_simulator_mockup_1773748365170.png" 
+                                src="src/images/hero-image-2.png" 
                                 alt="AI Interview Simulator" 
                                 style={{ width: '100%', height: 'auto', display: 'block' }}
                             />

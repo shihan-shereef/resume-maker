@@ -75,10 +75,14 @@ const PdfSummarizerPage = () => {
 
             const response = await generateResumeContent(prompt, "You are an expert document analyst.");
             
+            const summaryMatch = response.match(/Summary:\s*([\s\S]*?)(?=Insights:|$)/i);
+            const insightsMatch = response.match(/Insights:\s*([\s\S]*?)(?=Explanation:|$)/i);
+            const explanationMatch = response.match(/Explanation:\s*([\s\S]*)/i);
+
             const summaryParts = {
-                general: response.match(/Summary:\s*([\s\S]*?)(?=Insights:|$)/i)?.[1]?.trim() || 'Summary could not be generated.',
-                insights: response.match(/Insights:\s*([\s\S]*?)(?=Explanation:|$)/i)?.[1]?.trim().split('\n').filter(l => l.trim()) || [],
-                explanation: response.match(/Explanation:\s*([\s\S]*)/i)?.[1]?.trim() || 'Detailed explanation could not be generated.'
+                general: summaryMatch?.[1]?.trim() || 'Summary could not be generated.',
+                insights: insightsMatch?.[1]?.trim() ? insightsMatch[1].trim().split('\n').filter(l => l.trim()) : [],
+                explanation: explanationMatch?.[1]?.trim() || 'Detailed explanation could not be generated.'
             };
             
             setSummary(summaryParts);
