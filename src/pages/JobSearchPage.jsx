@@ -8,7 +8,7 @@ import {
     saveTrackedJobs,
     upsertPendingApplication,
 } from '../lib/jobTracker';
-import { searchJobs } from '../lib/firecrawl';
+import { searchJobsWithMeta } from '../lib/firecrawl';
 import {
     formatJobDeadline,
     getJobApplicationDestinationLabel,
@@ -60,6 +60,7 @@ const JobSearchPage = () => {
     const [showFilters, setShowFilters] = useState(false);
     const [filters, setFilters] = useState(INITIAL_FILTERS);
     const [errorMessage, setErrorMessage] = useState('');
+    const [searchNotice, setSearchNotice] = useState('');
     const [hasSearched, setHasSearched] = useState(false);
     const [showPendingPrompt, setShowPendingPrompt] = useState(false);
     const [now, setNow] = useState(Date.now());
@@ -118,28 +119,32 @@ const JobSearchPage = () => {
         setLoading(true);
         setHasSearched(true);
         setErrorMessage('');
+        setSearchNotice('');
         setJobs([]);
 
         try {
-            const results = await searchJobs({
+            const result = await searchJobsWithMeta({
                 role,
                 location: normalizedLocation,
                 filters,
                 limit: isBroadSearch ? 30 : 18,
             });
 
-            setJobs(results);
+            setJobs(result.jobs);
+            setSearchNotice(result.notice || '');
 
-            if (results.length === 0) {
+            if (result.jobs.length === 0) {
                 setErrorMessage(
-                    isBroadSearch
-                        ? 'No live verified jobs are available from the verified sources right now.'
-                        : 'No live verified jobs matched your search right now.'
+                    result.errorMessage || (
+                        isBroadSearch
+                            ? 'No live verified jobs are available from the verified sources right now.'
+                            : 'No live verified jobs matched your search right now.'
+                    )
                 );
             }
         } catch (error) {
             console.error('Verified job search failed:', error);
-            setErrorMessage(error.message || 'Unable to load live verified jobs right now.');
+            setErrorMessage('Unable to load live verified jobs right now.');
             setJobs([]);
         } finally {
             setLoading(false);
@@ -338,6 +343,22 @@ const JobSearchPage = () => {
                     </div>
                 )}
             </div>
+
+            {searchNotice && (
+                <div
+                    className="glass-card"
+                    style={{
+                        padding: '18px 22px',
+                        border: '1px solid rgba(245, 158, 11, 0.24)',
+                        background: 'rgba(245, 158, 11, 0.06)',
+                        color: '#92400e',
+                        fontWeight: 700,
+                        lineHeight: 1.6,
+                    }}
+                >
+                    {searchNotice}
+                </div>
+            )}
 
             <div className="job-search-grid" style={{ padding: '8px' }}>
                 {loading ? (

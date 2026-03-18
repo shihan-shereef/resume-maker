@@ -7,6 +7,35 @@ const PUBLIC_GREENHOUSE_BOARD_TOKENS = [
 
 const normalizeWhitespace = (value = '') => value.replace(/\s+/g, ' ').trim();
 
+const buildBoardTokenCandidates = (query = '') => {
+    const normalized = normalizeWhitespace(query).toLowerCase();
+    const collapsed = normalized.replace(/[^a-z0-9]+/g, '');
+    const dashed = normalized.replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+    return Array.from(new Set([
+        collapsed,
+        dashed,
+        ...PUBLIC_GREENHOUSE_BOARD_TOKENS,
+    ].filter(Boolean)));
+};
+
+const buildSearchLabel = ({ role = '', location = '' }) => {
+    const parts = [normalizeWhitespace(role), normalizeWhitespace(location)].filter(Boolean);
+    return parts.join(' in ');
+};
+
+const buildUnavailableNotice = () => 'Showing live public ATS jobs while extended company-page search is unavailable.';
+
+const buildBroadenedNotice = ({ role = '', location = '' }) => {
+    const label = buildSearchLabel({ role, location });
+
+    if (!label) {
+        return '';
+    }
+
+    return `No exact live matches were found for "${label}". Showing current verified openings instead.`;
+};
+
 const buildMetadataText = (metadata = []) => {
     if (!Array.isArray(metadata)) {
         return '';
@@ -131,8 +160,9 @@ const fetchPublicGreenhouseBoardJobs = async (boardToken) => {
 };
 
 const searchPublicGreenhouseJobs = async ({ role, location = '', filters = {}, limit = 18 }) => {
+    const boardTokens = buildBoardTokenCandidates(role);
     const boardResults = await Promise.allSettled(
-        PUBLIC_GREENHOUSE_BOARD_TOKENS.map(async (boardToken) => {
+        boardTokens.map(async (boardToken) => {
             const jobs = await fetchPublicGreenhouseBoardJobs(boardToken);
             return jobs
                 .map((rawJob) => normalizePublicGreenhouseJob(boardToken, rawJob))
@@ -204,9 +234,10 @@ const parseJsonResponse = async (response) => {
     return response.json().catch(() => ({}));
 };
 
-export const searchJobs = async ({ role, location = '', filters = {}, limit = 18 }) => {
+export const searchJobsWithMeta = async ({ role, location = '', filters = {}, limit = 18 }) => {
     const endpoints = ['/api/jobs/search', '/api/jobs-search'];
-    let lastError = new Error('Unable to load live verified jobs right now.');
+    let lastError = null;
+    let apiFailed = false;
 
     for (const endpoint of endpoints) {
         try {
@@ -230,23 +261,78 @@ export const searchJobs = async ({ role, location = '', filters = {}, limit = 18
 
             const jobs = Array.isArray(payload?.data) ? payload.data : [];
             if (jobs.length > 0) {
-                return jobs;
+                return {
+                    jobs,
+                    notice: '',
+                    errorMessage: '',
+                };
             }
         } catch (error) {
+            apiFailed = true;
             lastError = error instanceof Error ? error : new Error('Unable to load live verified jobs right now.');
         }
     }
 
-    const fallbackJobs = await searchPublicGreenhouseJobs({
+    const exactFallbackJobs = await searchPublicGreenhouseJobs({
         role,
         location,
         filters,
         limit,
     });
 
-    if (fallbackJobs.length > 0) {
-        return fallbackJobs;
+    if (exactFallbackJobs.length > 0) {
+        return {
+            jobs: exactFallbackJobs,
+            notice: apiFailed ? buildUnavailableNotice() : '',
+            errorMessage: '',
+        };
     }
 
-    throw lastError;
+    if (role || location) {
+        const locationFallbackJobs = location
+            ? await searchPublicGreenhouseJobs({
+                role: '',
+                location,
+                filters,
+                limit,
+            })
+            : [];
+
+        if (locationFallbackJobs.length > 0) {
+            return {
+                jobs: locationFallbackJobs,
+                notice: buildBroadenedNotice({ role, location }),
+                errorMessage: '',
+            };
+        }
+
+        const broadFallbackJobs = await searchPublicGreenhouseJobs({
+            role: '',
+            location: '',
+            filters,
+            limit: Math.max(limit, 18),
+        });
+
+        if (broadFallbackJobs.length > 0) {
+            return {
+                jobs: broadFallbackJobs,
+                notice: buildBroadenedNotice({ role, location }),
+                errorMessage: '',
+            };
+        }
+    }
+
+    return {
+        jobs: [],
+        notice: '',
+        errorMessage: role || location
+            ? 'No live verified jobs matched your search right now.'
+            : 'No live verified jobs are available from the verified sources right now.',
+        technicalError: lastError?.message || '',
+    };
+};
+
+export const searchJobs = async (options) => {
+    const result = await searchJobsWithMeta(options);
+    return result.jobs;
 };
