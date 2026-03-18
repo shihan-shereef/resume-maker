@@ -3,6 +3,7 @@ import { generateResumeContent } from '../lib/openrouter';
 import { Search, Briefcase, MapPin, ExternalLink, Filter, Star, Loader2, Zap } from 'lucide-react';
 import { useResume } from '../context/ResumeContext';
 import { loadTrackedJobs, saveTrackedJobs } from '../lib/jobTracker';
+import { searchJobs } from '../lib/firecrawl';
 
 const JobSearchPage = () => {
     const { resumeData } = useResume();
@@ -25,36 +26,47 @@ const JobSearchPage = () => {
         setLoading(true);
         setJobs([]);
         try {
-            // Ask for a large batch
-            const prompt = `Generate a realistic and diverse list of 100 job openings ($80k-$250k range) for:
-            Role: ${filters.role || query}
-            Location: ${filters.location || location}
-            Criteria: ${filters.experience} experience, ${filters.remote} work style.
-            
-            Return ONLY a raw JSON array of objects.
-            [ { "id": "uuid", "title": "...", "company": "...", "location": "...", "type": "...", "isRemote": bool, "score": 85-99, "salary": "$...k", "link": "...", "about": "...", "requirements": [...], "preferences": [...] }, ... ]
-            Generate EXACTLY 100 unique jobs.`;
+            const searchQuery = `${filters.role || query} ${filters.location || location}`;
+            const crawlResults = await searchJobs(searchQuery, 60);
 
-            const res = await generateResumeContent(prompt, "You are a high-performance Job Search API. Return 100 jobs in JSON.", "google/gemini-2.0-flash-001");
-            let cleanedRes = res.replace(/```json|```/g, '').trim();
-            const results = JSON.parse(cleanedRes);
-            setJobs(results);
+            if (crawlResults.length > 0) {
+                // Enrich first 5-10 with AI for better UX (token efficiency)
+                const toEnrich = crawlResults.slice(0, 5);
+                const enrichmentPrompt = `For these real job URLs, generate realistic Requirements and Preferences lists (3 each) and a 3-sentence 'About' section for each.
+                JOBS: ${JSON.stringify(toEnrich.map(j => ({ title: j.title, company: j.company, url: j.link })))}
+                Return ONLY JSON array of enriched objects.`;
+
+                try {
+                    const enrichedData = await generateResumeContent(enrichmentPrompt, "Enrich job data with premium insights.", "google/gemini-2.0-flash-001");
+                    const cleanedEnriched = JSON.parse(enrichedData.replace(/```json|```/g, '').trim());
+                    
+                    const finalJobs = crawlResults.map(job => {
+                        const enrichment = cleanedEnriched.find(e => e.url === job.link);
+                        return enrichment ? { ...job, ...enrichment } : job;
+                    });
+                    setJobs(finalJobs);
+                } catch (e) {
+                    console.warn("Enrichment failed, using raw crawl data:", e);
+                    setJobs(crawlResults);
+                }
+            } else {
+                throw new Error("No live results found.");
+            }
         } catch (error) {
             console.error("Job search failed:", error);
-            // Robust backup list
-            const backupJobs = Array.from({ length: 10 }).map((_, i) => ({
+            const backupJobs = Array.from({ length: 15 }).map((_, i) => ({
                 id: `bk-${i}`,
-                title: `${query || 'Software Engineer'} ${i + 1}`,
-                company: ['Google', 'Meta', 'Amazon', 'Netflix', 'Tesla', 'Stripe', 'OpenAI'][i % 7],
+                title: `${query || 'Software Engineer'}`,
+                company: 'Top Tech Firm',
                 location: location || 'Remote',
                 type: 'Full-time',
                 isRemote: true,
-                score: 90 + (i % 10),
-                salary: `$${120 + i*5}k - $${180 + i*5}k`,
+                score: 95,
+                salary: "$140k - $210k",
                 link: 'https://google.com/search?q=careers',
-                about: 'Join our high-impact team building next-generation AI infrastructure and scale.',
-                requirements: ['Proficiency in modern tech stack', 'Communication skills'],
-                preferences: ['Relevant experience']
+                about: 'Live search currently unavailable. This is a high-match simulated role based on your profile.',
+                requirements: ['High-impact delivery', 'Scale expertise'],
+                preferences: ['Relevant domain experience']
             }));
             setJobs(backupJobs);
         } finally {
