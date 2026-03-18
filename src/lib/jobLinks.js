@@ -74,7 +74,12 @@ export const openJobApplication = (job) => {
 
     if (openedWindow) {
         openedWindow.opener = null;
+        return destination;
     }
+
+    // Safari and in-app browsers can block the new tab even on click.
+    // Fall back to same-tab navigation so the user can still apply.
+    window.location.assign(destination);
 
     return destination;
 };

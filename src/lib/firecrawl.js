@@ -1,11 +1,32 @@
 const PUBLIC_GREENHOUSE_BOARD_TOKENS = [
+    'airtable',
+    'brex',
+    'chime',
+    'cloudflare',
+    'coinbase',
+    'datadog',
+    'discord',
+    'duolingo',
+    'figma',
+    'instacart',
+    'reddit',
+    'robinhood',
     'stripe',
     'vercel',
-    'figma',
-    'reddit',
 ];
 
+const PUBLIC_BOARD_CACHE_TTL_MS = 5 * 60 * 1000;
+const publicBoardCache = new Map();
+
+export const resetPublicJobSearchCache = () => {
+    publicBoardCache.clear();
+};
+
 const normalizeWhitespace = (value = '') => value.replace(/\s+/g, ' ').trim();
+
+const normalizeCompanyKey = (value = '') => normalizeWhitespace(value).toLowerCase();
+
+const getTimestamp = (value) => Date.parse(value || '') || 0;
 
 const buildBoardTokenCandidates = (query = '') => {
     const normalized = normalizeWhitespace(query).toLowerCase();
@@ -24,7 +45,7 @@ const buildSearchLabel = ({ role = '', location = '' }) => {
     return parts.join(' in ');
 };
 
-const buildUnavailableNotice = () => 'Showing live public ATS jobs while extended company-page search is unavailable.';
+const buildUnavailableNotice = () => 'Showing live public ATS jobs from multiple companies while extended company-page search is unavailable.';
 
 const buildBroadenedNotice = ({ role = '', location = '' }) => {
     const label = buildSearchLabel({ role, location });
@@ -33,7 +54,7 @@ const buildBroadenedNotice = ({ role = '', location = '' }) => {
         return '';
     }
 
-    return `No exact live matches were found for "${label}". Showing current verified openings instead.`;
+    return `No exact live matches were found for "${label}". Showing current verified openings from multiple companies instead.`;
 };
 
 const buildMetadataText = (metadata = []) => {
@@ -111,6 +132,61 @@ const matchesLooseQuery = (haystack, query) => {
     return terms.length > 0 && terms.every((term) => normalizedHaystack.includes(term));
 };
 
+const matchesFilters = (job, filters = {}) => {
+    if (filters.workMode && filters.workMode !== 'All' && job.workMode !== filters.workMode) {
+        return false;
+    }
+
+    if (filters.employmentType && filters.employmentType !== 'All' && job.employmentType !== filters.employmentType) {
+        return false;
+    }
+
+    return true;
+};
+
+const diversifyJobsByCompany = (jobs, limit) => {
+    const groupedJobs = new Map();
+
+    jobs.forEach((job) => {
+        const key = normalizeCompanyKey(job.company) || job.applyUrl;
+
+        if (!groupedJobs.has(key)) {
+            groupedJobs.set(key, []);
+        }
+
+        groupedJobs.get(key).push(job);
+    });
+
+    const queues = Array.from(groupedJobs.values())
+        .map((jobsForCompany) => jobsForCompany.sort((left, right) => getTimestamp(right.updatedAt) - getTimestamp(left.updatedAt)))
+        .sort((left, right) => getTimestamp(right[0]?.updatedAt) - getTimestamp(left[0]?.updatedAt));
+
+    const results = [];
+
+    while (results.length < limit) {
+        let addedInRound = false;
+
+        for (const queue of queues) {
+            if (queue.length === 0) {
+                continue;
+            }
+
+            results.push(queue.shift());
+            addedInRound = true;
+
+            if (results.length >= limit) {
+                break;
+            }
+        }
+
+        if (!addedInRound) {
+            break;
+        }
+    }
+
+    return results;
+};
+
 export const normalizePublicGreenhouseJob = (boardToken, rawJob) => {
     const title = normalizeWhitespace(rawJob?.title || '');
     const company = normalizeWhitespace(rawJob?.company_name || boardToken);
@@ -144,19 +220,38 @@ export const normalizePublicGreenhouseJob = (boardToken, rawJob) => {
 };
 
 const fetchPublicGreenhouseBoardJobs = async (boardToken) => {
-    const response = await fetch(`https://boards-api.greenhouse.io/v1/boards/${boardToken}/jobs?content=false`, {
-        method: 'GET',
-        headers: {
-            Accept: 'application/json',
-        },
-    });
-
-    if (!response.ok) {
-        throw new Error(`Greenhouse board request failed (${response.status})`);
+    const cachedEntry = publicBoardCache.get(boardToken);
+    if (cachedEntry && cachedEntry.expiresAt > Date.now()) {
+        return cachedEntry.dataPromise;
     }
 
-    const payload = await response.json().catch(() => ({}));
-    return Array.isArray(payload?.jobs) ? payload.jobs : [];
+    const dataPromise = (async () => {
+        const response = await fetch(`https://boards-api.greenhouse.io/v1/boards/${boardToken}/jobs?content=false`, {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            throw new Error(`Greenhouse board request failed (${response.status})`);
+        }
+
+        const payload = await response.json().catch(() => ({}));
+        return Array.isArray(payload?.jobs) ? payload.jobs : [];
+    })();
+
+    publicBoardCache.set(boardToken, {
+        expiresAt: Date.now() + PUBLIC_BOARD_CACHE_TTL_MS,
+        dataPromise,
+    });
+
+    try {
+        return await dataPromise;
+    } catch (error) {
+        publicBoardCache.delete(boardToken);
+        throw error;
+    }
 };
 
 const searchPublicGreenhouseJobs = async ({ role, location = '', filters = {}, limit = 18 }) => {
@@ -171,7 +266,7 @@ const searchPublicGreenhouseJobs = async ({ role, location = '', filters = {}, l
     );
 
     const seenApplyUrls = new Set();
-    const matches = boardResults
+    const filteredMatches = boardResults
         .filter((result) => result.status === 'fulfilled')
         .flatMap((result) => result.value)
         .filter((job) => {
@@ -189,40 +284,26 @@ const searchPublicGreenhouseJobs = async ({ role, location = '', filters = {}, l
                 return false;
             }
 
-            if (filters.workMode && filters.workMode !== 'All' && job.workMode !== filters.workMode) {
-                return false;
-            }
-
-            if (filters.employmentType && filters.employmentType !== 'All' && job.employmentType !== filters.employmentType) {
-                return false;
-            }
-
-            return true;
+            return matchesFilters(job, filters);
         })
-        .sort((left, right) => {
-            const leftTime = Date.parse(left.updatedAt || '') || 0;
-            const rightTime = Date.parse(right.updatedAt || '') || 0;
-            return rightTime - leftTime;
-        })
-        .slice(0, limit)
-        .map((job) => ({
-            id: job.id,
-            title: job.title,
-            company: job.company,
-            location: job.location,
-            employmentType: job.employmentType,
-            workMode: job.workMode,
-            applyUrl: job.applyUrl,
-            sourceUrl: job.sourceUrl,
-            sourceProvider: job.sourceProvider,
-            deadlineAt: job.deadlineAt,
-            deadlineText: job.deadlineText,
-            timeLeftLabel: job.timeLeftLabel,
-            descriptionSnippet: job.descriptionSnippet,
-            requirements: job.requirements,
-        }));
+        .sort((left, right) => getTimestamp(right.updatedAt) - getTimestamp(left.updatedAt));
 
-    return matches;
+    return diversifyJobsByCompany(filteredMatches, limit).map((job) => ({
+        id: job.id,
+        title: job.title,
+        company: job.company,
+        location: job.location,
+        employmentType: job.employmentType,
+        workMode: job.workMode,
+        applyUrl: job.applyUrl,
+        sourceUrl: job.sourceUrl,
+        sourceProvider: job.sourceProvider,
+        deadlineAt: job.deadlineAt,
+        deadlineText: job.deadlineText,
+        timeLeftLabel: job.timeLeftLabel,
+        descriptionSnippet: job.descriptionSnippet,
+        requirements: job.requirements,
+    }));
 };
 
 const parseJsonResponse = async (response) => {
@@ -310,7 +391,7 @@ export const searchJobsWithMeta = async ({ role, location = '', filters = {}, li
             role: '',
             location: '',
             filters,
-            limit: Math.max(limit, 18),
+            limit: Math.max(limit, PUBLIC_GREENHOUSE_BOARD_TOKENS.length),
         });
 
         if (broadFallbackJobs.length > 0) {

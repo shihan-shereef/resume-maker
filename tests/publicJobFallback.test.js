@@ -1,6 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { normalizePublicGreenhouseJob, searchJobs, searchJobsWithMeta } from '../src/lib/firecrawl.js';
+import {
+    normalizePublicGreenhouseJob,
+    resetPublicJobSearchCache,
+    searchJobs,
+    searchJobsWithMeta,
+} from '../src/lib/firecrawl.js';
 
 test('normalizePublicGreenhouseJob maps a public Greenhouse board listing', () => {
     const job = normalizePublicGreenhouseJob('vercel', {
@@ -30,6 +35,7 @@ test('normalizePublicGreenhouseJob maps a public Greenhouse board listing', () =
 
 test('searchJobs falls back to public Greenhouse jobs when API routes fail', async (context) => {
     const originalFetch = globalThis.fetch;
+    resetPublicJobSearchCache();
     context.after(() => {
         globalThis.fetch = originalFetch;
     });
@@ -91,8 +97,128 @@ test('searchJobs falls back to public Greenhouse jobs when API routes fail', asy
     assert.equal(jobs[0].applyUrl, 'https://stripe.com/jobs/search?gh_jid=7532733');
 });
 
+test('searchJobs spreads broad fallback results across different companies', async (context) => {
+    const originalFetch = globalThis.fetch;
+    resetPublicJobSearchCache();
+    context.after(() => {
+        globalThis.fetch = originalFetch;
+    });
+
+    globalThis.fetch = async (url) => {
+        const target = String(url);
+
+        if (target.startsWith('/api/')) {
+            return new Response(JSON.stringify({
+                error: 'Firecrawl API key is not configured.',
+                data: [],
+            }), {
+                status: 500,
+                headers: {
+                    'content-type': 'application/json',
+                },
+            });
+        }
+
+        if (target.includes('boards-api.greenhouse.io/v1/boards/stripe/jobs')) {
+            return new Response(JSON.stringify({
+                jobs: [
+                    {
+                        id: 1,
+                        title: 'Stripe Role A',
+                        company_name: 'Stripe',
+                        absolute_url: 'https://stripe.com/jobs/search?gh_jid=1',
+                        updated_at: '2026-03-18T10:00:00Z',
+                        location: { name: 'Remote' },
+                        metadata: [],
+                    },
+                    {
+                        id: 2,
+                        title: 'Stripe Role B',
+                        company_name: 'Stripe',
+                        absolute_url: 'https://stripe.com/jobs/search?gh_jid=2',
+                        updated_at: '2026-03-17T10:00:00Z',
+                        location: { name: 'Remote' },
+                        metadata: [],
+                    },
+                ],
+            }), {
+                status: 200,
+                headers: {
+                    'content-type': 'application/json',
+                },
+            });
+        }
+
+        if (target.includes('boards-api.greenhouse.io/v1/boards/vercel/jobs')) {
+            return new Response(JSON.stringify({
+                jobs: [
+                    {
+                        id: 3,
+                        title: 'Vercel Role A',
+                        company_name: 'Vercel',
+                        absolute_url: 'https://job-boards.greenhouse.io/vercel/jobs/3',
+                        updated_at: '2026-03-16T10:00:00Z',
+                        location: { name: 'San Francisco, CA' },
+                        metadata: [],
+                    },
+                ],
+            }), {
+                status: 200,
+                headers: {
+                    'content-type': 'application/json',
+                },
+            });
+        }
+
+        if (target.includes('boards-api.greenhouse.io/v1/boards/reddit/jobs')) {
+            return new Response(JSON.stringify({
+                jobs: [
+                    {
+                        id: 4,
+                        title: 'Reddit Role A',
+                        company_name: 'Reddit',
+                        absolute_url: 'https://job-boards.greenhouse.io/reddit/jobs/4',
+                        updated_at: '2026-03-15T10:00:00Z',
+                        location: { name: 'London, United Kingdom' },
+                        metadata: [],
+                    },
+                ],
+            }), {
+                status: 200,
+                headers: {
+                    'content-type': 'application/json',
+                },
+            });
+        }
+
+        return new Response(JSON.stringify({ jobs: [] }), {
+            status: 200,
+            headers: {
+                'content-type': 'application/json',
+            },
+        });
+    };
+
+    const result = await searchJobsWithMeta({
+        role: '',
+        location: '',
+        filters: {
+            workMode: 'All',
+            employmentType: 'All',
+        },
+        limit: 3,
+    });
+
+    assert.equal(result.jobs.length, 3);
+    assert.deepEqual(
+        result.jobs.map((job) => job.company),
+        ['Stripe', 'Vercel', 'Reddit']
+    );
+});
+
 test('searchJobsWithMeta broadens to available live jobs when an exact company search has no public match', async (context) => {
     const originalFetch = globalThis.fetch;
+    resetPublicJobSearchCache();
     context.after(() => {
         globalThis.fetch = originalFetch;
     });
@@ -153,6 +279,6 @@ test('searchJobsWithMeta broadens to available live jobs when an exact company s
 
     assert.equal(result.jobs.length, 1);
     assert.equal(result.jobs[0].company, 'Stripe');
-    assert.match(result.notice, /No exact live matches were found/i);
+    assert.match(result.notice, /Showing current verified openings from multiple companies instead/i);
     assert.equal(result.errorMessage, '');
 });

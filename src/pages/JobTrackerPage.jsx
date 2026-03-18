@@ -17,6 +17,7 @@ import {
     FileText,
 } from 'lucide-react';
 import { loadTrackedJobs, saveTrackedJobs, upsertTrackedJob } from '../lib/jobTracker';
+import { openJobApplication } from '../lib/jobLinks';
 
 const statuses = ['Wishlist', 'Applied', 'Interviewing', 'Offer', 'Rejected'];
 
@@ -298,7 +299,7 @@ const JobTrackerPage = () => {
                                                 </div>
                                                 <div style={{ display: 'flex', gap: '8px' }}>
                                                     {job.applyUrl && (
-                                                        <button onClick={() => window.open(job.applyUrl, '_blank', 'noopener,noreferrer')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '4px' }} title="Open application page">
+                                                        <button onClick={() => openJobApplication(job)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', padding: '4px' }} title="Open application page">
                                                             <ExternalLink size={16} />
                                                         </button>
                                                     )}
@@ -402,7 +403,7 @@ const JobTrackerPage = () => {
                                     <td style={{ padding: '20px 24px', textAlign: 'right' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '12px' }}>
                                             {job.applyUrl && (
-                                                <button onClick={() => window.open(job.applyUrl, '_blank', 'noopener,noreferrer')} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)' }} title="Open application page">
+                                                <button onClick={() => openJobApplication(job)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)' }} title="Open application page">
                                                     <ExternalLink size={16} />
                                                 </button>
                                             )}

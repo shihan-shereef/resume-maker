@@ -226,7 +226,7 @@ const JobSearchPage = () => {
                             Live <span className="gradient-text">Verified Job Search</span>
                         </h1>
                         <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(1rem, 2vw, 1.2rem)', lineHeight: 1.6, maxWidth: '700px' }}>
-                            Search only live job pages with verified application links. Leave the role field blank to browse current verified openings, and deadlines come from the career page when they are published.
+                            Search live verified openings from multiple companies with real application links. Leave the role field blank to browse current openings, and deadlines come from the career page when they are published.
                         </p>
                     </div>
                     <div style={{
@@ -238,7 +238,7 @@ const JobSearchPage = () => {
                         backdropFilter: 'blur(10px)'
                     }}>
                         <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6, fontWeight: 600 }}>
-                            Results are filtered to live company career pages and trusted ATS providers. Closed jobs and expired deadlines stay out of the list.
+                            Results are filtered to live company career pages and trusted ATS providers. Closed jobs and expired deadlines stay out of the list, and the first results are spread across different companies.
                         </p>
                     </div>
                 </div>
@@ -552,13 +552,13 @@ const JobSearchPage = () => {
 
                             <div style={{ padding: '18px', borderRadius: '18px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-primary)', fontWeight: 800, marginBottom: '10px' }}>
-                                    <LinkIcon size={18} /> Verified Destination
+                                    <LinkIcon size={18} /> Official Destination
                                 </div>
                                 <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
                                     {selectedJobDestination}
                                 </div>
                                 <div style={{ color: 'var(--text-secondary)', marginTop: '6px' }}>
-                                    This is the application page that will open in a new tab.
+                                    This is the official application page that will open for you.
                                 </div>
                             </div>
                         </div>
@@ -596,7 +596,7 @@ const JobSearchPage = () => {
                                 className={selectedJobIsTracked ? 'btn-secondary' : 'btn-primary'}
                                 style={{ flex: '1 1 260px', padding: '16px', fontSize: '1.05rem', background: selectedJobIsTracked ? '#10b981' : '', color: selectedJobIsTracked ? 'white' : '' }}
                             >
-                                {selectedJobIsTracked ? 'Applied & Tracked ✓' : selectedJobIsPending ? 'Open Application Again' : 'Open Verified Application'} <ExternalLink size={20} />
+                                {selectedJobIsTracked ? 'Applied & Tracked ✓' : selectedJobIsPending ? 'Open Application Again' : 'Open Official Application'} <ExternalLink size={20} />
                             </button>
                             <button className="btn-secondary" onClick={() => setSelectedJob(null)} style={{ padding: '16px 32px' }}>
                                 Close
