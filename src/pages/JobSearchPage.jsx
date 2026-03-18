@@ -396,12 +396,15 @@ const JobSearchPage = () => {
                                     <span style={{ padding: '6px 12px', borderRadius: '999px', background: 'rgba(255, 92, 0, 0.08)', color: 'var(--primary)', fontSize: '0.78rem', fontWeight: 800 }}>
                                         {job.sourceProvider}
                                     </span>
-                                    <div style={{ textAlign: 'right' }}>
+                                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                                         <div style={{ fontSize: '0.78rem', fontWeight: 800, color: job.deadlineAt ? '#b45309' : 'var(--text-tertiary)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                                            {job.deadlineAt ? getTimeLeftLabel(job.deadlineAt, now) : 'Not listed'}
+                                            {job.deadlineAt ? getTimeLeftLabel(job.deadlineAt, now) : ''}
                                         </div>
-                                        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '4px' }}>
-                                            Apply by {formatJobDeadline(job.deadlineAt)}
+                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                                            <strong>Start:</strong> {job.postedAt ? formatJobDeadline(job.postedAt) : 'Not specified'}
+                                        </div>
+                                        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                                            <strong>End:</strong> {formatJobDeadline(job.deadlineAt)}
                                         </div>
                                     </div>
                                 </div>
@@ -540,12 +543,15 @@ const JobSearchPage = () => {
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
                             <div style={{ padding: '18px', borderRadius: '18px', background: '#f8fafc', border: '1px solid #e2e8f0' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--text-primary)', fontWeight: 800, marginBottom: '10px' }}>
-                                    <Calendar size={18} /> Application Deadline
+                                    <Calendar size={18} /> Application Timeline
                                 </div>
-                                <div style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--text-primary)' }}>
-                                    {formatJobDeadline(selectedJob.deadlineAt)}
+                                <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '8px' }}>
+                                    Starting Time: <span style={{ fontWeight: 800 }}>{selectedJob.postedAt ? formatJobDeadline(selectedJob.postedAt) : 'Not specified'}</span>
                                 </div>
-                                <div style={{ color: 'var(--text-secondary)', marginTop: '6px' }}>
+                                <div style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                    Ending Time: <span style={{ fontWeight: 800 }}>{formatJobDeadline(selectedJob.deadlineAt)}</span>
+                                </div>
+                                <div style={{ color: 'var(--text-secondary)', marginTop: '8px', fontSize: '0.85rem' }}>
                                     {getTimeLeftLabel(selectedJob.deadlineAt, now)}
                                 </div>
                             </div>

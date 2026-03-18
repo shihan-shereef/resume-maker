@@ -308,6 +308,15 @@ const extractDeadline = ({ schema, text }) => {
     return extractDeadlineFromText(text);
 };
 
+const extractPostedAt = ({ schema }) => {
+    const postedString = schema?.datePosted;
+    if (postedString) {
+        const parsed = parseDeadlineString(postedString);
+        return parsed.deadlineAt || null; // parseDeadlineString works for any date string
+    }
+    return null;
+};
+
 const buildTimeLeftLabel = (deadlineAt) => {
     if (!deadlineAt) {
         return null;
@@ -587,6 +596,7 @@ const buildTrustedAtsFallbackJob = ({ result, sourceUrl, sourceHostname, text })
         applyUrl: sourceUrl,
         sourceUrl,
         sourceProvider: getSourceProvider(sourceHostname),
+        postedAt: null,
         deadlineAt: null,
         deadlineText: null,
         timeLeftLabel: null,
@@ -636,6 +646,7 @@ export const extractVerifiedJob = (result) => {
         schema,
     });
     const { deadlineAt, deadlineText } = extractDeadline({ schema, text });
+    const postedAt = extractPostedAt({ schema });
 
     if (pageLooksClosed({ text, deadlineAt })) {
         return null;
@@ -669,6 +680,7 @@ export const extractVerifiedJob = (result) => {
         applyUrl,
         sourceUrl,
         sourceProvider,
+        postedAt,
         deadlineAt: deadlineAt || null,
         deadlineText: deadlineText || null,
         timeLeftLabel: buildTimeLeftLabel(deadlineAt),
