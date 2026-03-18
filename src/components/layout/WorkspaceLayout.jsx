@@ -4,12 +4,14 @@ import Topbar from './Topbar';
 
 const WorkspaceLayout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const closeMenu = () => setIsMenuOpen(false);
+    const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 
     return (
-        <div className="workspace-layout">
+        <div className={`workspace-layout ${isCollapsed ? 'sidebar-collapsed' : ''}`}>
             {/* Mobile Overlay */}
             {isMenuOpen && (
                 <div 
@@ -18,7 +20,12 @@ const WorkspaceLayout = ({ children }) => {
                 />
             )}
             
-            <Sidebar isOpen={isMenuOpen} onClose={closeMenu} />
+            <Sidebar 
+                isOpen={isMenuOpen} 
+                onClose={closeMenu} 
+                isCollapsed={isCollapsed} 
+                onToggleCollapse={toggleCollapse} 
+            />
             
             <main className="main-content">
                 <Topbar onMenuClick={toggleMenu} />

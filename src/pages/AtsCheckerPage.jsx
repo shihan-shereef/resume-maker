@@ -1,58 +1,23 @@
 import React, { useState, useRef } from 'react';
 import { Target, FileUp, ArrowRight, MessageSquare, Zap, AlertTriangle, Eye } from 'lucide-react';
-import * as pdfjs from 'pdfjs-dist';
-import mammoth from 'mammoth';
 import { generateResumeContent } from '../lib/openrouter';
 import LoadingMascot from '../components/common/LoadingMascot';
-
-// Set worker source for pdfjs - Using unpkg for better reliability
-pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+import { extractResumeText } from '../lib/pdfjs';
 
 const AtsCheckerPage = () => {
-    const [file, setFile] = useState(null);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState(null);
     const [error, setError] = useState(null);
     const fileInputRef = useRef(null);
 
-    const extractText = async (file) => {
-        try {
-            const fileType = file.name.split('.').pop().toLowerCase();
-            if (fileType === 'pdf') {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
-                
-                // Parallelize for speed
-                const pagePromises = Array.from({ length: pdf.numPages }, (_, i) => 
-                    pdf.getPage(i + 1).then(async (page) => {
-                        const textContent = await page.getTextContent();
-                        return textContent.items.map(item => item.str).join(' ');
-                    })
-                );
-                
-                const pageTexts = await Promise.all(pagePromises);
-                return pageTexts.join('\n');
-            } else if (fileType === 'docx') {
-                const arrayBuffer = await file.arrayBuffer();
-                const result = await mammoth.extractRawText({ arrayBuffer });
-                return result.value;
-            }
-            throw new Error('Unsupported file format. Please upload PDF or DOCX.');
-        } catch (err) {
-            console.error('Extraction error:', err);
-            throw new Error(`Could not read file: ${err.message}`);
-        }
-    };
-
     const handleAnalyze = async (uploadedFile) => {
         if (!uploadedFile) return;
-        setFile(uploadedFile);
         setLoading(true);
         setError(null);
         setResult(null);
 
         try {
-            const text = await extractText(uploadedFile);
+            const text = await extractResumeText(uploadedFile, { allowTxt: false, minLength: 50 });
             if (!text || text.trim().length < 50) {
                 throw new Error("The resume file seems empty or contains too little text for analysis.");
             }
@@ -106,6 +71,9 @@ const AtsCheckerPage = () => {
             setError(err.message || "An unexpected error occurred during analysis.");
         } finally {
             setLoading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         }
     };
 
@@ -156,7 +124,7 @@ const AtsCheckerPage = () => {
                         ref={fileInputRef} 
                         onChange={(e) => handleAnalyze(e.target.files[0])} 
                         style={{ display: 'none' }} 
-                        accept=".pdf,.docx" 
+                        accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
                     />
                     
                     {loading ? (

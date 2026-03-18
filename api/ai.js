@@ -1,4 +1,5 @@
 // api/ai.js
+/* global process */
 import { z } from 'zod';
 import DOMPurify from 'isomorphic-dompurify';
 
@@ -24,14 +25,20 @@ const rateLimit = (ip) => {
     return { limited: false };
 };
 
+const getBodyPreview = (bodyText = '') => bodyText.replace(/\s+/g, ' ').trim().slice(0, 160);
+
+const parseJsonSafely = (bodyText) => {
+    try {
+        return { data: JSON.parse(bodyText) };
+    } catch (error) {
+        return { error };
+    }
+};
+
 const AiSchema = z.object({
-    prompt: z.string().min(1).max(5000),
+    prompt: z.string().min(1).max(20000),
     systemPrompt: z.string().max(2000).optional(),
-    model: z.enum([
-        "openai/gpt-3.5-turbo",
-        "openai/gpt-4",
-        "anthropic/claude-2"
-    ]).optional()
+    model: z.string().min(1).max(120).optional()
 });
 
 export default async function handler(req, res) {
@@ -79,10 +86,31 @@ export default async function handler(req, res) {
             })
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+        const trimmedText = responseText.trim();
+        const preview = getBodyPreview(trimmedText);
+
+        if (!trimmedText) {
+            return res.status(502).json({ error: 'AI provider returned an empty response.' });
+        }
+
+        const { data, error: parseError } = parseJsonSafely(trimmedText);
+
+        if (parseError) {
+            return res.status(502).json({
+                error: `AI provider returned invalid JSON (HTTP ${response.status}).`,
+                preview: preview || 'No response body.'
+            });
+        }
         
         if (!response.ok) {
-            return res.status(response.status).json({ error: data.error?.message || 'AI engine error' });
+            return res.status(response.status).json({
+                error: data?.error?.message || data?.error || `AI engine error (HTTP ${response.status}).`
+            });
+        }
+
+        if (typeof data?.choices?.[0]?.message?.content !== 'string') {
+            return res.status(502).json({ error: 'AI provider returned an unexpected response format.' });
         }
 
         if (data.choices && data.choices[0] && data.choices[0].message) {

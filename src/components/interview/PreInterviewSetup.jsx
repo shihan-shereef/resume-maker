@@ -1,10 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Camera, Mic, Settings, UserCheck, Code, Briefcase, ChevronRight, FileText, CheckCircle2, AlertCircle, Cpu } from 'lucide-react';
-import * as pdfjsLib from 'pdfjs-dist';
 import LoadingMascot from '../common/LoadingMascot';
-
-// Set worker source for pdfjs - Using unpkg for better reliability
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+import { extractResumeText } from '../../lib/pdfjs';
 
 const PreInterviewSetup = ({ onStart }) => {
     const [fileStats, setFileStats] = useState(null);
@@ -32,38 +29,17 @@ const PreInterviewSetup = ({ onStart }) => {
         setFileStats({ name: file.name, size: (file.size / 1024 / 1024).toFixed(2) + ' MB' });
 
         try {
-            if (file.type === 'application/pdf') {
-                const arrayBuffer = await file.arrayBuffer();
-                
-                // Add a very generous timeout for larger PDFs
-                const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
-                const pdf = await Promise.race([
-                    loadingTask.promise,
-                    new Promise((_, reject) => setTimeout(() => reject(new Error("Resume analysis is taking longer than usual. Please try again or use 'Paste Manually'.")), 60000))
-                ]);
-                
-                // Parallelize page text extraction for speed
-                const pagePromises = Array.from({ length: pdf.numPages }, (_, i) => 
-                    pdf.getPage(i + 1).then(async (page) => {
-                        const textContent = await page.getTextContent();
-                        return textContent.items.map(item => item.str).join(' ');
-                    })
-                );
-                
-                const pageTexts = await Promise.all(pagePromises);
-                const finalContent = pageTexts.join(' ').trim();
-                
-                if (finalContent.length < 20) {
-                     throw new Error("This PDF seems to be an image or contains no readable text. Please try a different version.");
-                }
-                
-                setResumeText(finalContent);
-            } else if (file.type === 'text/plain' || file.name.endsWith('.txt')) {
-                const text = await file.text();
-                setResumeText(text.trim());
-            } else {
-                throw new Error("Unsupported format. Please upload PDF or TXT.");
-            }
+            const extractedText = await Promise.race([
+                extractResumeText(file, { allowDocx: false, minLength: 20 }),
+                new Promise((_, reject) =>
+                    setTimeout(
+                        () => reject(new Error("Resume analysis is taking longer than usual. Please try again or use 'Paste Manually'.")),
+                        60000
+                    )
+                ),
+            ]);
+
+            setResumeText(extractedText);
         } catch (err) {
             console.error("Parsing error:", err);
             setError(err.message || "Failed to parse resume.");
@@ -71,6 +47,7 @@ const PreInterviewSetup = ({ onStart }) => {
             setFileStats(null);
         } finally {
             setIsParsing(false);
+            event.target.value = '';
         }
     };
 
@@ -80,7 +57,7 @@ const PreInterviewSetup = ({ onStart }) => {
             setHardwareStatus({ cam: true, mic: true });
             // Stop tracks immediately so the light turns off until the real interview
             stream.getTracks().forEach(track => track.stop());
-        } catch (err) {
+        } catch {
             setError("Camera and Microphone access are required to start the interview.");
             setHardwareStatus({ cam: false, mic: false });
         }

@@ -203,20 +203,27 @@ const ActiveInterviewRoom = ({ config, onEnd }) => {
     const beginInterviewLoop = async () => {
         setIsThinking(true);
         const isResumeProvided = config.resumeText && !config.resumeText.includes("No resume provided");
-        const systemPrompt = `You are Taylor, an elite Technical Interviewer with 15+ years of experience at top silicon valley firms.
-    
-        CANDIDATE NAME: ${userName || 'Candidate'}
-        INTERVIEW TIME: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-        RESUME CONTEXT: ${config.resumeText || 'No resume provided'}
         
-        CORE DIRECTIVES:
-        1. **Personalization**: ALWAYS address the candidate as ${userName || 'Candidate'}. At the start, acknowledge the current time (${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}).
-        2. **Tone**: Be professional yet human. Use natural fillers like "I see," "That's interesting," or "Makes sense".
-        3. **Flow**: Introduce yourself as Taylor. Ask for a brief introduction if not provided. Then ask 3-5 technical/behavioral questions.
-        4. **Rules**:
-           - Keep responses under 3 sentences.
-           - NEVER say "As an AI".
-           - No asterisks or actions.`;
+        const duration = config.type === 'Technical' ? '25-30' : config.type === 'Behavioral' ? '10-15' : '15-20';
+        
+        const systemPrompt = `You are Taylor, an expert AI Interviewer at Takshila.
+Candidate Name: ${userName}
+Expected Interview Duration: ${duration} minutes
+
+Rules:
+1. ALWAYS address the candidate as "${userName}" in your first message and occasionally throughout.
+2. Start by introducing yourself and mentioning that this interview will take approximately 15-20 minutes.
+3. Be professional, encouraging, and human-like.
+4. Ask one question at a time.
+5. Evaluate the candidate's technical and soft skills based on their resume and the job description.
+6. If the candidate asks for feedback, give brief, constructive points.
+${isResumeProvided 
+            ? `CONTEXT: Use the following resume data to tailor your questions: ${config.resumeText.substring(0, 3000)}` 
+            : `CONTEXT: No resume was provided. Ask a general high-quality introductory question based on a ${config.type} interview path.`}
+        - Keep your response UNDER 3 sentences.
+        - NEVER use asterisks or actions (e.g., *nods*).
+        - DO NOT say "As an AI...". Simply speak.
+        - Be warm but professional.`;
         
         try {
             const firstQuestion = await generateResumeContent(systemPrompt, "You are a realistic AI interviewer.", "openai/gpt-4o-mini");

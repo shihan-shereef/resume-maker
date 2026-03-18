@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Logo from '../components/common/Logo';
 import { 
     Zap, Target, Share2, Search, Briefcase, FileText, 
     ArrowRight, Star, CheckCircle2, Globe, Cpu, 
@@ -9,8 +10,6 @@ import {
 
 import VanillaTilt from 'vanilla-tilt';
 import TextScramble from '../utils/TextScramble';
-import SplashScreen from '../components/common/SplashScreen';
-import Logo from '../components/common/Logo';
 import CanvasParticles from '../components/effects/CanvasParticles';
 
 const LandingPage = () => {
@@ -184,11 +183,8 @@ const LandingPage = () => {
                 transition: 'all 0.3s ease',
                 borderBottom: scrolled ? '1px solid #f1f5f9' : 'none'
             }}>
-                <div 
-                    onClick={() => navigate('/')} 
-                    style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}
-                >
-                    <Logo size={32} />
+                <div onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+                    <Logo size="md" />
                 </div>
                 <div style={{ display: 'flex', gap: '32px', alignItems: 'center', zIndex: 10 }}>
                     <span onClick={() => navigate('/login')} className="hover-underline" style={{ fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', color: 'var(--text-secondary)' }}>Login</span>
@@ -397,8 +393,8 @@ const LandingPage = () => {
             <footer style={{ padding: '80px 5% 40px', borderTop: '1px solid #f1f5f9' }}>
                 <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px' }}>
                     <div style={{ flex: '1', minWidth: '250px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                            <Logo size={32} />
+                        <div style={{ marginBottom: '20px' }}>
+                            <Logo size="sm" />
                         </div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '24px' }}>
                             The world's most comprehensive career operating system. Built with modern professionals in mind.

@@ -44,14 +44,22 @@ Create a `.env` file in the root directory and add the following:
 ```env
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-VITE_OPENROUTER_API_KEY=your_openrouter_api_key
+OPENROUTER_API_KEY=your_openrouter_api_key
 ```
 
 ### 4. Run the development server
+For frontend-only UI work:
 ```bash
 npm run dev
 ```
-Open [http://localhost:5173](http://localhost:5173) in your browser to see the results.
+For full-stack local development with AI routes like `/api/ai`:
+```bash
+npm run dev:full
+```
+
+Use `npm run dev:full` when testing ATS analysis or any AI-powered feature. `npm run dev` is frontend-only and will not serve the Vercel serverless API routes.
+
+Open the local URL shown in your terminal to see the results.
 
 ## 📁 Project Structure
 

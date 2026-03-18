@@ -2,11 +2,7 @@ import React, { useState } from 'react';
 import { useResume } from '../context/ResumeContext';
 import { generateResumeContent } from '../lib/openrouter';
 import { CheckCircle2, AlertCircle, TrendingUp, Search, ShieldCheck, FileSearch, Loader, Zap } from 'lucide-react';
-import * as pdfjsLib from 'pdfjs-dist';
-import mammoth from 'mammoth';
-
-// PDF Worker configuration - version must match package.json exactly
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/5.5.207/pdf.worker.min.mjs`;
+import { extractResumeText } from '../lib/pdfjs';
 
 const AtsChecker = () => {
     const { resumeData } = useResume();
@@ -81,73 +77,14 @@ const AtsChecker = () => {
         setError('');
 
         try {
-            if (file.type === 'text/plain') {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    setPastedText(e.target.result);
-                    setExtracting(false);
-                };
-                reader.readAsText(file);
-            }
-            else if (file.type === 'application/pdf') {
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    try {
-                        console.log("PDF loading started...");
-                        const typedarray = new Uint8Array(e.target.result);
-                        const loadingTask = pdfjsLib.getDocument({
-                            data: typedarray,
-                            useWorkerFetch: true,
-                            isEvalSupported: false,
-                        });
-
-                        const pdf = await loadingTask.promise;
-                        let fullText = '';
-                        console.log(`PDF loaded. Number of pages: ${pdf.numPages}`);
-
-                        for (let i = 1; i <= pdf.numPages; i++) {
-                            const page = await pdf.getPage(i);
-                            const textContent = await page.getTextContent();
-                            const pageText = textContent.items.map(item => item.str).join(' ');
-                            fullText += pageText + '\n';
-                        }
-
-                        if (!fullText.trim()) {
-                            throw new Error("Extracted text is empty. The PDF might be an image/scan.");
-                        }
-
-                        setPastedText(fullText.trim());
-                        setExtracting(false);
-                    } catch (err) {
-                        console.error("PDF Parsing Error:", err);
-                        setError(`Failed to parse PDF: ${err.message || 'Unknown error'}. Try copying and pasting the text instead.`);
-                        setExtracting(false);
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            }
-            else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-                const reader = new FileReader();
-                reader.onload = async (e) => {
-                    try {
-                        const arrayBuffer = e.target.result;
-                        const result = await mammoth.extractRawText({ arrayBuffer });
-                        setPastedText(result.value);
-                        setExtracting(false);
-                    } catch (err) {
-                        setError('Failed to parse Word file. Try copying and pasting the text instead.');
-                        setExtracting(false);
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            }
-            else {
-                setError('Unsupported file format. Please use PDF, DOCX, or TXT.');
-                setExtracting(false);
-            }
+            const extractedText = await extractResumeText(file, { minLength: 20 });
+            setPastedText(extractedText);
         } catch (err) {
-            setError('An error occurred while uploading. Please try again.');
+            console.error('ATS upload failed:', err);
+            setError(err.message || 'An error occurred while uploading. Please try again.');
+        } finally {
             setExtracting(false);
+            e.target.value = '';
         }
     };
 
