@@ -25,7 +25,7 @@ export const searchJobs = async (query, totalResults = 60) => {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    query: `${query} "apply" career portal site:lever.co OR site:greenhouse.io OR site:workday.com`,
+                    query: `${query} career opportunity "apply" site:lever.co OR site:greenhouse.io OR site:workday.com`,
                     limit: perPage,
                     scrapeOptions: {
                         formats: ["json"]
@@ -33,20 +33,36 @@ export const searchJobs = async (query, totalResults = 60) => {
                 })
             });
 
-            if (!response.ok) break;
+            if (!response.ok) {
+                console.error(`Firecrawl Page ${i} failed:`, await response.text());
+                break;
+            }
 
             const data = await response.json();
-            if (!data.results || data.results.length === 0) break;
+            if (!data.data || data.data.length === 0) {
+                // Try a broader search on next iteration or break if total fail
+                if (data.results) { // Some versions use 'results'
+                    data.data = data.results;
+                } else {
+                    break;
+                }
+            }
 
-            const processed = data.results.map(res => {
-                // Try to extract company from title or URL
-                const titleParts = res.title.split('|').map(s => s.trim());
-                const company = titleParts.length > 1 ? titleParts[titleParts.length - 1] : (res.metadata?.hostname || "Direct Hire");
+            const processed = (data.data || []).map(res => {
+                // Extract company from title: "Role at Company | Title" or "Role | Company"
+                let company = "Direct Hire";
+                const titleParts = res.title.split(/[|—–-]/).map(s => s.trim());
+                if (titleParts.length > 1) {
+                    // Usually the last or second to last part is company
+                    company = titleParts[titleParts.length - 1];
+                } else if (res.metadata?.hostname) {
+                    company = res.metadata.hostname.replace('jobs.', '').replace('.io', '').replace('.com', '');
+                }
                 
                 return {
                     id: Math.random().toString(36).substr(2, 9),
                     title: titleParts[0],
-                    company: company,
+                    company: company.charAt(0).toUpperCase() + company.slice(1),
                     location: "Official Portal",
                     link: res.url,
                     type: "Full-time",

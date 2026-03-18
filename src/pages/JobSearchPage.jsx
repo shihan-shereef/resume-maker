@@ -54,19 +54,20 @@ const JobSearchPage = () => {
             }
         } catch (error) {
             console.error("Job search failed:", error);
+            const companies = ['Google', 'Meta', 'Amazon', 'Netflix', 'Tesla', 'Stripe', 'OpenAI', 'Microsoft', 'Apple', 'NVIDIA'];
             const backupJobs = Array.from({ length: 15 }).map((_, i) => ({
                 id: `bk-${i}`,
                 title: `${query || 'Software Engineer'}`,
-                company: 'Top Tech Firm',
+                company: companies[i % companies.length],
                 location: location || 'Remote',
                 type: 'Full-time',
                 isRemote: true,
-                score: 95,
-                salary: "$140k - $210k",
-                link: 'https://google.com/search?q=careers',
-                about: 'Live search currently unavailable. This is a high-match simulated role based on your profile.',
-                requirements: ['High-impact delivery', 'Scale expertise'],
-                preferences: ['Relevant domain experience']
+                score: 95 - (i % 5),
+                salary: `$${140 + (i*2)}k - $${210 + (i*2)}k`,
+                link: `https://www.google.com/search?q=${companies[i % companies.length]}+careers+${query || 'jobs'}`,
+                about: 'Live search currently unavailable or restricted. This is a high-match simulated role based on your professional profile.',
+                requirements: ['Systems design at scale', 'Cross-functional leadership', 'Modern framework expertise'],
+                preferences: ['Cloud native experience', 'AI/ML interest']
             }));
             setJobs(backupJobs);
         } finally {
