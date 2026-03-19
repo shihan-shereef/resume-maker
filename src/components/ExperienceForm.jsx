@@ -12,14 +12,16 @@ const ExperienceForm = () => {
 
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: window.innerWidth < 480 ? 'column' : 'row', gap: '12px' }}>
                     <input className="form-input" style={{ flex: 1 }} type="text" name="title" value={item.title} onChange={handleChange} placeholder="Job Title (e.g. Software Engineer)" />
                     <input className="form-input" style={{ flex: 1 }} type="text" name="company" value={item.company} onChange={handleChange} placeholder="Company Name" />
                 </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: window.innerWidth < 480 ? 'column' : 'row', gap: '12px' }}>
                     <input className="form-input" style={{ flex: 1 }} type="text" name="location" value={item.location} onChange={handleChange} placeholder="Location" />
-                    <input className="form-input" style={{ width: '130px' }} type="text" name="startDate" value={item.startDate} onChange={handleChange} placeholder="Start Date" />
-                    <input className="form-input" style={{ width: '130px' }} type="text" name="endDate" value={item.endDate} onChange={handleChange} placeholder="End / Present" />
+                    <div style={{ display: 'flex', gap: '12px', flex: 1 }}>
+                        <input className="form-input" style={{ flex: 1 }} type="text" name="startDate" value={item.startDate} onChange={handleChange} placeholder="Start Date" />
+                        <input className="form-input" style={{ flex: 1 }} type="text" name="endDate" value={item.endDate} onChange={handleChange} placeholder="End / Present" />
+                    </div>
                 </div>
                 <textarea className="form-input" style={{ minHeight: '80px', resize: 'vertical' }} name="description" value={item.description} onChange={handleChange} placeholder="Describe your responsibilities and achievements..." />
             </div>

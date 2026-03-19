@@ -44,8 +44,8 @@ const Preview = () => {
         <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
             {/* Template Controls Bar */}
             <div style={{
-                padding: '12px 24px',
-                background: 'rgba(0,0,0,0.2)',
+                padding: 'clamp(8px, 2vh, 12px) clamp(12px, 4vw, 24px)',
+                background: 'rgba(0,0,0,0.4)',
                 borderBottom: '1px solid rgba(255,255,255,0.05)',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -88,7 +88,7 @@ const Preview = () => {
             <div style={{
                 flex: 1,
                 overflowY: 'auto',
-                padding: '20px',
+                padding: 'clamp(10px, 3vh, 20px)',
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'flex-start',
@@ -123,19 +123,19 @@ const Preview = () => {
                 @media (max-width: 900px) {
                     .resume-paper-container {
                         transform: scale(0.4);
-                        margin-bottom: -60%;
+                        margin-bottom: -110%;
                     }
                 }
                 @media (max-width: 600px) {
                     .resume-paper-container {
                         transform: scale(0.35);
-                        margin-bottom: -100%;
+                        margin-bottom: -140%;
                     }
                 }
                 @media (max-width: 450px) {
                     .resume-paper-container {
-                        transform: scale(0.3);
-                        margin-bottom: -140%;
+                        transform: scale(0.28);
+                        margin-bottom: -180%;
                     }
                 }
                 

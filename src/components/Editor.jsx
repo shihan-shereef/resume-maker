@@ -29,25 +29,25 @@ const AccordionItem = ({ title, icon: Icon, isOpen, onToggle, children }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '16px 20px',
+                    padding: 'clamp(12px, 3vh, 16px) clamp(16px, 4vw, 20px)',
                     background: isOpen ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                     border: 'none',
                     color: isOpen ? 'var(--primary)' : 'var(--text-primary)',
                     cursor: 'pointer',
-                    fontSize: '1.1rem',
-                    fontWeight: 600,
+                    fontSize: 'clamp(0.9rem, 4vw, 1.1rem)',
+                    fontWeight: 700,
                     transition: 'all 0.2s'
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Icon size={20} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Icon size={18} />
                     {title}
                 </div>
-                {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
 
             {isOpen && (
-                <div style={{ padding: '24px 20px', background: 'rgba(0,0,0,0.1)', borderTop: '1px solid var(--glass-border)' }}>
+                <div style={{ padding: 'clamp(16px, 4vh, 24px) clamp(12px, 4vw, 20px)', background: 'rgba(0,0,0,0.02)', borderTop: '1px solid var(--glass-border)' }}>
                     {children}
                 </div>
             )}
@@ -136,8 +136,8 @@ const Editor = () => {
     ];
 
     return (
-        <div style={{ padding: '32px 24px', width: '100%', maxWidth: '800px', margin: '0 auto' }}>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '0.95rem' }}>
+        <div style={{ padding: 'clamp(16px, 5vh, 32px) clamp(12px, 4vw, 24px)', width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+            <p style={{ color: 'var(--text-secondary)', marginBottom: 'max(16px, 3vh)', fontSize: '0.85rem', fontWeight: 500 }}>
                 Fill out your information below. The preview will update automatically.
             </p>
 

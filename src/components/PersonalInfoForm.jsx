@@ -10,8 +10,8 @@ const PersonalInfoForm = () => {
     };
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '16px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 3vh, 16px)' }}>
+            <div style={{ display: 'flex', flexDirection: window.innerWidth < 480 ? 'column' : 'row', gap: 'clamp(12px, 3vw, 16px)' }}>
                 <div className="form-group" style={{ flex: 1, margin: 0 }}>
                     <label className="form-label" style={{ display: 'block' }}>First Name</label>
                     <input
@@ -49,7 +49,7 @@ const PersonalInfoForm = () => {
                 />
             </div>
 
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: window.innerWidth < 480 ? 'column' : 'row', gap: 'clamp(12px, 3vw, 16px)' }}>
                 <div className="form-group" style={{ flex: 1, margin: 0 }}>
                     <label className="form-label" style={{ display: 'block' }}>Email</label>
                     <input
@@ -74,7 +74,7 @@ const PersonalInfoForm = () => {
                 </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: window.innerWidth < 480 ? 'column' : 'row', gap: 'clamp(12px, 3vw, 16px)' }}>
                 <div className="form-group" style={{ flex: 1, margin: 0 }}>
                     <label className="form-label" style={{ display: 'block' }}>Location</label>
                     <input

@@ -21,34 +21,34 @@ const Dashboard = () => {
     ];
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }} className="animate-fade-in">
-            <header>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(24px, 5vh, 40px)' }} className="animate-fade-in">
+            <header style={{ marginBottom: '-8px' }}>
                 <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px',
+                    gap: '8px',
                     color: 'var(--primary)',
                     fontWeight: 700,
-                    fontSize: '0.9rem',
+                    fontSize: '0.75rem',
                     textTransform: 'uppercase',
-                    marginBottom: '12px',
-                    letterSpacing: '0.1em'
+                    marginBottom: '8px',
+                    letterSpacing: '0.05em'
                 }}>
-                    <Sparkles size={16} />
+                    <Sparkles size={14} />
                     Career Workspace
                 </div>
-                <h1 style={{ fontSize: 'clamp(1.8rem, 6vw, 2.5rem)', fontWeight: 800, marginBottom: '8px', letterSpacing: '-0.02em' }}>
+                <h1 style={{ fontSize: 'var(--h1-size)', fontWeight: 800, marginBottom: '4px', letterSpacing: '-0.02em' }}>
                     Welcome to <span className="gradient-text">Takshila</span> AI
                 </h1>
-                <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.95rem, 3vw, 1.1rem)' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: 'clamp(0.85rem, 3vw, 1rem)', opacity: 0.9 }}>
                     Manage your professional growth with intelligent AI tools.
                 </p>
             </header>
 
             {/* Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(150px, 45%, 240px), 1fr))', gap: 'clamp(12px, 3vw, 24px)' }}>
                 {stats.map((stat, i) => (
-                    <div key={i} className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '20px', padding: '24px', background: 'white', border: 'none' }}>
+                    <div key={i} className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: 'clamp(12px, 3vw, 20px)', padding: 'clamp(16px, 4vw, 24px)', background: 'white', border: 'none' }}>
                         <div style={{ 
                             width: '56px', 
                             height: '56px', 
@@ -62,8 +62,8 @@ const Dashboard = () => {
                             <stat.icon size={28} />
                         </div>
                         <div>
-                            <div style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{stat.label}</div>
-                            <div style={{ fontSize: '1.6rem', fontWeight: 800 }}>{stat.value}</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', fontWeight: 500 }}>{stat.label}</div>
+                            <div style={{ fontSize: '1.4rem', fontWeight: 800 }}>{stat.value}</div>
                         </div>
                     </div>
                 ))}
@@ -75,10 +75,10 @@ const Dashboard = () => {
                 gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', 
                 gap: '32px' 
             }}>
-                <div className="glass-card" style={{ padding: '32px', background: 'white' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800 }}>Recommended Jobs</h2>
-                        <button onClick={() => navigate('/job-search')} className="btn-secondary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>View Market</button>
+                <div className="glass-card" style={{ padding: 'clamp(20px, 5vw, 32px)', background: 'white' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'clamp(20px, 4vw, 32px)' }}>
+                        <h2 style={{ fontSize: 'var(--h2-size)', fontWeight: 800 }}>Recommended Jobs</h2>
+                        <button onClick={() => navigate('/job-search')} className="btn-secondary" style={{ padding: '6px 12px', fontSize: '0.75rem' }}>View Market</button>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         {[

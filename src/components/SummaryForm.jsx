@@ -30,9 +30,9 @@ const SummaryForm = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
-                    Write a short professional summary or let our AI generate one based on your current job title and skills.
+            <div style={{ display: 'flex', flexDirection: window.innerWidth < 480 ? 'column' : 'row', justifyContent: 'space-between', alignItems: window.innerWidth < 480 ? 'flex-start' : 'center', gap: '16px' }}>
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', fontWeight: 500 }}>
+                    Write a professional summary or let our AI generate one.
                 </p>
                 <button
                     onClick={handleGenerateAI}
@@ -44,12 +44,14 @@ const SummaryForm = () => {
                         background: 'linear-gradient(to right, rgba(99, 102, 241, 0.2), rgba(236, 72, 153, 0.2))',
                         color: 'var(--text-primary)',
                         border: '1px solid var(--primary)',
-                        padding: '8px 12px',
-                        borderRadius: '8px',
+                        padding: '6px 12px',
+                        borderRadius: '100px',
                         cursor: loading ? 'not-allowed' : 'pointer',
-                        fontSize: '0.875rem',
-                        fontWeight: 500,
-                        opacity: loading ? 0.7 : 1
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        opacity: loading ? 0.7 : 1,
+                        width: window.innerWidth < 480 ? '100%' : 'auto',
+                        justifyContent: 'center'
                     }}
                 >
                     {loading ? <Loader size={16} className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} /> : <Sparkles size={16} color="var(--primary)" />}

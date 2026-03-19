@@ -28,32 +28,33 @@ const ResumeMaker = () => {
             <header style={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                flexWrap: 'wrap',
+                flexWrap: 'nowrap',
                 alignItems: 'center',
-                padding: 'min(16px, 3%) min(24px, 4%)',
+                padding: '12px 16px',
                 background: 'white',
                 borderBottom: '1px solid #e2e8f0',
                 zIndex: 50,
-                gap: '12px'
+                gap: '8px'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'max(12px, 2vw)' }}>
-                    <h2 style={{ fontSize: '1.1rem', fontWeight: 800, whiteSpace: 'nowrap' }} className="desktop-only">AI Resume Maker</h2>
+                    <h2 style={{ fontSize: '0.95rem', fontWeight: 800, whiteSpace: 'nowrap' }} className="desktop-only">AI Resume Maker</h2>
                     <div style={{ 
                         background: '#f1f5f9', 
-                        borderRadius: '12px', 
-                        padding: '4px',
-                        display: 'flex'
+                        borderRadius: '100px', 
+                        padding: '3px',
+                        display: 'flex',
+                        gap: '2px'
                     }}>
                         <button
                             onClick={() => setActiveTab('edit')}
                             style={{
-                                padding: '6px 16px',
-                                borderRadius: '8px',
+                                padding: '6px 12px',
+                                borderRadius: '100px',
                                 border: 'none',
                                 background: activeTab === 'edit' ? 'white' : 'transparent',
                                 color: activeTab === 'edit' ? 'var(--primary)' : 'var(--text-secondary)',
-                                fontSize: '0.8rem',
-                                fontWeight: 700,
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
                                 cursor: 'pointer',
                                 boxShadow: activeTab === 'edit' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
                             }}
@@ -63,13 +64,13 @@ const ResumeMaker = () => {
                         <button
                             onClick={() => setActiveTab('preview')}
                             style={{
-                                padding: '6px 16px',
-                                borderRadius: '8px',
+                                padding: '6px 12px',
+                                borderRadius: '100px',
                                 border: 'none',
                                 background: activeTab === 'preview' ? 'white' : 'transparent',
                                 color: activeTab === 'preview' ? 'var(--primary)' : 'var(--text-secondary)',
-                                fontSize: '0.8rem',
-                                fontWeight: 700,
+                                fontSize: '0.75rem',
+                                fontWeight: 800,
                                 cursor: 'pointer',
                                 boxShadow: activeTab === 'preview' ? '0 2px 8px rgba(0,0,0,0.05)' : 'none'
                             }}
