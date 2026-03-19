@@ -44,18 +44,21 @@ const LandingPage = () => {
       const ubyText = "Unified by Intelligence.";
       uby.innerHTML = ubyText.split("").map(ch => {
         if (ch === " ") return '<span class="uby-char space">&nbsp;</span>';
-        const rot = (Math.random() * 24 - 12).toFixed(1);
+        // Reduced rotation for a "clearer" and more professional look
+        const rot = (Math.random() * 8 - 4).toFixed(1);
         return `<span class="uby-char" style="--rot:${rot}deg">${ch}</span>`;
       }).join("");
       const ubyChars = uby.querySelectorAll(".uby-char:not(.space)");
       ubyObs = new IntersectionObserver(([e]) => {
         if (e.isIntersecting) {
-          ubyChars.forEach((ch, i) => setTimeout(() => ch.classList.add("landed"), i * 38));
+          // Slightly slower stagger for a "smoother" reveal
+          ubyChars.forEach((ch, i) => setTimeout(() => ch.classList.add("landed"), i * 45));
           if(ubyObs) ubyObs.disconnect();
         }
-      }, { threshold: 0.5 });
+      }, { threshold: 0.1 }); // Lower threshold so it starts as soon as it enters
       ubyObs.observe(uby);
     }
+
 
     // 4. Scramble text
     const CH = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz@#$&*";

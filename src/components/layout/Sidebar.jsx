@@ -73,10 +73,31 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                     title={isCollapsed ? 'Takshila' : ''}
                 >
                     {effectivelyCollapsed
-                        ? <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', fontFamily: "'Inter', sans-serif" }}>T<span style={{ display: 'inline-block', width: '6px', height: '6px', backgroundColor: '#FF5C00', borderRadius: '50%', marginBottom: '2px', marginLeft: '1px' }} /></span>
+                        ? (
+                            <div style={{ 
+                                fontSize: '1.5rem', 
+                                fontWeight: 900, 
+                                color: '#0F172A', 
+                                fontFamily: "'Inter', sans-serif",
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                minWidth: '32px'
+                            }}>
+                                T
+                                <div style={{ 
+                                    width: '6px', 
+                                    height: '6px', 
+                                    backgroundColor: '#FF5C00', 
+                                    borderRadius: '50%', 
+                                    marginLeft: '1px',
+                                    marginBottom: '-4px' // Better alignment for the dot
+                                }} />
+                            </div>
+                        )
                         : <Logo size="md" />
                     }
                 </div>
+
 
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
