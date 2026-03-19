@@ -105,8 +105,34 @@ export const textToSpeech = async (text, voiceId = VOICES.INTERVIEWER, options =
         }
 
         if (!response.ok) {
-            throw new Error('Backend Voice Error');
+            // Check if backend or frontend has the key to fallback
+            const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY || (typeof process !== 'undefined' ? process.env.ELEVENLABS_API_KEY : '');
+            if (apiKey) {
+                console.warn("Backend Voice key missing or error. Falling back to direct client-side TTS...");
+                const directResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+                    method: 'POST',
+                    headers: {
+                        'xi-api-key': apiKey,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text,
+                        model_id: modelId,
+                        voice_settings: {
+                            ...VOICE_PRESETS.INTERVIEWER.voiceSettings,
+                            ...voiceSettings,
+                        }
+                    })
+                });
+
+                if (directResponse.ok) {
+                    const blob = await directResponse.blob();
+                    return URL.createObjectURL(blob);
+                }
+            }
+            throw new Error('Backend Voice Error or Missing Key');
         }
+
 
         const blob = await response.blob();
         return URL.createObjectURL(blob);

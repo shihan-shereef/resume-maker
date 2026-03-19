@@ -97,8 +97,17 @@ export const generateResumeContent = async (prompt, systemPrompt = "You are a pr
         }
 
         if (!response.ok) {
+            // Check if the backend specifically says the API key is missing
+            if (data?.error?.includes('OpenRouter API key is missing')) {
+                const apiKey = import.meta.env.VITE_OPENROUTER_API_KEY;
+                if (apiKey) {
+                    console.warn("Backend API key missing. Falling back to direct client-side AI call...");
+                    return await generateResumeContentDirect(prompt, systemPrompt, model, apiKey);
+                }
+            }
             throw new Error(data?.error || `Failed to generate AI content via backend (HTTP ${response.status}).`);
         }
+
 
 
         let content = data?.choices?.[0]?.message?.content;
