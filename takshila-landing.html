@@ -15,18 +15,32 @@
   --mono: "Courier Prime", "Courier New", monospace;
   --label: "Bebas Neue", "Arial Narrow", sans-serif;
 }
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+* { cursor: none !important; }
+
+.cursor {
+  position: fixed;
+  z-index: 99999;
+  width: 9px;
+  height: 9px;
+  background: #f05523;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width 0.18s ease, height 0.18s ease, background 0.18s ease;
+  top: 0; left: 0;
+}
+.cursor.on {
+  width: 15px;
+  height: 15px;
+  background: #c93e0f;
+}
+
 body {
   font-family: var(--mono); background: var(--white); color: var(--text);
-  overflow-x: hidden; cursor: none;
+  overflow-x: hidden; 
 }
-.cursor {
-  position: fixed; z-index: 9999; width: 9px; height: 9px;
-  background: var(--orange); border-radius: 50%; pointer-events: none;
-  transform: translate(-50%, -50%); transition: width .2s, height .2s, background .2s;
-}
-.cursor.on { width: 16px; height: 16px; background: var(--orange2); }
+
+
 
 #nav {
   position: fixed; top: 0; width: 100%; height: 66px; z-index: 1000;
@@ -51,10 +65,10 @@ body {
 .n-link:hover { color: var(--text); }
 .n-link:hover::after { width: 100%; }
 .n-right { display: flex; gap: 1.5rem; align-items: center; }
-.btn-ghost { background: none; border: none; font-family: var(--label); letter-spacing: 0.06em; color: var(--g600); cursor: none; text-decoration: none; font-size: 0.9rem;}
+.btn-ghost { background: none; border: none; font-family: var(--label); letter-spacing: 0.06em; color: var(--g600);  text-decoration: none; font-size: 0.9rem;}
 .btn-pill {
   background: var(--orange); color: #fff; border-radius: 100px; padding: .55rem 1.4rem;
-  font-family: var(--label); letter-spacing: 0.1em; cursor: none; transition: background 0.2s, transform 0.2s; text-decoration: none; border: none; font-size: 0.9rem;
+  font-family: var(--label); letter-spacing: 0.1em;  transition: background 0.2s, transform 0.2s; text-decoration: none; border: none; font-size: 0.9rem;
 }
 .btn-pill:hover { background: var(--orange2); transform: scale(1.03); }
 
@@ -82,7 +96,7 @@ body {
   font-family: var(--display); font-size: clamp(2.8rem, 6.5vw, 5.5rem); font-weight: 900; line-height: 1.06;
   letter-spacing: -0.03em; max-width: 820px; color: var(--text); margin-bottom: 2rem; animation: fadeUp .6s .1s ease both;
 }
-.uby-wrap { display: inline; color: var(--orange); font-style: italic; cursor: default; }
+.uby-wrap { display: inline; color: var(--orange); font-style: italic;  }
 .uby-char { display: inline-block; opacity: 0; transform: translateY(-55px) rotate(var(--rot, 0deg)) scale(.55); transition: opacity .4s ease, transform .55s cubic-bezier(.34, 1.45, .64, 1); }
 .uby-char.space { display: inline; opacity: 1; transform: none; transition: none; }
 .uby-char.landed { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
@@ -90,12 +104,12 @@ body {
 .h-cta { display: flex; gap: .9rem; animation: fadeUp .6s .3s ease both; }
 .btn-pri {
   background: var(--orange); color: #fff; border-radius: 100px; border: none; padding: .75rem 1.9rem; font-family: var(--label);
-  letter-spacing: .1em; box-shadow: 0 6px 24px rgba(240,85,35,.32); cursor: none; transition: background .2s, transform .2s, box-shadow .2s; font-size: 1rem;
+  letter-spacing: .1em; box-shadow: 0 6px 24px rgba(240,85,35,.32);  transition: background .2s, transform .2s, box-shadow .2s; font-size: 1rem;
 }
 .btn-pri:hover { background: var(--orange2); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(240,85,35,.4); }
 .btn-sec {
   background: #fff; color: var(--text); border: 1.5px solid var(--g200); border-radius: 100px; padding: .75rem 1.9rem;
-  font-family: var(--label); letter-spacing: .1em; cursor: none; transition: border-color .2s, transform .2s; font-size: 1rem;
+  font-family: var(--label); letter-spacing: .1em;  transition: border-color .2s, transform .2s; font-size: 1rem;
 }
 .btn-sec:hover { border-color: var(--text); transform: translateY(-2px); }
 
@@ -136,7 +150,7 @@ body {
 .eco-h em { color: var(--orange); font-style: italic; }
 .eco-s { font-family: var(--mono); color: var(--g600); margin-bottom: 4rem; }
 .egrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--g200); border: 1px solid var(--g200); border-radius: 20px; overflow: visible; max-width: 1100px; margin: 0 auto; }
-.eco-card { background: var(--white); padding: 1.75rem; position: relative; overflow: visible; transition: background .25s, transform .3s cubic-bezier(.34,1.3,.64,1), box-shadow .3s; cursor: default; z-index: 1; text-align: left; }
+.eco-card { background: var(--white); padding: 1.75rem; position: relative; overflow: visible; transition: background .25s, transform .3s cubic-bezier(.34,1.3,.64,1), box-shadow .3s;  z-index: 1; text-align: left; }
 .eco-card:first-child { border-top-left-radius: 20px; } .eco-card:nth-child(3) { border-top-right-radius: 20px; }
 .eco-card:nth-last-child(3) { border-bottom-left-radius: 20px; } .eco-card:last-child { border-bottom-right-radius: 20px; }
 .eco-card:hover { background: var(--cream); z-index: 10; transform: translateY(-6px); box-shadow: 0 20px 50px rgba(0,0,0,.12); }
@@ -185,7 +199,7 @@ body {
 .c-h2 { font-family: var(--display); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; margin-bottom: 1rem; color: var(--text); }
 .c-h2 em { color: var(--orange); font-style: italic; }
 .c-sub { font-family: var(--mono); max-width: 480px; margin: 0 auto 2.5rem; color: var(--g600); line-height: 1.6; }
-.btn-c { font-size: 1.05rem; padding: .9rem 2.25rem; font-family: var(--label); letter-spacing: 0.1em; background: var(--orange); color: #fff; border-radius: 100px; border: none; cursor: none; transition: .2s; margin-bottom: 1rem; text-decoration: none; display: inline-block; }
+.btn-c { font-size: 1.05rem; padding: .9rem 2.25rem; font-family: var(--label); letter-spacing: 0.1em; background: var(--orange); color: #fff; border-radius: 100px; border: none;  transition: .2s; margin-bottom: 1rem; text-decoration: none; display: inline-block; }
 .btn-c:hover { background: var(--orange2); transform: translateY(-2px); }
 .c-hint { font-family: var(--mono); font-size: .8rem; color: var(--g400); }
 
@@ -226,12 +240,11 @@ body {
 }
 </style>
 </head>
-<body>
 <div class="cursor" id="cur"></div>
 <nav id="nav">
+
   <a href="#" class="n-left">
-    <svg viewBox="0 0 34 34"><rect width="34" height="34" rx="7" fill="#f05523"/><rect x="7" y="9" width="20" height="3.5" rx="1.5" fill="#fff"/><rect x="15" y="9" width="4" height="17" rx="1.5" fill="#fff"/><circle cx="26.5" cy="24.5" r="2.2" fill="#fff" opacity="0.65"/></svg>
-    <div class="n-logo">Takshila<em>.</em></div>
+    <div class="n-logo" style="font-family: system-ui, -apple-system, sans-serif; font-weight: 900; color: var(--navy); letter-spacing: -1px; font-size: 1.4rem;">Takshila<span style="color: var(--orange);">.</span></div>
   </a>
   <div class="n-links">
     <a href="#" class="n-link">Features</a><a href="#" class="n-link">Ecosystem</a>
@@ -288,66 +301,90 @@ body {
   <div class="eco-s reveal">12 specialized tools unified in one ultimate platform.</div>
   <div class="egrid">
     <div class="eco-card">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1555421689-491a97ff2040?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/148a1eb8-6295-44ad-8aa7-4d8a2d6cd547.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/236b10da-701d-4801-afc5-23dfb9f32f55.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#f05523" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+
+
       <div class="e-cat c-or">The Career OS</div><div class="e-title">Resume Intelligence</div><div class="e-desc">High-fidelity resume creation with real-time AI optimization and professional templates.</div>
     </div>
     <div class="eco-card d1">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/24041c68-cd7b-483c-85f7-99adc221506b.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/28b91a59-ec69-4163-b4e8-78b387fadd44.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#f05523" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
+
+
       <div class="e-cat c-or">The Career OS</div><div class="e-title">ATS Optimization</div><div class="e-desc">Scan your resume against job descriptions to ensure perfect keyword matching.</div>
     </div>
     <div class="eco-card d2">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/2dd1a835-d30e-49a1-8d06-8ac41fef8a5a.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/2e306f4d-289c-4a1a-9603-0bc59b0f0f08.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#f05523" fill="none" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/></svg></div>
+
+
       <div class="e-cat c-or">The Career OS</div><div class="e-title">AI Portfolios</div><div class="e-desc">Generate stunning portfolio websites automatically from your resume data.</div>
     </div>
         
     <div class="eco-card">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1587440871875-191322ee64b0?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/38bcd1ca-f316-42d9-b326-87e0345cf1f9.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/59355d26-78c8-4e20-a34d-8c94ed1676d2.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#7c3aed" fill="none" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></div>
+
+
       <div class="e-cat c-pu">Productivity Suite</div><div class="e-title">YouTube Intelligence</div><div class="e-desc">Extract core insights and structured summaries from long-form educational videos.</div>
     </div>
     <div class="eco-card d1">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1587440871875-191322ee64b0?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/5a3d5c84-1cf4-40d9-8426-e0a03ccc4f91.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/5ea2dcf5-7943-4723-a557-0a500a61fb93.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#7c3aed" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+
+
       <div class="e-cat c-pu">Productivity Suite</div><div class="e-title">PDF Brain</div><div class="e-desc">Interact with your PDF documents using AI to extract data, summaries, and facts.</div>
     </div>
     <div class="eco-card d2">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1587440871875-191322ee64b0?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/69dcdba8-ad46-4b0a-9faa-23e1909484ce.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/71bbd958-a560-4391-8715-7c5b6df8d238.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#7c3aed" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+
+
       <div class="e-cat c-pu">Productivity Suite</div><div class="e-title">Dynamic AI Notes</div><div class="e-desc">An intelligent note-taking companion that organizes your thoughts and research.</div>
     </div>
 
     <div class="eco-card">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/77fb6da8-62e1-431c-a829-7b8aaf51b92b.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/839c616c-43b5-4f64-8964-acd3020f4e92.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#0ea5e9" fill="none" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+
+
       <div class="e-cat c-bl">Growth & Intelligence</div><div class="e-title">Growth Roadmaps</div><div class="e-desc">Node-based career paths that visualize the skills needed for your next promotion.</div>
     </div>
     <div class="eco-card d1">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/8403a524-be7b-46dd-83d1-5f27cb403386.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/998521cd-2111-4209-8f7b-e8d51728f4f1.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#0ea5e9" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+
+
       <div class="e-cat c-bl">Growth & Intelligence</div><div class="e-title">Skill Gap Analysis</div><div class="e-desc">Data-driven insights into what's missing in your current professional profile.</div>
     </div>
     <div class="eco-card d2">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/b549f920-ba0b-419f-aded-d233e681846d.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/ba356f2c-7ec3-4ddd-9fa4-86186c00a087.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#0ea5e9" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div>
+
+
       <div class="e-cat c-bl">Growth & Intelligence</div><div class="e-title">Interview Simulator</div><div class="e-desc">Real-time AI video interviews with posture, confidence, and keyword feedback.</div>
     </div>
 
     <div class="eco-card">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1555421689-491a97ff2040?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/c996140e-c5a1-4bf6-ae01-45772c663b20.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/d0850b0a-2a46-4310-b6fb-6529286ef69a.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#10b981" fill="none" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+
+
       <div class="e-cat c-gr">Job Discovery</div><div class="e-title">Discovery Matching</div><div class="e-desc">AI-powered job matching simulations tuned to your skills and ambitions.</div>
     </div>
     <div class="eco-card d1">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/e9d7181d-26c2-48d6-b98a-323f32711f4f.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/ef460e7b-6343-4d80-8768-6405c05b3600.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#10b981" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="12" r="2"/></svg></div>
+
+
       <div class="e-cat c-gr">Job Discovery</div><div class="e-title">Unified Tracker</div><div class="e-desc">A centralized command center to track every application, interview, and offer.</div>
     </div>
     <div class="eco-card d2">
-      <div class="popwrap"><div class="popa"><img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=220&q=65" alt=""/></div><div class="popb"><img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=220&q=65" alt=""/></div></div>
+      <div class="popwrap"><div class="popa"><img src="public/images/patch/f61f78ea-fae8-41a6-9d16-ecc5795ebeac.jpg" alt=""/></div><div class="popb"><img src="public/images/patch/ff3c1f09-65d5-42d7-8446-627d5c996d69.jpg" alt=""/></div></div>
       <div class="e-icon"><svg stroke="#10b981" fill="none" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+
+
       <div class="e-cat c-gr">Job Discovery</div><div class="e-title">Cover Letter Engine</div><div class="e-desc">Context-aware AI that writes tailored cover letters for every job in seconds.</div>
     </div>
   </div>
@@ -435,7 +472,7 @@ body {
 <section class="foot">
   <div class="f-top">
     <div>
-      <div class="ft-logo">Takshila<em>.</em></div>
+      <div class="ft-logo" style="font-family: system-ui, -apple-system, sans-serif; font-weight: 900; color: var(--navy); letter-spacing: -1px; font-size: 1.5rem; margin-bottom: 1rem;">Takshila<span style="color: var(--orange);">.</span></div>
       <div class="ft-desc">Your ultimate career workspace. Unified by intelligence, driven by your potential.</div>
     </div>
     <div>
@@ -456,13 +493,16 @@ body {
 <script>
 const cur = document.getElementById("cur");
 document.addEventListener("mousemove", e => {
-  cur.style.left = e.clientX + "px";
-  cur.style.top  = e.clientY + "px";
+  if (cur) {
+    cur.style.left = e.clientX + "px";
+    cur.style.top  = e.clientY + "px";
+  }
 });
 document.querySelectorAll("button, a, .eco-card, .mwin, .tilt-card").forEach(el => {
-  el.addEventListener("mouseenter", () => cur.classList.add("on"));
-  el.addEventListener("mouseleave", () => cur.classList.remove("on"));
+  el.addEventListener("mouseenter", () => cur && cur.classList.add("on"));
+  el.addEventListener("mouseleave", () => cur && cur.classList.remove("on"));
 });
+
 
 const nav = document.getElementById("nav");
 window.addEventListener("scroll", () => nav.classList.toggle("scrolled", window.scrollY > 20));

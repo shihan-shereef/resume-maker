@@ -1,27 +1,32 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  FileText, ScanSearch, Globe, Youtube, FileKey, NotebookPen, 
+  Map, PieChart, MonitorPlay, Compass, Briefcase, PenTool, Bot 
+} from 'lucide-react';
 import '../styles/TakshilaLanding.css';
 
 const LandingPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1. Cursor
-    const cur = document.getElementById("cur");
+    // 1. Cursor movement
+    const cur = document.getElementById('cur');
     const moveCursor = (e) => {
-      if(cur) {
-        cur.style.left = e.clientX + "px";
-        cur.style.top  = e.clientY + "px";
+      if (cur) {
+        cur.style.left = e.clientX + 'px';
+        cur.style.top = e.clientY + 'px';
       }
     };
-    document.addEventListener("mousemove", moveCursor);
+    window.addEventListener('mousemove', moveCursor);
 
-    const interactiveElements = document.querySelectorAll("button, a, .eco-card, .mwin, .tilt-card");
-    const addOn = () => cur?.classList.add("on");
-    const removeOn = () => cur?.classList.remove("on");
-    interactiveElements.forEach(el => {
-      el.addEventListener("mouseenter", addOn);
-      el.addEventListener("mouseleave", removeOn);
+    // Cursor hover effect
+    const interactiveEls = document.querySelectorAll('button, a, [data-hover], .eco-card, .mwin, .tilt-card');
+    const onEnter = () => cur && cur.classList.add('on');
+    const onLeave = () => cur && cur.classList.remove('on');
+    interactiveEls.forEach(el => {
+      el.addEventListener('mouseenter', onEnter);
+      el.addEventListener('mouseleave', onLeave);
     });
 
     // 2. Nav Scroll
@@ -30,6 +35,7 @@ const LandingPage = () => {
       if(nav) nav.classList.toggle("scrolled", window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
+
 
     // 3. "Unified by Intelligence" letter-drop
     const uby = document.getElementById("uby");
@@ -152,13 +158,14 @@ const LandingPage = () => {
 
     // Cleanup
     return () => {
-      document.removeEventListener("mousemove", moveCursor);
-      interactiveElements.forEach(el => {
-        el.removeEventListener("mouseenter", addOn);
-        el.removeEventListener("mouseleave", removeOn);
+      window.removeEventListener('mousemove', moveCursor);
+      interactiveEls.forEach(el => {
+        el.removeEventListener('mouseenter', onEnter);
+        el.removeEventListener('mouseleave', onLeave);
       });
       window.removeEventListener("scroll", handleScroll);
       window.removeEventListener("scroll", auroraScroll);
+
       activeScrambles.forEach(s => {
         s.el.removeEventListener("mouseenter", s.onEnter);
         s.el.removeEventListener("mouseleave", s.onLeave);
@@ -178,11 +185,10 @@ const LandingPage = () => {
   return (
     <>
       <div className="cursor" id="cur"></div>
-      
       <nav id="nav">
+
         <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="n-left">
-          <svg viewBox="0 0 34 34"><rect width="34" height="34" rx="7" fill="#f05523"/><rect x="7" y="9" width="20" height="3.5" rx="1.5" fill="#fff"/><rect x="15" y="9" width="4" height="17" rx="1.5" fill="#fff"/><circle cx="26.5" cy="24.5" r="2.2" fill="#fff" opacity="0.65"/></svg>
-          <div className="n-logo">Takshila<em>.</em></div>
+          <div className="n-logo" style={{fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: 900, color: 'var(--navy)', letterSpacing: '-1px', fontSize: '1.4rem'}}>Takshila<span style={{color: 'var(--orange)'}}>.</span></div>
         </a>
         <div className="n-links">
           <a href="#features" className="n-link">Features</a>
@@ -200,7 +206,7 @@ const LandingPage = () => {
         <div className="aurora-layer"></div>
         <div className="h-content">
           <div className="h-badge">✦ The Complete Career Ecosystem</div>
-          <h1 className="h-h1">Your Professional Life,<br/><span className="uby-wrap" id="uby">Unified by Intelligence.</span></h1>
+          <h1 className="h-h1"><span style={{ display: 'block' }}>Your Professional Life,</span><span className="uby-wrap" id="uby" style={{ display: 'inline-block' }}>Unified by Intelligence.</span></h1>
           <p className="h-sub">Stop juggling a dozen career tools. Discover the only workspace where Resume Building, Interview Simulation, and Career Roadmapping live in perfect harmony.</p>
           <div className="h-cta">
             <button className="btn-pri" onClick={() => navigate('/signup')}>Start Your Journey →</button>
@@ -263,66 +269,114 @@ const LandingPage = () => {
         <div className="eco-s reveal">12 specialized tools unified in one ultimate platform.</div>
         <div className="egrid">
           <div className="eco-card">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1555421689-491a97ff2040?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#f05523" fill="none" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/148a1eb8-6295-44ad-8aa7-4d8a2d6cd547.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/236b10da-701d-4801-afc5-23dfb9f32f55.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><FileText size={22} color="#f05523" /></div>
+
             <div className="e-cat c-or">The Career OS</div><div className="e-title">Resume Intelligence</div><div className="e-desc">High-fidelity resume creation with real-time AI optimization and professional templates.</div>
           </div>
           <div className="eco-card d1">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#f05523" fill="none" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/24041c68-cd7b-483c-85f7-99adc221506b.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/28b91a59-ec69-4163-b4e8-78b387fadd44.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><ScanSearch size={22} color="#f05523" /></div>
+
             <div className="e-cat c-or">The Career OS</div><div className="e-title">ATS Optimization</div><div className="e-desc">Scan your resume against job descriptions to ensure perfect keyword matching.</div>
           </div>
           <div className="eco-card d2">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1512295767273-ac109ac3acfa?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1547658719-da2b51169166?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#f05523" fill="none" strokeWidth="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="12" cy="12" r="4"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/2dd1a835-d30e-49a1-8d06-8ac41fef8a5a.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/2e306f4d-289c-4a1a-9603-0bc59b0f0f08.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><Globe size={22} color="#f05523" /></div>
+
             <div className="e-cat c-or">The Career OS</div><div className="e-title">AI Portfolios</div><div className="e-desc">Generate stunning portfolio websites automatically from your resume data.</div>
           </div>
               
           <div className="eco-card">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1587440871875-191322ee64b0?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#7c3aed" fill="none" strokeWidth="2" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8m-4-4v4"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/38bcd1ca-f316-42d9-b326-87e0345cf1f9.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/59355d26-78c8-4e20-a34d-8c94ed1676d2.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><Youtube size={22} color="#7c3aed" /></div>
+
             <div className="e-cat c-pu">Productivity Suite</div><div className="e-title">YouTube Intelligence</div><div className="e-desc">Extract core insights and structured summaries from long-form educational videos.</div>
           </div>
           <div className="eco-card d1">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1587440871875-191322ee64b0?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#7c3aed" fill="none" strokeWidth="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/5a3d5c84-1cf4-40d9-8426-e0a03ccc4f91.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/5ea2dcf5-7943-4723-a557-0a500a61fb93.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><FileKey size={22} color="#7c3aed" /></div>
+
             <div className="e-cat c-pu">Productivity Suite</div><div className="e-title">PDF Brain</div><div className="e-desc">Interact with your PDF documents using AI to extract data, summaries, and facts.</div>
           </div>
           <div className="eco-card d2">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1587440871875-191322ee64b0?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#7c3aed" fill="none" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/69dcdba8-ad46-4b0a-9faa-23e1909484ce.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/71bbd958-a560-4391-8715-7c5b6df8d238.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><NotebookPen size={22} color="#7c3aed" /></div>
+
             <div className="e-cat c-pu">Productivity Suite</div><div className="e-title">Dynamic AI Notes</div><div className="e-desc">An intelligent note-taking companion that organizes your thoughts and research.</div>
           </div>
 
           <div className="eco-card">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#0ea5e9" fill="none" strokeWidth="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/77fb6da8-62e1-431c-a829-7b8aaf51b92b.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/839c616c-43b5-4f64-8964-acd3020f4e92.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><Map size={22} color="#0ea5e9" /></div>
+
             <div className="e-cat c-bl">Growth & Intelligence</div><div className="e-title">Growth Roadmaps</div><div className="e-desc">Node-based career paths that visualize the skills needed for your next promotion.</div>
           </div>
           <div className="eco-card d1">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1484480974693-6ca0a78fb36b?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#0ea5e9" fill="none" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2v20M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/8403a524-be7b-46dd-83d1-5f27cb403386.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/998521cd-2111-4209-8f7b-e8d51728f4f1.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><PieChart size={22} color="#0ea5e9" /></div>
+
             <div className="e-cat c-bl">Growth & Intelligence</div><div className="e-title">Skill Gap Analysis</div><div className="e-desc">Data-driven insights into what's missing in your current professional profile.</div>
           </div>
           <div className="eco-card d2">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#0ea5e9" fill="none" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/b549f920-ba0b-419f-aded-d233e681846d.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/ba356f2c-7ec3-4ddd-9fa4-86186c00a087.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><MonitorPlay size={22} color="#0ea5e9" /></div>
+
             <div className="e-cat c-bl">Growth & Intelligence</div><div className="e-title">Interview Simulator</div><div className="e-desc">Real-time AI video interviews with posture, confidence, and keyword feedback.</div>
           </div>
 
           <div className="eco-card">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1555421689-491a97ff2040?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#10b981" fill="none" strokeWidth="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/c996140e-c5a1-4bf6-ae01-45772c663b20.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/d0850b0a-2a46-4310-b6fb-6529286ef69a.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><Compass size={22} color="#10b981" /></div>
+
             <div className="e-cat c-gr">Job Discovery</div><div className="e-title">Discovery Matching</div><div className="e-desc">AI-powered job matching simulations tuned to your skills and ambitions.</div>
           </div>
           <div className="eco-card d1">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#10b981" fill="none" strokeWidth="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="12" r="2"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/e9d7181d-26c2-48d6-b98a-323f32711f4f.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/ef460e7b-6343-4d80-8768-6405c05b3600.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><Briefcase size={22} color="#10b981" /></div>
+
             <div className="e-cat c-gr">Job Discovery</div><div className="e-title">Unified Tracker</div><div className="e-desc">A centralized command center to track every application, interview, and offer.</div>
           </div>
           <div className="eco-card d2">
-            <div className="popwrap"><div className="popa"><img src="https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=220&q=65" alt=""/></div><div className="popb"><img src="https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=220&q=65" alt=""/></div></div>
-            <div className="e-icon"><svg stroke="#10b981" fill="none" strokeWidth="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+                <div className="popwrap">
+                  <div className="popa"><img src="/images/patch/f61f78ea-fae8-41a6-9d16-ecc5795ebeac.jpg" alt="" /></div>
+                  <div className="popb"><img src="/images/patch/ff3c1f09-65d5-42d7-8446-627d5c996d69.jpg" alt="" /></div>
+                </div>
+            <div className="e-icon"><PenTool size={22} color="#10b981" /></div>
+
             <div className="e-cat c-gr">Job Discovery</div><div className="e-title">Cover Letter Engine</div><div className="e-desc">Context-aware AI that writes tailored cover letters for every job in seconds.</div>
           </div>
         </div>
@@ -331,7 +385,7 @@ const LandingPage = () => {
       <section className="f-sec fd rev">
         <div className="slide-left">
           <div className="sim-bg tilt-card">
-            <div className="sim-vid">🤖<div className="s-bdg">LIVE</div></div>
+            <div className="sim-vid"><Bot size={48} color="rgba(255,255,255,0.8)" /><div className="s-bdg">LIVE</div></div>
             <div className="sim-bar"><div className="s-bar-l"><span>Confidence</span><span>78%</span></div><div className="s-bar-t"><div className="s-bar-f" style={{ width: '78%' }}></div></div></div>
             <div className="sim-bar"><div className="s-bar-l"><span>Relevance</span><span>91%</span></div><div className="s-bar-t"><div className="s-bar-f" style={{ width: '91%' }}></div></div></div>
             <div className="sim-bar"><div className="s-bar-l"><span>Posture</span><span>65%</span></div><div className="s-bar-t"><div className="s-bar-f" style={{ width: '65%' }}></div></div></div>
@@ -410,7 +464,7 @@ const LandingPage = () => {
       <section className="foot">
         <div className="f-top">
           <div>
-            <div className="ft-logo">Takshila<em>.</em></div>
+            <div className="ft-logo" style={{fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: 900, color: 'var(--navy)', letterSpacing: '-1px', fontSize: '1.5rem', marginBottom: '1rem'}}>Takshila<span style={{color: 'var(--orange)'}}>.</span></div>
             <div className="ft-desc">Your ultimate career workspace. Unified by intelligence, driven by your potential.</div>
           </div>
           <div>

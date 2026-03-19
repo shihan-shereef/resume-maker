@@ -24,6 +24,30 @@
     100% { transform: translateY(-50%); }
   }
 }
+
+/* ── Global Orange Dot Cursor ──────────────────────────── */
+* { cursor: none !important; }
+
+.cursor-dot {
+  position: fixed;
+  z-index: 99999;
+  width: 9px;
+  height: 9px;
+  background: #f05523;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: width 0.18s ease, height 0.18s ease, background 0.18s ease;
+  top: 0;
+  left: 0;
+}
+.cursor-dot.on {
+  width: 15px;
+  height: 15px;
+  background: #c93e0f;
+}
+/* ─────────────────────────────────────────────────────── */
+
 :root {
     /* Primary Colors - Takshila/Jeton Style */
     --primary: #ff5c00; /* Vibrant Orange */
@@ -638,34 +662,10 @@ mark {
     mix-blend-mode: overlay;
 }
 
-.magnetic-cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 20px;
-    height: 20px;
-    background: var(--primary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 10000;
-    mix-blend-mode: difference;
-    transition: transform 0.1s ease-out;
-}
 
-.cursor-ring {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 40px;
-    height: 40px;
-    border: 2px solid var(--primary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transition: transform 0.2s ease-out;
-}
 
 /* Hover Underline Draw */
+
 .hover-underline {
     position: relative;
     text-decoration: none;
