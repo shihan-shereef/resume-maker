@@ -43,7 +43,7 @@ export const isLikelyDuplicate = (firstText = '', secondText = '') => {
         }
     });
 
-    return overlap / smallerSet.size >= 0.85;
+    return overlap / smallerSet.size >= 0.75;
 };
 
 export const stripRepeatedSentences = (text = '') => {

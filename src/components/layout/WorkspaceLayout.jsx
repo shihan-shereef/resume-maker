@@ -21,7 +21,7 @@ const WorkspaceLayout = ({ children }) => {
             )}
             
             <div 
-                className="sidebar-placeholder desktop-only"
+                className="sidebar-placeholder"
                 style={{ 
                     width: isCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
                     transition: 'width 0.4s cubic-bezier(0.22, 1, 0.36, 1)',

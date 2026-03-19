@@ -56,19 +56,10 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{ 
-                position: (isHovered && isCollapsed) ? 'absolute' : 'relative',
-                left: 0,
-                top: 0,
-                height: '100vh',
-                zIndex: 1001,
-                width: effectivelyCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
-                transition: 'width 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease',
-                boxShadow: (isHovered && isCollapsed) ? '20px 0 50px rgba(0,0,0,0.15)' : 'none',
-                overflow: 'hidden',
+                position: (isHovered && isCollapsed) ? 'absolute' : undefined,
+                boxShadow: (isHovered && isCollapsed) ? '20px 0 50px rgba(0,0,0,0.15)' : undefined,
                 backgroundColor: 'white'
             }}
-
-
         >
             <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 

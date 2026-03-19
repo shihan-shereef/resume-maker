@@ -69,16 +69,23 @@ const ActiveInterviewRoom = ({ config, onEnd }) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [detectedEmotion, setDetectedEmotion] = useState("Neutral");
     const [emotionConfidence, setEmotionConfidence] = useState(0);
+    const [textInput, setTextInput] = useState("");
     const recognitionRef = useRef(null);
     const lastSubmittedRef = useRef({ text: '', timestamp: 0 });
     const fallbackQuestionIndexRef = useRef(0);
+    const isInterviewActive = useRef(true);
 
     useEffect(() => {
-        // Load ML Model
+        // Start Core Interview Logic Immediately
+        startRecording();
+        beginInterviewLoop();
+
+        // Load ML Model in background
         cocoSsd.load().then(loadedModel => {
             setModel(loadedModel);
-            startRecording();
-            beginInterviewLoop();
+        }).catch(err => {
+            console.error("ML Model Load Failed:", err);
+            issueWarning("Neural intelligence system partially available.");
         });
 
         // Setup Speech Recognition
@@ -99,10 +106,18 @@ const ActiveInterviewRoom = ({ config, onEnd }) => {
                         interimTranscript += event.results[i][0].transcript;
                     }
                 }
-                if (interimTranscript) setUserSubtitle(interimTranscript);
-                if (finalTranscript) {
-                    setUserSubtitle(finalTranscript);
-                    handleUserSubmit(finalTranscript);
+                
+                if (interimTranscript) {
+                    setUserSubtitle(interimTranscript);
+                }
+                
+                if (finalTranscript.trim()) {
+                    const normalized = normalizeDialogueText(finalTranscript);
+                    // Prevent processing the same final result multiple times
+                    if (normalized && normalized !== normalizeDialogueText(lastSubmittedRef.current.text)) {
+                        setUserSubtitle(finalTranscript);
+                        handleUserSubmit(finalTranscript);
+                    }
                 }
             };
             
@@ -297,12 +312,13 @@ ${isResumeProvided
                 const audio = new Audio(ttsUrl);
                 audio.onended = () => {
                     setTimeout(() => {
+                        if (!isInterviewActive.current) return;
                         setUserSubtitle("Listening...");
                         setIsListening(true);
                         if(recognitionRef.current) {
-                            try { recognitionRef.current.start(); } catch {}
+                            try { recognitionRef.current.start(); } catch(e) { console.warn("Recognition start failed:", e); }
                         }
-                    }, 500);
+                    }, 800);
                 };
                 audio.play().catch(() => {
                     console.warn("ElevenLabs Playback failed, falling back to system voice.");
@@ -406,6 +422,11 @@ IMPORTANT:
                  nextResponse = getFallbackInterviewQuestion(config.type, newTranscript);
              }
 
+             // Final sanity check: if AI still returns nothing, use generic fallback
+             if (!nextResponse || nextResponse.length < 5) {
+                 nextResponse = "That's interesting. Could you tell me more about how you've applied that in your work?";
+             }
+
              speakAndContinue(nextResponse, 'ai');
         } catch (e) {
              speakAndContinue(getFallbackInterviewQuestion(config.type, newTranscript), 'ai');
@@ -413,6 +434,7 @@ IMPORTANT:
     };
 
     const stopInterview = (disqualified = false) => {
+        isInterviewActive.current = false;
         if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
             mediaRecorderRef.current.stop();
         }
@@ -518,6 +540,35 @@ IMPORTANT:
                          </div>
                          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
                              {isListening ? 'Listening (Click to send early)' : 'Wait for your turn'}
+                         </div>
+
+                         {/* Type to Chat Fallback */}
+                         <div style={{ width: '100%', maxWidth: '400px', marginTop: '10px' }}>
+                             <form 
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    if (textInput.trim() && !isThinking) {
+                                        handleUserSubmit(textInput);
+                                        setTextInput("");
+                                    }
+                                }}
+                                style={{ display: 'flex', gap: '8px' }}
+                             >
+                                 <input 
+                                     type="text"
+                                     value={textInput}
+                                     onChange={(e) => setTextInput(e.target.value)}
+                                     placeholder="Type here if mic fails..."
+                                     disabled={isThinking}
+                                     style={{ flex: 1, background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '100px', padding: '10px 16px', color: 'white', fontSize: '0.9rem', outline: 'none' }}
+                                 />
+                                 <button 
+                                     type="submit" 
+                                     disabled={isThinking || !textInput.trim()}
+                                     className="btn-primary" 
+                                     style={{ height: '40px', padding: '0 16px', fontSize: '0.85rem', borderRadius: '100px' }}
+                                 >Send</button>
+                             </form>
                          </div>
                      </div>
                 </div>

@@ -20,16 +20,19 @@ const Login = () => {
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
 
-        const SEPARATION = 150, AMOUNTX = 40, AMOUNTY = 60;
+        const isMobile = window.innerWidth < 768;
+        const SEPARATION = isMobile ? 180 : 150;
+        const AMOUNTX = isMobile ? 20 : 40;
+        const AMOUNTY = isMobile ? 30 : 60;
         const CAM_X = 0, CAM_Y = 355, CAM_Z = 1220, FOV_DEG = 60;
         let W, H, aspect, count = 0;
         let rafId;
 
-        function resize() {
+        const resize = () => {
             W = canvas.width = window.innerWidth;
             H = canvas.height = window.innerHeight;
             aspect = W / H;
-        }
+        };
         resize();
         window.addEventListener('resize', resize);
 

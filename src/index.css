@@ -520,6 +520,9 @@ img, video, canvas, svg {
         left: 0;
         box-shadow: 0 0 50px rgba(0,0,0,0.1);
     }
+    .sidebar-placeholder {
+        width: 0 !important;
+    }
 }
 
 .main-content {
