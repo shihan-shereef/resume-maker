@@ -56,10 +56,18 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{ 
+                position: (isHovered && isCollapsed) ? 'absolute' : 'relative',
+                left: 0,
+                top: 0,
+                height: '100vh',
+                zIndex: 1001,
+                width: effectivelyCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
                 transition: 'width 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease',
-                boxShadow: (isHovered && isCollapsed) ? '0 10px 40px rgba(0,0,0,0.12)' : 'none',
-                overflow: 'hidden'
+                boxShadow: (isHovered && isCollapsed) ? '20px 0 50px rgba(0,0,0,0.15)' : 'none',
+                overflow: 'hidden',
+                backgroundColor: 'white'
             }}
+
 
         >
             <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -157,7 +165,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
 
                         >
                             <div>
-                                <item.icon size={24} />
+                                <item.icon size={28} />
+
 
                             </div>
                             {!effectivelyCollapsed && <span className="item-label">{item.label}</span>}
@@ -198,7 +207,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
 
                         >
                             <div>
-                                <item.icon size={24} />
+                                <item.icon size={28} />
+
 
                             </div>
                             {!effectivelyCollapsed && <span className="item-label">{item.label}</span>}
@@ -233,7 +243,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
 
                 >
                     <div>
-                        <Settings size={24} />
+                        <Settings size={28} />
+
 
                     </div>
                     {!effectivelyCollapsed && <span className="item-label">Settings</span>}
@@ -263,7 +274,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                         color: 'white',
                         flexShrink: 0
                     }}>
-                        <UserCircle size={28} />
+                        <UserCircle size={32} />
+
 
                     </div>
                     {!effectivelyCollapsed && (

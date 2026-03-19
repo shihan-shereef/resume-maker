@@ -20,12 +20,22 @@ const WorkspaceLayout = ({ children }) => {
                 />
             )}
             
-            <Sidebar 
-                isOpen={isMenuOpen} 
-                onClose={closeMenu} 
-                isCollapsed={isCollapsed} 
-                onToggleCollapse={toggleCollapse} 
-            />
+            <div 
+                className="sidebar-placeholder desktop-only"
+                style={{ 
+                    width: isCollapsed ? 'var(--sidebar-collapsed-width)' : 'var(--sidebar-width)',
+                    transition: 'width 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+                    flexShrink: 0
+                }}
+            >
+                <Sidebar 
+                    isOpen={isMenuOpen} 
+                    onClose={closeMenu} 
+                    isCollapsed={isCollapsed} 
+                    onToggleCollapse={toggleCollapse} 
+                />
+            </div>
+
             
             <main className="main-content">
                 <Topbar onMenuClick={toggleMenu} />
