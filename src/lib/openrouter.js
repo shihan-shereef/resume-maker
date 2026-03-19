@@ -1,4 +1,6 @@
 // lib/openrouter.js
+import DOMPurify from 'isomorphic-dompurify';
+
 
 const LOCAL_DEV_HINT = "If you're running locally, start the app with `npm run dev:full` so the `/api/ai` backend is available.";
 
@@ -98,15 +100,18 @@ export const generateResumeContent = async (prompt, systemPrompt = "You are a pr
             throw new Error(data?.error || `Failed to generate AI content via backend (HTTP ${response.status}).`);
         }
 
-        const content = data?.choices?.[0]?.message?.content;
+
+        let content = data?.choices?.[0]?.message?.content;
 
         if (typeof content !== 'string' || !content.trim()) {
             throw new Error(data?.error || "AI backend returned an unexpected response format.");
         }
 
-        return content;
+        // Sanitize on the client side
+        return DOMPurify.sanitize(content);
 
     } catch (error) {
+
         console.error("AI Error:", error);
 
         if (error instanceof TypeError && error.message.includes('fetch')) {

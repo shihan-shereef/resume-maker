@@ -1,7 +1,6 @@
-// api/ai.js
 /* global process */
 import { z } from 'zod';
-import DOMPurify from 'isomorphic-dompurify';
+
 
 // Simple in-memory rate limiter.
 // WARNING: This is not a robust solution for a serverless environment, as each
@@ -109,14 +108,8 @@ export default async function handler(req, res) {
             });
         }
 
-        if (typeof data?.choices?.[0]?.message?.content !== 'string') {
-            return res.status(502).json({ error: 'AI provider returned an unexpected response format.' });
-        }
-
-        if (data.choices && data.choices[0] && data.choices[0].message) {
-            data.choices[0].message.content = DOMPurify.sanitize(data.choices[0].message.content);
-        }
         return res.status(200).json(data);
+
 
     } catch (error) {
         if (error instanceof z.ZodError) {
