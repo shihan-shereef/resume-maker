@@ -67,19 +67,21 @@ body {
   animation: fadeUp .6s ease both;
 }
 .h-h1 {
-  font-family: var(--display); font-size: clamp(2.8rem, 6.5vw, 5.5rem); font-weight: 900; line-height: 1.06;
-  letter-spacing: -0.03em; max-width: 1000px; color: var(--text); margin-bottom: 2rem; animation: fadeUp .6s .1s ease both;
+  font-family: var(--display); font-size: clamp(2.8rem, 6.5vw, 5.5rem); font-weight: 900; line-height: 1.1;
+  letter-spacing: -0.03em; max-width: 1100px; color: var(--text); margin-bottom: 2rem; animation: fadeUp .6s .1s ease both;
+  overflow: visible;
 }
 
-.uby-wrap { display: inline; color: var(--orange); font-style: italic; cursor: default; }
+.uby-wrap { display: inline-block; color: var(--orange); font-style: italic; cursor: default; padding-right: 0.15em; }
 .uby-char { 
   display: inline-block; 
   opacity: 0; 
-  transform: translateY(-55px) rotate(var(--rot, 0deg)) scale(.55); 
+  transform: translateY(-30px) rotate(var(--rot, 0deg)) scale(.8); 
   transition: opacity .5s ease var(--delay, 0s), transform .65s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s); 
 }
 .uby-char.space { display: inline; opacity: 1; transform: none; transition: none; }
 .uby-char.landed { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+
 
 
 .h-sub { font-family: var(--mono); font-size: clamp(.9rem, 1.6vw, 1.05rem); color: var(--g600); max-width: 540px; line-height: 1.8; margin-bottom: 2.5rem; animation: fadeUp .6s .2s ease both; }
