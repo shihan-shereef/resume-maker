@@ -56,9 +56,11 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             style={{ 
-                transition: 'width 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: isHovered && isCollapsed ? '10px 0 30px rgba(0,0,0,0.08)' : 'none'
+                transition: 'width 0.4s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.4s ease',
+                boxShadow: (isHovered && isCollapsed) ? '0 10px 40px rgba(0,0,0,0.12)' : 'none',
+                overflow: 'hidden'
             }}
+
         >
             <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
@@ -149,12 +151,14 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                                 textDecoration: 'none',
                                 fontWeight: 600,
                                 fontSize: '0.95rem',
-                                transition: 'var(--transition-smooth)'
+                                transition: 'all 0.35s cubic-bezier(0.22, 1, 0.36, 1)'
                             })}
+
 
                         >
                             <div>
-                                <item.icon size={20} />
+                                <item.icon size={24} />
+
                             </div>
                             {!effectivelyCollapsed && <span className="item-label">{item.label}</span>}
 
@@ -188,12 +192,14 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                                 textDecoration: 'none',
                                 fontWeight: 600,
                                 fontSize: '0.95rem',
-                                transition: 'var(--transition-smooth)'
+                                transition: 'all 0.35s cubic-bezier(0.22, 1, 0.36, 1)'
                             })}
+
 
                         >
                             <div>
-                                <item.icon size={20} />
+                                <item.icon size={24} />
+
                             </div>
                             {!effectivelyCollapsed && <span className="item-label">{item.label}</span>}
 
@@ -220,13 +226,15 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                         textDecoration: 'none',
                         fontWeight: 600,
                         fontSize: '0.95rem',
-                        transition: 'var(--transition-smooth)',
+                        transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
                         marginBottom: '16px'
                     })}
 
+
                 >
                     <div>
-                        <Settings size={20} />
+                        <Settings size={24} />
+
                     </div>
                     {!effectivelyCollapsed && <span className="item-label">Settings</span>}
                 </NavLink>
@@ -255,7 +263,8 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                         color: 'white',
                         flexShrink: 0
                     }}>
-                        <UserCircle size={24} />
+                        <UserCircle size={28} />
+
                     </div>
                     {!effectivelyCollapsed && (
                         <div style={{ overflow: 'hidden' }}>

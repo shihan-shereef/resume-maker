@@ -80,7 +80,7 @@
     --radius-lg: 24px;
     --radius-xl: 40px;
     
-    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-smooth: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 
     /* Responsive Breakpoints */
     --breakpoint-mobile: 320px;

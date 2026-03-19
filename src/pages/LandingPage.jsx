@@ -42,22 +42,22 @@ const LandingPage = () => {
     let ubyObs;
     if(uby) {
       const ubyText = "Unified by Intelligence.";
-      uby.innerHTML = ubyText.split("").map(ch => {
+      uby.innerHTML = ubyText.split("").map((ch, i) => {
         if (ch === " ") return '<span class="uby-char space">&nbsp;</span>';
-        // Reduced rotation for a "clearer" and more professional look
         const rot = (Math.random() * 8 - 4).toFixed(1);
-        return `<span class="uby-char" style="--rot:${rot}deg">${ch}</span>`;
+        // Using CSS variable for delay to be more performant than JS timeouts
+        return `<span class="uby-char" style="--rot:${rot}deg; --delay:${i * 0.045}s">${ch}</span>`;
       }).join("");
       const ubyChars = uby.querySelectorAll(".uby-char:not(.space)");
       ubyObs = new IntersectionObserver(([e]) => {
         if (e.isIntersecting) {
-          // Slightly slower stagger for a "smoother" reveal
-          ubyChars.forEach((ch, i) => setTimeout(() => ch.classList.add("landed"), i * 45));
+          ubyChars.forEach(ch => ch.classList.add("landed"));
           if(ubyObs) ubyObs.disconnect();
         }
-      }, { threshold: 0.1 }); // Lower threshold so it starts as soon as it enters
+      }, { threshold: 0.1 });
       ubyObs.observe(uby);
     }
+
 
 
     // 4. Scramble text

@@ -72,9 +72,15 @@ body {
 }
 
 .uby-wrap { display: inline; color: var(--orange); font-style: italic; cursor: default; }
-.uby-char { display: inline-block; opacity: 0; transform: translateY(-55px) rotate(var(--rot, 0deg)) scale(.55); transition: opacity .5s ease, transform .65s cubic-bezier(0.22, 1, 0.36, 1); }
+.uby-char { 
+  display: inline-block; 
+  opacity: 0; 
+  transform: translateY(-55px) rotate(var(--rot, 0deg)) scale(.55); 
+  transition: opacity .5s ease var(--delay, 0s), transform .65s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0s); 
+}
 .uby-char.space { display: inline; opacity: 1; transform: none; transition: none; }
 .uby-char.landed { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+
 
 .h-sub { font-family: var(--mono); font-size: clamp(.9rem, 1.6vw, 1.05rem); color: var(--g600); max-width: 540px; line-height: 1.8; margin-bottom: 2.5rem; animation: fadeUp .6s .2s ease both; }
 .h-cta { display: flex; gap: .9rem; animation: fadeUp .6s .3s ease both; }
