@@ -4,7 +4,7 @@ import Topbar from './Topbar';
 
 const WorkspaceLayout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const closeMenu = () => setIsMenuOpen(false);

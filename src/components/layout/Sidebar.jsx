@@ -24,6 +24,11 @@ import {
 import Logo from '../common/Logo';
 
 const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
+    const [isHovered, setIsHovered] = React.useState(false);
+    
+    // Effectively collapsed if it's told to be collapsed AND we aren't hovering over it
+    const effectivelyCollapsed = isCollapsed && !isHovered;
+
     const mainModules = [
         { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
         { id: 'resume', icon: FileText, label: 'AI Resume Maker', path: '/resume' },
@@ -47,9 +52,16 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
 
     return (
         <aside 
-            className={`sidebar ${isOpen ? 'open' : ''} ${isCollapsed ? 'collapsed' : ''}`}
+            className={`sidebar ${isOpen ? 'open' : ''} ${effectivelyCollapsed ? 'collapsed' : ''}`}
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            style={{ 
+                transition: 'width 0.35s cubic-bezier(0.4, 0, 0.2, 1)',
+                boxShadow: isHovered && isCollapsed ? '10px 0 30px rgba(0,0,0,0.08)' : 'none'
+            }}
         >
             <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+
                 <div 
                     onClick={() => {
                         const audio = new Audio('/splash.wav');
@@ -60,11 +72,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                     style={{ cursor: 'pointer', overflow: 'hidden' }}
                     title={isCollapsed ? 'Takshila' : ''}
                 >
-                    {isCollapsed
+                    {effectivelyCollapsed
                         ? <span style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0F172A', fontFamily: "'Inter', sans-serif" }}>T<span style={{ display: 'inline-block', width: '6px', height: '6px', backgroundColor: '#FF5C00', borderRadius: '50%', marginBottom: '2px', marginLeft: '1px' }} /></span>
                         : <Logo size="md" />
                     }
                 </div>
+
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <button 
@@ -89,22 +102,24 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                 data-lenis-prevent
             >
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px', marginBottom: '32px' }}>
-                    {!isCollapsed && (
+                    {!effectivelyCollapsed && (
                         <div style={{ color: 'var(--text-tertiary)', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', padding: '0 12px 12px' }}>
                             Career Suite
                         </div>
                     )}
+
                     {mainModules.map((item) => (
                         <NavLink
                             key={item.id}
                             to={item.path}
                             onClick={onClose}
-                            title={isCollapsed ? item.label : ""}
+                            title={effectivelyCollapsed ? item.label : ""}
                             className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+
                             style={({ isActive }) => ({
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                justifyContent: effectivelyCollapsed ? 'center' : 'flex-start',
                                 gap: '12px',
                                 padding: '12px 16px',
                                 borderRadius: 'var(--radius-md)',
@@ -115,31 +130,35 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                                 fontSize: '0.95rem',
                                 transition: 'var(--transition-smooth)'
                             })}
+
                         >
                             <div>
                                 <item.icon size={20} />
                             </div>
-                            {!isCollapsed && <span className="item-label">{item.label}</span>}
+                            {!effectivelyCollapsed && <span className="item-label">{item.label}</span>}
+
                         </NavLink>
                     ))}
                 </nav>
 
                 <nav style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    {!isCollapsed && (
+                    {!effectivelyCollapsed && (
                         <div style={{ color: 'var(--text-tertiary)', fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', padding: '0 12px 12px' }}>
                             Productivity AI
                         </div>
                     )}
+
                     {productivityModules.map((item) => (
                         <NavLink
                             key={item.id}
                             to={item.path}
-                            title={isCollapsed ? item.label : ""}
+                            title={effectivelyCollapsed ? item.label : ""}
                             className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+
                             style={({ isActive }) => ({
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                                justifyContent: effectivelyCollapsed ? 'center' : 'flex-start',
                                 gap: '12px',
                                 padding: '12px 16px',
                                 borderRadius: 'var(--radius-md)',
@@ -150,11 +169,13 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                                 fontSize: '0.95rem',
                                 transition: 'var(--transition-smooth)'
                             })}
+
                         >
                             <div>
                                 <item.icon size={20} />
                             </div>
-                            {!isCollapsed && <span className="item-label">{item.label}</span>}
+                            {!effectivelyCollapsed && <span className="item-label">{item.label}</span>}
+
                         </NavLink>
                     ))}
                 </nav>
@@ -164,11 +185,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                 <NavLink
                     to="/settings"
                     onClick={onClose}
-                    title={isCollapsed ? "Settings" : ""}
+                    title={effectivelyCollapsed ? "Settings" : ""}
                     style={({ isActive }) => ({
+
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: isCollapsed ? 'center' : 'flex-start',
+                        justifyContent: effectivelyCollapsed ? 'center' : 'flex-start',
                         gap: '12px',
                         padding: '12px 16px',
                         borderRadius: 'var(--radius-md)',
@@ -180,23 +202,27 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                         transition: 'var(--transition-smooth)',
                         marginBottom: '16px'
                     })}
+
                 >
                     <div>
                         <Settings size={20} />
                     </div>
-                    {!isCollapsed && <span className="item-label">Settings</span>}
+                    {!effectivelyCollapsed && <span className="item-label">Settings</span>}
                 </NavLink>
 
+
                 <div style={{ 
-                    padding: isCollapsed ? '16px 0' : '16px', 
+                    padding: effectivelyCollapsed ? '16px 0' : '16px', 
                     display: 'flex', 
                     alignItems: 'center', 
-                    justifyContent: isCollapsed ? 'center' : 'flex-start',
+                    justifyContent: effectivelyCollapsed ? 'center' : 'flex-start',
+
                     gap: '12px',
                     background: '#f8fafc',
                     borderRadius: 'var(--radius-md)',
                     border: '1px solid #e2e8f0'
-                }} title={isCollapsed ? "User Account (PREMIUM)" : ""}>
+                }} title={effectivelyCollapsed ? "User Account (PREMIUM)" : ""}>
+
                     <div style={{ 
                         width: '36px', 
                         height: '36px', 
@@ -210,7 +236,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                     }}>
                         <UserCircle size={24} />
                     </div>
-                    {!isCollapsed && (
+                    {!effectivelyCollapsed && (
                         <div style={{ overflow: 'hidden' }}>
                             <div style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 User Account
@@ -221,6 +247,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
                         </div>
                     )}
                 </div>
+
             </div>
         </aside>
     );
