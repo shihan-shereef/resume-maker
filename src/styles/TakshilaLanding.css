@@ -68,8 +68,9 @@ body {
 }
 .h-h1 {
   font-family: var(--display); font-size: clamp(2.8rem, 6.5vw, 5.5rem); font-weight: 900; line-height: 1.06;
-  letter-spacing: -0.03em; max-width: 820px; color: var(--text); margin-bottom: 2rem; animation: fadeUp .6s .1s ease both;
+  letter-spacing: -0.03em; max-width: 1000px; color: var(--text); margin-bottom: 2rem; animation: fadeUp .6s .1s ease both;
 }
+
 .uby-wrap { display: inline; color: var(--orange); font-style: italic; cursor: default; }
 .uby-char { display: inline-block; opacity: 0; transform: translateY(-55px) rotate(var(--rot, 0deg)) scale(.55); transition: opacity .4s ease, transform .55s cubic-bezier(.34, 1.45, .64, 1); }
 .uby-char.space { display: inline; opacity: 1; transform: none; transition: none; }
