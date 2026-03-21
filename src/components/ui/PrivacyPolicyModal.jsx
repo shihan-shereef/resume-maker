@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { 
   Shield, ClipboardList, Target, Bot, UserX, Calendar, Scale, 
-  Lock, Cookie, Mail, X, Plus, Minus, MoveDown
+  Lock, Cookie, Mail, X, Plus, Minus, MoveDown, Info
 } from "lucide-react";
 
 const SECTIONS = [
@@ -130,10 +130,14 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
     const el = scrollRef.current;
     if (!el) return;
     const { scrollTop, scrollHeight, clientHeight } = el;
-    // Account for small differences in rounding
-    const progress = scrollTop / (scrollHeight - clientHeight);
+    // Robust scroll-to-bottom calculation
+    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 3;
+    const progress = scrollTop / (scrollHeight - clientHeight || 1);
+    
     setScrollProgress(Math.min(progress, 1));
-    if (progress > 0.95 || scrollHeight <= clientHeight) setHasScrolledToBottom(true);
+    if (isAtBottom || scrollHeight <= clientHeight) {
+      setHasScrolledToBottom(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -141,8 +145,9 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
       setScrollProgress(0);
       setHasScrolledToBottom(false);
       setOpenSection(null);
-      // Check if it's already at bottom or if content is too short to scroll
-      setTimeout(handleScroll, 100);
+      // Ensure the check runs after DOM is painted
+      const timer = setTimeout(handleScroll, 100);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, handleScroll]);
 
@@ -152,7 +157,6 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
 
   return (
     <div
-      className="privacy-modal-overlay"
       style={{
         position: "fixed",
         inset: 0,
@@ -160,27 +164,41 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "16px",
-        background: "rgba(10,10,20,0.72)",
-        backdropFilter: "blur(6px)",
-        WebkitBackdropFilter: "blur(6px)",
+        padding: "20px",
+        background: "rgba(0, 0, 0, 0.45)",
+        backdropFilter: "blur(4px)",
       }}
       onClick={(e) => { if (e.target === e.currentTarget && !isFirstTime) onClose?.(); }}
     >
       <style>{`
+        .privacy-modal-card {
+           animation: privacyModalPop 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        }
+        @keyframes privacyModalPop {
+          from { opacity: 0; transform: scale(0.9) translateY(20px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .privacy-scroll-btn {
+          animation: privacyBounce 2s infinite;
+        }
+        @keyframes privacyBounce {
+          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-6px); }
+          60% { transform: translateY(-3px); }
+        }
         .privacy-modal-scroll::-webkit-scrollbar {
-          width: 5px;
+          width: 6px;
         }
         .privacy-modal-scroll::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.02);
+          background: #f1f1f1;
           border-radius: 10px;
         }
         .privacy-modal-scroll::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.12);
+          background: #00BCD4;
           border-radius: 10px;
         }
         .privacy-modal-scroll::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.18);
+          background: #0097A7;
         }
       `}</style>
 
@@ -188,56 +206,73 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
         className="privacy-modal-card"
         style={{
           width: "100%",
-          maxWidth: 580,
-          maxHeight: "90vh",
-          background: "#0f1117",
+          maxWidth: 620,
+          height: "85vh", // Fixed height to ensure overflow works
+          background: "#ffffff",
           borderRadius: 24,
-          border: "1px solid rgba(255,255,255,0.08)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          boxShadow: "0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)",
-          fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-          animation: "modalAppear 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          border: "1px solid #E0F7FA",
+          fontFamily: "'Inter', system-ui, sans-serif",
         }}
       >
-        {/* Progress bar */}
-        <div style={{ height: 4, background: "rgba(255,255,255,0.06)", flexShrink: 0, position: "relative" }}>
-          <div style={{
-            height: "100%",
-            width: `${scrollProgress * 100}%`,
-            background: "linear-gradient(90deg, #6c63ff, #3ecfb2)",
-            transition: "width 0.1s linear",
-            borderRadius: 2,
-          }} />
-        </div>
+        {/* Top Accent Bar */}
+        <div style={{
+          height: 6,
+          background: `linear-gradient(90deg, #00BCD4 0%, #00BCD4 ${scrollProgress * 100}%, #f05523 ${scrollProgress * 100}%, #f05523 100%)`,
+          flexShrink: 0,
+        }} />
 
         {/* Header */}
-        <div style={{
+        <header style={{
           padding: "24px 32px 20px",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          flexShrink: 0,
+          background: "#E0F7FA", // Aqua Background
+          borderBottom: "1px solid #B2EBF2",
           display: "flex",
-          alignItems: "center",
           justifyContent: "space-between",
-          gap: 20,
+          alignItems: "flex-start",
+          flexShrink: 0,
         }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            {/* Creator Logo "AS" */}
             <div style={{
-              width: 44, height: 44, borderRadius: 12,
-              background: "linear-gradient(135deg, #6c63ff22, #3ecfb222)",
-              border: "1px solid rgba(108,99,255,0.3)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              color: "#a8a4ff"
+              width: 52,
+              height: 52,
+              borderRadius: "50%",
+              background: "linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#fff",
+              fontSize: 20,
+              fontWeight: 800,
+              boxShadow: "0 4px 12px rgba(255, 95, 109, 0.3)",
+              flexShrink: 0,
             }}>
-              <Shield size={22} />
+              AS
             </div>
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.8, color: "rgba(108,99,255,0.8)", textTransform: "uppercase", marginBottom: 3 }}>
-                Legal & Security
+              <div style={{
+                fontSize: 18,
+                fontWeight: 900,
+                color: "#006064",
+                letterSpacing: "-0.5px",
+                display: "flex",
+                alignItems: "center",
+                gap: 4
+              }}>
+                Takshila<span style={{ color: "#f05523" }}>.</span>
               </div>
-              <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1, letterSpacing: "-0.02em" }}>
-                Privacy Policy
+              <h2 style={{
+                margin: 0,
+                fontSize: 20,
+                fontWeight: 700,
+                color: "#1a1a1a",
+                marginTop: 2
+              }}>
+                Takshila Privacy and Policy
               </h2>
             </div>
           </div>
@@ -245,183 +280,193 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
             <button
               onClick={onClose}
               style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "none", borderRadius: 10,
-                width: 36, height: 36,
-                cursor: "pointer", color: "rgba(255,255,255,0.4)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, transition: "all 0.2s",
+                background: "white",
+                border: "1px solid #B2EBF2",
+                borderRadius: 12,
+                width: 36,
+                height: 36,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#006064",
+                boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.1)"; e.currentTarget.style.color = "#fff"; }}
-              onMouseLeave={(e) => { e.currentTarget.style.background = "rgba(255,255,255,0.05)"; e.currentTarget.style.color = "rgba(255,255,255,0.4)"; }}
             >
               <X size={20} />
             </button>
           )}
-        </div>
+        </header>
 
-        {/* Intro banner */}
+        {/* Branding Banner */}
         <div style={{
-          margin: "20px 24px 0",
-          padding: "16px 20px",
-          background: "rgba(108,99,255,0.07)",
-          border: "1px solid rgba(108,99,255,0.15)",
-          borderRadius: 16,
+          padding: "14px 32px",
+          background: "#ffffff",
+          display: "flex",
+          alignItems: "center",
+          gap: 12,
+          borderBottom: "1px solid #f0f0f0",
           flexShrink: 0,
         }}>
-          <p style={{ margin: 0, fontSize: 13.5, color: "rgba(255,255,255,0.75)", lineHeight: 1.6 }}>
-            Built by <span style={{ color: "#a8a4ff", fontWeight: 700 }}>Abdul Shihan</span>. We prioritize your privacy above all. Your data belongs to you, and you have complete control over it.
-          </p>
+          <Info size={16} color="#00BCD4" />
+          <span style={{ fontSize: 13, color: "#555", fontWeight: 500 }}>
+            Your privacy is our mission. We build tools, not track records.
+          </span>
         </div>
 
-        {/* Scrollable content */}
+        {/* Scrollable Content */}
         <div
           ref={scrollRef}
           onScroll={handleScroll}
           className="privacy-modal-scroll"
           style={{
-            flex: 1,
-            overflowY: "auto",
-            WebkitOverflowScrolling: "touch", // for nice mobile scrolling
-            padding: "24px",
-            paddingBottom: "40px",
+            flex: 1, // Takes up remaining space
+            overflowY: "auto", // Forces internal scroll
+            padding: "32px",
+            minHeight: 0, // CRITICAL for flex scrolling
           }}
         >
-          {SECTIONS.map((section) => {
-            const Icon = section.icon;
-            const isOpen = openSection === section.id;
-            return (
-              <div key={section.id} style={{ marginBottom: 10 }}>
-                <button
-                  onClick={() => setOpenSection(isOpen ? null : section.id)}
-                  style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    padding: "16px 20px",
-                    background: isOpen ? "rgba(108,99,255,0.1)" : "rgba(255,255,255,0.03)",
-                    border: `1px solid ${isOpen ? "rgba(108,99,255,0.3)" : "rgba(255,255,255,0.06)"}`,
-                    borderRadius: isOpen ? "14px 14px 0 0" : 14,
-                    cursor: "pointer",
-                    textAlign: "left",
-                    gap: 16,
-                    transition: "all 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                    <div style={{ 
-                      color: isOpen ? "#a8a4ff" : "rgba(255,255,255,0.5)",
-                      transition: "color 0.2s"
-                    }}>
-                      <Icon size={18} />
+          <div style={{ maxWidth: "100%", margin: "0 auto" }}>
+            <p style={{
+              fontSize: 15,
+              color: "#444",
+              lineHeight: 1.6,
+              marginBottom: 32,
+              paddingLeft: 4,
+              borderLeft: "4px solid #f05523"
+            }}>
+              This policy explains what data Takshila AI collects, how it is used,
+              and the rights you have. Written by humans, for humans.
+            </p>
+
+            {SECTIONS.map((section, idx) => {
+              const Icon = section.icon;
+              const isOpen = openSection === section.id;
+              return (
+                <div key={section.id} style={{ marginBottom: 12 }}>
+                  <button
+                    onClick={() => setOpenSection(isOpen ? null : section.id)}
+                    style={{
+                      width: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "18px 20px",
+                      background: isOpen ? "#E0F7FA" : "#fafafa",
+                      border: `1px solid ${isOpen ? "#B2EBF2" : "#eeeeee"}`,
+                      borderRadius: isOpen ? "16px 16px 0 0" : 16,
+                      cursor: "pointer",
+                      textAlign: "left",
+                      gap: 16,
+                      transition: "all 0.2s ease"
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                      <div style={{ 
+                        width: 32, height: 32, borderRadius: 8, 
+                        background: isOpen ? "#ffffff" : "#eeeeee",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        color: isOpen ? "#00BCD4" : "#888"
+                      }}>
+                        <Icon size={18} />
+                      </div>
+                      <span style={{ 
+                        fontSize: 15, 
+                        fontWeight: 600, 
+                        color: isOpen ? "#006064" : "#1a1a1a"
+                      }}>
+                        {section.title}
+                      </span>
                     </div>
-                    <span style={{ 
-                      fontSize: 14, 
-                      fontWeight: 600, 
-                      color: isOpen ? "#fff" : "rgba(255,255,255,0.85)",
-                      transition: "color 0.2s"
+                    <div style={{ color: isOpen ? "#00BCD4" : "#bbb" }}>
+                      {isOpen ? <Minus size={18} /> : <Plus size={18} />}
+                    </div>
+                  </button>
+                  {isOpen && (
+                    <div style={{
+                      padding: "20px 24px 28px 66px",
+                      background: "#ffffff",
+                      border: "1px solid #B2EBF2",
+                      borderTop: "none",
+                      borderRadius: "0 0 16px 16px",
+                      fontSize: 14,
+                      lineHeight: 1.8,
+                      color: "#444",
+                      whiteSpace: "pre-line",
                     }}>
-                      {section.title}
-                    </span>
-                  </div>
-                  <div style={{ color: "rgba(255,255,255,0.3)" }}>
-                    {isOpen ? <Minus size={18} /> : <Plus size={18} />}
-                  </div>
-                </button>
-                {isOpen && (
-                  <div style={{
-                    padding: "18px 24px 22px",
-                    background: "rgba(108,99,255,0.05)",
-                    borderWidth: "0 1px 1px 1px",
-                    borderColor: "rgba(108,99,255,0.25)",
-                    borderStyle: "solid",
-                    borderRadius: "0 0 14px 14px",
-                    fontSize: 13.5,
-                    lineHeight: 1.8,
-                    color: "rgba(255,255,255,0.65)",
-                    whiteSpace: "pre-line",
-                    animation: "slideIn 0.2s ease-out",
-                  }}>
-                    {section.body}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                      {section.body}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
 
-        {/* Footer / Accept area */}
-        <div style={{
-          padding: "20px 24px 28px",
-          borderTop: "1px solid rgba(255,255,255,0.06)",
+        {/* Footer */}
+        <footer style={{
+          padding: "24px 32px 32px",
+          background: "#E0F7FA",
+          borderTop: "1px solid #B2EBF2",
           flexShrink: 0,
-          background: "linear-gradient(to top, #0f1117 80%, rgba(15,17,23,0))",
-          position: "relative",
-          zIndex: 10,
         }}>
           {isFirstTime && !hasScrolledToBottom && (
-            <div style={{ 
-              display: "flex", 
-              alignItems: "center", 
-              justifyContent: "center", 
-              gap: 8,
+            <div className="privacy-scroll-btn" style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 10,
               marginBottom: 16,
-              color: "#a8a4ff",
-              fontSize: 12,
-              fontWeight: 600,
-              animation: "bounce 2s infinite",
+              color: "#006064",
+              fontSize: 13,
+              fontWeight: 700,
             }}>
-              <MoveDown size={14} />
-              <span>Please scroll down to accept</span>
+              <MoveDown size={16} />
+              <span>Scroll to the bottom to accept</span>
             </div>
           )}
+          
           <button
             onClick={canAccept ? onAccept : undefined}
             style={{
               width: "100%",
               padding: "16px",
-              background: canAccept ? "linear-gradient(135deg, #6c63ff, #3ecfb2)" : "rgba(255,255,255,0.05)",
+              background: canAccept ? "#f05523" : "rgba(0, 0, 0, 0.05)",
+              color: canAccept ? "white" : "#999",
               border: "none",
               borderRadius: 16,
-              color: canAccept ? "#fff" : "rgba(255,255,255,0.2)",
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: canAccept ? "pointer" : "not-allowed",
-              boxShadow: canAccept ? "0 12px 24px rgba(108,99,255,0.25)" : "none",
-              transition: "all 0.2s",
+              fontSize: 16,
+              fontWeight: 800,
+              cursor: canAccept ? "pointer" : "default",
+              transition: "all 0.3s",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              gap: 10,
+              gap: 12,
+              boxShadow: canAccept ? "0 10px 20px -5px rgba(240, 85, 35, 0.4)" : "none"
             }}
           >
             {isFirstTime ? (
               canAccept ? (
-                <>Accept & Continue <Shield size={18} /></>
+                <>Accept & Continue <Shield size={20} /></>
               ) : (
-                "Read the policy to continue"
+                "Please read the policy"
               )
-            ) : "Close"}
+            ) : "Close Policy"}
           </button>
-        </div>
+          
+          <div style={{ 
+            marginTop: 16, 
+            textAlign: "center", 
+            fontSize: 12, 
+            color: "#006064", 
+            opacity: 0.7,
+            fontWeight: 500
+          }}>
+            © 2025 Takshila AI · All Data Strictly Private
+          </div>
+        </footer>
       </div>
-
-      <style>{`
-        @keyframes modalAppear {
-          from { opacity: 0; transform: scale(0.95) translateY(10px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(-5px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-4px); }
-          60% { transform: translateY(-2px); }
-        }
-      `}</style>
     </div>
   );
 };

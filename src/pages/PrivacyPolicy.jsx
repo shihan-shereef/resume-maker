@@ -1,15 +1,22 @@
 import React, { useState } from "react";
+import { 
+  Shield, ClipboardList, Target, Bot, UserX, Calendar, Scale, 
+  Lock, Cookie, Mail, Plus, Minus, Info, ArrowLeft
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const sections = [
   {
     id: "who",
+    icon: Shield,
     title: "Who we are",
     content: `Takshila AI is an AI-powered resume builder and career workspace created and operated by Abdul Shihan, a student developer based in Sri Lanka. This project was originally built as part of an internship submission and has since been expanded with additional features to genuinely help job seekers create professional resumes with ease.
 
-You can contact the creator directly at: shihan@takshila.ai (replace with your real email)`
+You can contact the creator directly at: shihan@takshila.ai`
   },
   {
     id: "collect",
+    icon: ClipboardList,
     title: "What data we collect",
     content: `We collect only the information you choose to give us while using the app:
 
@@ -22,6 +29,7 @@ We do not collect payment information, government ID, or any sensitive personal 
   },
   {
     id: "why",
+    icon: Target,
     title: "Why we collect it",
     content: `We use your data only to:
 
@@ -34,6 +42,7 @@ We do not use your data for advertising. We do not build profiles to sell. We do
   },
   {
     id: "ai",
+    icon: Bot,
     title: "How AI features work",
     content: `Takshila AI uses third-party AI services (such as Google Gemini or OpenAI) to power resume suggestions and improvements. When you use an AI feature, the specific content you submit for that feature is sent to the AI provider's API to generate a response.
 
@@ -47,17 +56,19 @@ If you are uncomfortable with content being processed by a third-party AI, you c
   },
   {
     id: "sharing",
+    icon: UserX,
     title: "Who we share your data with",
     content: `We do not sell your data. Period.
 
 We share data only with:
 • AI service providers (Google / OpenAI) — only content you actively submit to AI features, as described above
-• Our hosting and database provider (Vercel / Supabase or equivalent) — to store and serve your account data securely
+• Our hosting and database provider (Vercel / Supabase) — to store and serve your account data securely
 
 We do not share your data with recruiters, employers, advertisers, data brokers, or any other third party.`
   },
   {
     id: "retention",
+    icon: Calendar,
     title: "How long we keep your data",
     content: `Your data is kept as long as your account is active. If you delete your account:
 
@@ -69,6 +80,7 @@ You can delete your account at any time from the Account Settings page.`
   },
   {
     id: "rights",
+    icon: Scale,
     title: "Your rights",
     content: `You have the right to:
 
@@ -81,17 +93,8 @@ You can delete your account at any time from the Account Settings page.`
 To exercise any of these rights, either use the controls in your Account Settings or email us directly. We respond within 5 business days.`
   },
   {
-    id: "cookies",
-    title: "Cookies",
-    content: `We use only the minimum cookies required for the app to work:
-
-• Session cookie — keeps you logged in while you use the app
-• Security cookie — protects against cross-site request forgery (CSRF)
-
-We do not use advertising cookies, tracking pixels, or analytics services that share data with third parties. We do not use Google Analytics.`
-  },
-  {
     id: "security",
+    icon: Lock,
     title: "How we protect your data",
     content: `We take the following measures to keep your data safe:
 
@@ -104,24 +107,24 @@ We do not use advertising cookies, tracking pixels, or analytics services that s
 While no system is 100% secure, we apply serious engineering practices appropriate for a personal-data application.`
   },
   {
-    id: "children",
-    title: "Children's privacy",
-    content: `Takshila AI is intended for users who are 16 years of age or older. We do not knowingly collect personal data from children under 16. If you believe a child has created an account, please contact us and we will delete the account promptly.`
-  },
-  {
-    id: "changes",
-    title: "Changes to this policy",
-    content: `If we make significant changes to this privacy policy, we will notify you by email or by showing a notice when you next log in. The "last updated" date at the top of this page will always reflect the most recent version.
+    id: "cookies",
+    icon: Cookie,
+    title: "Cookies",
+    content: `We use only the minimum cookies required for the app to work:
 
-Continuing to use the app after changes are announced means you accept the updated policy.`
+• Session cookie — keeps you logged in while you use the app
+• Security cookie — protects against cross-site request forgery (CSRF)
+
+We do not use advertising cookies, tracking pixels, or analytics services that share data with third parties. We do not use Google Analytics.`
   },
   {
     id: "contact",
+    icon: Mail,
     title: "Contact us",
     content: `If you have any questions, concerns, or requests about your privacy, please reach out:
 
 Creator: Abdul Shihan
-Email: your-email@domain.com (replace with your real email)
+Email: shihan@takshila.ai
 Response time: within 5 business days
 
 We take every message seriously and will always respond honestly.`
@@ -130,143 +133,261 @@ We take every message seriously and will always respond honestly.`
 
 export default function PrivacyPolicy() {
   const [openSection, setOpenSection] = useState(null);
+  const navigate = useNavigate();
 
   const toggle = (id) => setOpenSection(openSection === id ? null : id);
 
   return (
     <div style={{
-      maxWidth: 760,
-      margin: "0 auto",
-      padding: "48px 24px 80px",
-      fontFamily: "system-ui, -apple-system, sans-serif",
+      minHeight: "100vh",
+      background: "#ffffff",
+      fontFamily: "'Inter', sans-serif",
       color: "#1a1a1a"
     }}>
-      {/* Header */}
-      <div style={{ marginBottom: 40 }}>
-        <div style={{
-          display: "inline-block",
-          background: "#EAF3DE",
-          color: "#3B6D11",
-          fontSize: 12,
-          fontWeight: 500,
-          padding: "4px 12px",
-          borderRadius: 20,
-          marginBottom: 16
-        }}>
-          Effective from January 2025 · Last updated March 2025
-        </div>
-        <h1 style={{ fontSize: 32, fontWeight: 600, margin: "0 0 12px", lineHeight: 1.2 }}>
-          Privacy Policy
-        </h1>
-        <p style={{ fontSize: 16, color: "#555", lineHeight: 1.7, margin: 0, maxWidth: 580 }}>
-          This policy explains what data Takshila AI collects, how it is used,
-          and the rights you have over your information. Written in plain English —
-          no legal jargon.
-        </p>
-      </div>
-
-      {/* Quick summary banner */}
-      <div style={{
-        background: "#E6F1FB",
-        border: "1px solid #B5D4F4",
-        borderRadius: 12,
-        padding: "20px 24px",
-        marginBottom: 36,
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
-        gap: 16
+      {/* Navbar/Header */}
+      <nav style={{
+        background: "#E0F7FA",
+        borderBottom: "1px solid #B2EBF2",
+        padding: "16px 24px",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between"
       }}>
-        {[
-          { icon: "🚫", text: "We never sell your data" },
-          { icon: "🔒", text: "Passwords are always encrypted" },
-          { icon: "🗑️", text: "Delete your account anytime" },
-          { icon: "📧", text: "We reply within 5 days" }
-        ].map((item, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 20 }}>{item.icon}</span>
-            <span style={{ fontSize: 13, color: "#185FA5", fontWeight: 500 }}>{item.text}</span>
-          </div>
-        ))}
-      </div>
-
-      {/* Accordion sections */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {sections.map((section, i) => (
-          <div key={section.id} style={{
-            border: "0.5px solid #e0e0e0",
-            borderRadius: 10,
-            overflow: "hidden",
-            background: openSection === section.id ? "#fff" : "#fafafa"
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+          <button 
+            onClick={() => navigate(-1)}
+            style={{
+              background: "white",
+              border: "1px solid #B2EBF2",
+              borderRadius: "50%",
+              width: 40,
+              height: 40,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#006064"
+            }}
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div style={{
+            fontSize: 20,
+            fontWeight: 900,
+            color: "#006064",
+            letterSpacing: "-0.5px"
           }}>
-            <button
-              onClick={() => toggle(section.id)}
-              style={{
-                width: "100%",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "16px 20px",
-                background: "transparent",
-                border: "none",
-                cursor: "pointer",
-                textAlign: "left",
-                gap: 12
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                <span style={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: "#888",
-                  minWidth: 24
-                }}>
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <span style={{
-                  fontSize: 15,
-                  fontWeight: 500,
-                  color: "#1a1a1a"
-                }}>
-                  {section.title}
-                </span>
-              </div>
-              <span style={{
-                fontSize: 18,
-                color: "#888",
-                transform: openSection === section.id ? "rotate(45deg)" : "none",
-                transition: "transform 0.2s",
-                flexShrink: 0
-              }}>+</span>
-            </button>
-            {openSection === section.id && (
-              <div style={{
-                padding: "0 20px 20px 56px",
-                fontSize: 14,
-                lineHeight: 1.8,
-                color: "#444",
-                whiteSpace: "pre-line"
-              }}>
-                {section.content}
-              </div>
-            )}
+            Takshila<span style={{ color: "#f05523" }}>.</span>
           </div>
-        ))}
-      </div>
+        </div>
+        <div style={{
+           width: 40,
+           height: 40,
+           borderRadius: "50%",
+           background: "linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%)",
+           display: "flex",
+           alignItems: "center",
+           justifyContent: "center",
+           color: "#fff",
+           fontSize: 14,
+           fontWeight: 800,
+           boxShadow: "0 2px 8px rgba(255, 95, 109, 0.2)"
+        }}>
+          AS
+        </div>
+      </nav>
 
-      {/* Footer note */}
-      <div style={{
-        marginTop: 48,
-        paddingTop: 24,
-        borderTop: "1px solid #eee",
-        fontSize: 13,
-        color: "#888",
-        textAlign: "center"
+      <main style={{
+        maxWidth: 760,
+        margin: "0 auto",
+        padding: "56px 24px 100px",
       }}>
-        Built with care by Abdul Shihan · Takshila AI ·{" "}
-        <a href="/about" style={{ color: "#378ADD", textDecoration: "none" }}>
-          About this project
-        </a>
-      </div>
+        {/* Page Hero */}
+        <header style={{ marginBottom: 48, textAlign: "center" }}>
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            background: "#E0F7FA",
+            color: "#006064",
+            fontSize: 12,
+            fontWeight: 700,
+            padding: "6px 16px",
+            borderRadius: 20,
+            marginBottom: 20,
+            textTransform: "uppercase",
+            letterSpacing: "1px"
+          }}>
+            <Shield size={14} /> Effective from March 2025
+          </div>
+          <h1 style={{ 
+            fontSize: "clamp(2.5rem, 5vw, 3.5rem)", 
+            fontWeight: 900, 
+            margin: "0 0 16px", 
+            color: "#006064",
+            letterSpacing: "-0.03em" 
+          }}>
+            Takshila Privacy and Policy
+          </h1>
+          <p style={{ 
+            fontSize: 18, 
+            color: "#555", 
+            lineHeight: 1.6, 
+            margin: "0 auto", 
+            maxWidth: 600,
+            fontWeight: 500
+          }}>
+            Transparent, human-friendly policies for the Takshila AI workspace.
+            We treat your data the way we'd want ours treated.
+          </p>
+        </header>
+
+        {/* Highlight Banner */}
+        <div style={{
+          background: "linear-gradient(135deg, #E0F7FA 0%, #ffffff 100%)",
+          border: "1px solid #B2EBF2",
+          borderRadius: 24,
+          padding: "32px",
+          marginBottom: 56,
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gap: 24,
+          boxShadow: "0 10px 30px -10px rgba(0, 96, 100, 0.1)"
+        }}>
+          {[
+            { icon: Shield, text: "Zero Data Selling", sub: "Your info is never a product." },
+            { icon: Lock, text: "Encrypted Storage", sub: "Enterprise-grade passwords." },
+            { icon: UserX, text: "Instant Deletion", sub: "Delete your traces in one click." }
+          ].map((item, i) => (
+            <div key={i} style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div style={{ 
+                width: 44, height: 44, borderRadius: 12, 
+                background: "white", display: "flex", 
+                alignItems: "center", justifyContent: "center",
+                color: "#00BCD4", boxShadow: "0 4px 10px rgba(0,0,0,0.05)"
+              }}>
+                <item.icon size={22} />
+              </div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#006064" }}>{item.text}</div>
+                <div style={{ fontSize: 13, color: "#666", marginTop: 2 }}>{item.sub}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Policy Sections */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {sections.map((section, i) => {
+             const SectionIcon = section.icon;
+             const isOpen = openSection === section.id;
+             return (
+              <div key={section.id} style={{
+                border: "1px solid #eeeeee",
+                borderRadius: 20,
+                overflow: "hidden",
+                background: isOpen ? "#E0F7FA" : "#ffffff",
+                transition: "all 0.3s ease"
+              }}>
+                <button
+                  onClick={() => toggle(section.id)}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "24px",
+                    background: "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    gap: 16
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                    <div style={{
+                       width: 36, height: 36, borderRadius: 10,
+                       background: isOpen ? "white" : "#f5f5f5",
+                       display: "flex", alignItems: "center", justifyContent: "center",
+                       color: isOpen ? "#00BCD4" : "#999",
+                       transition: "all 0.3s ease"
+                    }}>
+                      <SectionIcon size={20} />
+                    </div>
+                    <span style={{
+                      fontSize: 16,
+                      fontWeight: 700,
+                      color: isOpen ? "#006064" : "#1a1a1a"
+                    }}>
+                      {section.id.charAt(0).toUpperCase() + section.id.slice(1).replace("-", " ")}: {section.title}
+                    </span>
+                  </div>
+                  <div style={{
+                    color: isOpen ? "#00BCD4" : "#bbb",
+                    transition: "transform 0.3s ease",
+                    transform: isOpen ? "rotate(180deg)" : "none"
+                  }}>
+                    {isOpen ? <Minus size={20} /> : <Plus size={20} />}
+                  </div>
+                </button>
+                {isOpen && (
+                  <div style={{
+                    padding: "0 32px 32px 76px",
+                    fontSize: 15,
+                    lineHeight: 1.8,
+                    color: "#444",
+                    whiteSpace: "pre-line",
+                  }}>
+                    {section.content}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Footer branding */}
+        <footer style={{
+          marginTop: 80,
+          padding: "40px 0",
+          borderTop: "1px solid #eee",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 24
+        }}>
+          <div style={{
+             width: 64,
+             height: 64,
+             borderRadius: "50%",
+             background: "linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%)",
+             display: "flex",
+             alignItems: "center",
+             justifyContent: "center",
+             color: "#fff",
+             fontSize: 24,
+             fontWeight: 800,
+             boxShadow: "0 8px 16px rgba(255, 95, 109, 0.3)"
+          }}>
+            AS
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontWeight: 800, color: "#006064", fontSize: 18, marginBottom: 4 }}>
+              Abdul Shihan
+            </div>
+            <div style={{ color: "#888", fontSize: 14 }}>
+              Student Developer · Creator of Takshila AI
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 24 }}>
+             <button onClick={() => navigate('/about')} style={{ background: "none", border: "none", color: "#f05523", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>About Creator</button>
+             <button onClick={() => navigate('/contact')} style={{ background: "none", border: "none", color: "#f05523", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>Contact Support</button>
+          </div>
+        </footer>
+      </main>
     </div>
   );
 }
