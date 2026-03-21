@@ -188,6 +188,14 @@ const LandingPage = () => {
     };
   }, []);
 
+  const handleAuthNavigation = (path) => {
+    if (!hasAccepted) {
+      openPrivacyModal(true);
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <>
       <div className="cursor" id="cur"></div>
@@ -203,8 +211,8 @@ const LandingPage = () => {
           <a href="#pricing" className="n-link">Pricing</a>
         </div>
         <div className="n-right">
-          <button className="btn-ghost" onClick={() => navigate('/login')}>Login</button>
-          <button className="btn-pill" onClick={() => navigate('/signup')}>Join Now</button>
+          <button className="btn-ghost" onClick={() => handleAuthNavigation('/login')}>Login</button>
+          <button className="btn-pill" onClick={() => handleAuthNavigation('/signup')}>Join Now</button>
         </div>
       </nav>
 
@@ -215,8 +223,8 @@ const LandingPage = () => {
           <h1 className="h-h1"><span style={{ display: 'block' }}>Your Professional Life,</span><span className="uby-wrap" id="uby" style={{ display: 'inline-block' }}>Unified by Intelligence.</span></h1>
           <p className="h-sub">Stop juggling a dozen career tools. Discover the only workspace where Resume Building, Interview Simulation, and Career Roadmapping live in perfect harmony.</p>
           <div className="h-cta">
-            <button className="btn-pri" onClick={() => navigate('/signup')}>Start Your Journey →</button>
-            <button className="btn-sec" onClick={() => navigate('/login')}>Explore Workspace</button>
+            <button className="btn-pri" onClick={() => handleAuthNavigation('/signup')}>Start Your Journey →</button>
+            <button className="btn-sec" onClick={() => handleAuthNavigation('/login')}>Explore Workspace</button>
           </div>
           <div className="mwin tilt-card reveal">
             <div className="mbar"><div className="m-dots"><div className="m-dot r"></div><div className="m-dot y"></div><div className="m-dot g"></div></div><div className="m-lbl">AI Resume Maker Interface</div><div className="m-spc"></div></div>

@@ -16,6 +16,12 @@ const Login = () => {
     const canvasRef = useRef(null);
     const { hasAccepted, openPrivacyModal } = usePrivacy();
 
+    useEffect(() => {
+        if (!hasAccepted) {
+            openPrivacyModal(true);
+        }
+    }, [hasAccepted, openPrivacyModal]);
+
     /* ── 3D Dotted Surface Animation ── */
     useEffect(() => {
         const canvas = canvasRef.current;
