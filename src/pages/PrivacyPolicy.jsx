@@ -183,27 +183,37 @@ export default function PrivacyPolicy() {
             Takshila<span style={{ color: "#f05523" }}>.</span>
           </div>
         </div>
+
+        {/* Creator Photo Integration */}
         <div style={{
-           width: 40,
-           height: 40,
+           width: 44,
+           height: 44,
            borderRadius: "50%",
-           background: "linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%)",
-           display: "flex",
-           alignItems: "center",
-           justifyContent: "center",
-           color: "#fff",
-           fontSize: 14,
-           fontWeight: 800,
-           boxShadow: "0 2px 8px rgba(255, 95, 109, 0.2)"
+           overflow: "hidden",
+           border: "2px solid #fff",
+           boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+           background: "#f0f0f0"
         }}>
-          AS
+          <img 
+            src="/images/patch/IMG_9320.jpg" 
+            alt="Abdul Shihan"
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.style.display = 'none';
+              e.target.parentNode.style.display = 'flex';
+              e.target.parentNode.style.alignItems = 'center';
+              e.target.parentNode.style.justifyContent = 'center';
+              e.target.parentNode.innerHTML = '<div style="background: linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 14px;">AS</div>';
+            }}
+          />
         </div>
       </nav>
 
       <main style={{
         maxWidth: 760,
         margin: "0 auto",
-        padding: "56px 24px 100px",
+        padding: "56px 24px 120px",
       }}>
         {/* Page Hero */}
         <header style={{ marginBottom: 48, textAlign: "center" }}>
@@ -221,7 +231,7 @@ export default function PrivacyPolicy() {
             textTransform: "uppercase",
             letterSpacing: "1px"
           }}>
-            <Shield size={14} /> Effective from March 2025
+            <Shield size={14} /> Last updated March 2025
           </div>
           <h1 style={{ 
             fontSize: "clamp(2.5rem, 5vw, 3.5rem)", 
@@ -245,7 +255,7 @@ export default function PrivacyPolicy() {
           </p>
         </header>
 
-        {/* Highlight Banner */}
+        {/* Highlights Section */}
         <div style={{
           background: "linear-gradient(135deg, #E0F7FA 0%, #ffffff 100%)",
           border: "1px solid #B2EBF2",
@@ -277,6 +287,28 @@ export default function PrivacyPolicy() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Explanatory Note */}
+        <div style={{
+          padding: "24px",
+          background: "#fdf8f6",
+          border: "1px solid #f9e2d9",
+          borderRadius: 20,
+          marginBottom: 40,
+          display: "flex",
+          gap: 16,
+          alignItems: "flex-start"
+        }}>
+          <Info size={24} color="#f05523" style={{ flexShrink: 0 }} />
+          <div>
+            <h4 style={{ margin: "0 0 8px", color: "#f05523", fontWeight: 700 }}>About our Privacy Standards</h4>
+            <p style={{ margin: 0, fontSize: 14, color: "#774a3b", lineHeight: 1.6 }}>
+              This policy is written in plain English to ensure full transparency. 
+              We prioritize your trust above all else. If you have any questions, 
+              please expand the sections below or contact us directly.
+            </p>
+          </div>
         </div>
 
         {/* Policy Sections */}
@@ -322,7 +354,7 @@ export default function PrivacyPolicy() {
                       fontWeight: 700,
                       color: isOpen ? "#006064" : "#1a1a1a"
                     }}>
-                      {section.id.charAt(0).toUpperCase() + section.id.slice(1).replace("-", " ")}: {section.title}
+                      {section.title}
                     </span>
                   </div>
                   <div style={{
@@ -348,45 +380,6 @@ export default function PrivacyPolicy() {
             );
           })}
         </div>
-
-        {/* Footer branding */}
-        <footer style={{
-          marginTop: 80,
-          padding: "40px 0",
-          borderTop: "1px solid #eee",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 24
-        }}>
-          <div style={{
-             width: 64,
-             height: 64,
-             borderRadius: "50%",
-             background: "linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%)",
-             display: "flex",
-             alignItems: "center",
-             justifyContent: "center",
-             color: "#fff",
-             fontSize: 24,
-             fontWeight: 800,
-             boxShadow: "0 8px 16px rgba(255, 95, 109, 0.3)"
-          }}>
-            AS
-          </div>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontWeight: 800, color: "#006064", fontSize: 18, marginBottom: 4 }}>
-              Abdul Shihan
-            </div>
-            <div style={{ color: "#888", fontSize: 14 }}>
-              Student Developer · Creator of Takshila AI
-            </div>
-          </div>
-          <div style={{ display: "flex", gap: 24 }}>
-             <button onClick={() => navigate('/about')} style={{ background: "none", border: "none", color: "#f05523", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>About Creator</button>
-             <button onClick={() => navigate('/contact')} style={{ background: "none", border: "none", color: "#f05523", fontWeight: 700, cursor: "pointer", fontSize: 14 }}>Contact Support</button>
-          </div>
-        </footer>
       </main>
     </div>
   );

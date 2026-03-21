@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { 
   Shield, ClipboardList, Target, Bot, UserX, Calendar, Scale, 
-  Lock, Cookie, Mail, X, Plus, Minus, MoveDown, Info
+  Lock, Cookie, Mail, X, Plus, Minus, MoveDown, Info, UserCircle
 } from "lucide-react";
 
 const SECTIONS = [
@@ -130,12 +130,13 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
     const el = scrollRef.current;
     if (!el) return;
     const { scrollTop, scrollHeight, clientHeight } = el;
-    // Robust scroll-to-bottom calculation
-    const isAtBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 3;
+    
+    // Check if we are at the bottom with a small buffer
+    const atBottom = scrollTop + clientHeight >= scrollHeight - 5;
     const progress = scrollTop / (scrollHeight - clientHeight || 1);
     
     setScrollProgress(Math.min(progress, 1));
-    if (isAtBottom || scrollHeight <= clientHeight) {
+    if (atBottom || scrollHeight <= clientHeight) {
       setHasScrolledToBottom(true);
     }
   }, []);
@@ -145,11 +146,11 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
       setScrollProgress(0);
       setHasScrolledToBottom(false);
       setOpenSection(null);
-      // Ensure the check runs after DOM is painted
-      const timer = setTimeout(handleScroll, 100);
+      // Trigger a scroll check after the modal content has potentially rendered
+      const timer = setTimeout(handleScroll, 150);
       return () => clearTimeout(timer);
     }
-  }, [isOpen, handleScroll]);
+  }, [isOpen, handleScroll, openSection]); // Include openSection to re-verify scroll when an accordion opens
 
   if (!isOpen) return null;
 
@@ -157,121 +158,121 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
 
   return (
     <div
+      className="privacy-modal-overlay"
       style={{
         position: "fixed",
         inset: 0,
-        zIndex: 2000,
+        zIndex: 5000,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "20px",
-        background: "rgba(0, 0, 0, 0.45)",
-        backdropFilter: "blur(4px)",
+        padding: "env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px)",
+        background: "rgba(0, 0, 0, 0.6)",
+        backdropFilter: "blur(8px)",
+        WebkitBackdropFilter: "blur(8px)",
       }}
       onClick={(e) => { if (e.target === e.currentTarget && !isFirstTime) onClose?.(); }}
     >
       <style>{`
-        .privacy-modal-card {
-           animation: privacyModalPop 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        .privacy-modal-scroll-container {
+          overflow-y: scroll !important;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-gutter: stable;
+          overscroll-behavior: contain;
         }
-        @keyframes privacyModalPop {
-          from { opacity: 0; transform: scale(0.9) translateY(20px); }
-          to { opacity: 1; transform: scale(1) translateY(0); }
+        .privacy-modal-scroll-container::-webkit-scrollbar {
+          width: 8px;
         }
-        .privacy-scroll-btn {
-          animation: privacyBounce 2s infinite;
+        .privacy-modal-scroll-container::-webkit-scrollbar-track {
+          background: #f0f7f8;
+          border-radius: 4px;
         }
-        @keyframes privacyBounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-6px); }
-          60% { transform: translateY(-3px); }
-        }
-        .privacy-modal-scroll::-webkit-scrollbar {
-          width: 6px;
-        }
-        .privacy-modal-scroll::-webkit-scrollbar-track {
-          background: #f1f1f1;
-          border-radius: 10px;
-        }
-        .privacy-modal-scroll::-webkit-scrollbar-thumb {
+        .privacy-modal-scroll-container::-webkit-scrollbar-thumb {
           background: #00BCD4;
-          border-radius: 10px;
+          border-radius: 4px;
+          border: 2px solid #f0f7f8;
         }
-        .privacy-modal-scroll::-webkit-scrollbar-thumb:hover {
-          background: #0097A7;
+        @keyframes bounce-slow {
+          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+          40% { transform: translateY(-10px); }
+          60% { transform: translateY(-5px); }
+        }
+        .bounce-arrow {
+          animation: bounce-slow 2s infinite;
         }
       `}</style>
 
       <div
-        className="privacy-modal-card"
         style={{
           width: "100%",
-          maxWidth: 620,
-          height: "85vh", // Fixed height to ensure overflow works
+          maxWidth: 600,
+          height: "90vh", // FIXED OVERALL HEIGHT
+          maxHeight: 800,
           background: "#ffffff",
-          borderRadius: 24,
+          borderRadius: 28,
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
-          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+          boxShadow: "0 30px 60px -12px rgba(0,0,0,0.3)",
           border: "1px solid #E0F7FA",
-          fontFamily: "'Inter', system-ui, sans-serif",
         }}
       >
-        {/* Top Accent Bar */}
+        {/* Progress header bar */}
         <div style={{
           height: 6,
-          background: `linear-gradient(90deg, #00BCD4 0%, #00BCD4 ${scrollProgress * 100}%, #f05523 ${scrollProgress * 100}%, #f05523 100%)`,
-          flexShrink: 0,
-        }} />
-
-        {/* Header */}
-        <header style={{
-          padding: "24px 32px 20px",
-          background: "#E0F7FA", // Aqua Background
-          borderBottom: "1px solid #B2EBF2",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
+          background: "#f0f0f0",
           flexShrink: 0,
         }}>
+          <div style={{
+            height: "100%",
+            width: `${scrollProgress * 100}%`,
+            background: "linear-gradient(90deg, #00BCD4, #f05523)",
+            transition: "width 0.2s ease-out",
+          }} />
+        </div>
+
+        {/* Header Section */}
+        <header style={{
+          padding: "24px 32px",
+          background: "#E0F7FA",
+          borderBottom: "1px solid #B2EBF2",
+          flexShrink: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 20
+        }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            {/* Creator Logo "AS" */}
+            {/* Creator Photo integration */}
             <div style={{
-              width: 52,
-              height: 52,
-              borderRadius: "50%",
-              background: "linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#fff",
-              fontSize: 20,
-              fontWeight: 800,
-              boxShadow: "0 4px 12px rgba(255, 95, 109, 0.3)",
-              flexShrink: 0,
+               width: 56,
+               height: 56,
+               borderRadius: "50%",
+               overflow: "hidden",
+               border: "3px solid #fff",
+               boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+               flexShrink: 0,
+               background: "#f0f0f0"
             }}>
-              AS
+              <img 
+                src="/images/patch/IMG_9320.jpg" 
+                alt="Abdul Shihan"
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.style.display = 'none';
+                  e.target.parentNode.style.display = 'flex';
+                  e.target.parentNode.style.alignItems = 'center';
+                  e.target.parentNode.style.justifyContent = 'center';
+                  e.target.parentNode.innerHTML = '<div style="background: linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800;">AS</div>';
+                }}
+              />
             </div>
             <div>
-              <div style={{
-                fontSize: 18,
-                fontWeight: 900,
-                color: "#006064",
-                letterSpacing: "-0.5px",
-                display: "flex",
-                alignItems: "center",
-                gap: 4
-              }}>
+              <div style={{ fontSize: 20, fontWeight: 900, color: "#006064", letterSpacing: "-0.5px" }}>
                 Takshila<span style={{ color: "#f05523" }}>.</span>
               </div>
-              <h2 style={{
-                margin: 0,
-                fontSize: 20,
-                fontWeight: 700,
-                color: "#1a1a1a",
-                marginTop: 2
-              }}>
+              <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#1a1a1a" }}>
                 Takshila Privacy and Policy
               </h2>
             </div>
@@ -280,119 +281,80 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
             <button
               onClick={onClose}
               style={{
-                background: "white",
-                border: "1px solid #B2EBF2",
-                borderRadius: 12,
-                width: 36,
-                height: 36,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#006064",
-                boxShadow: "0 2px 4px rgba(0,0,0,0.05)"
+                background: "white", border: "1px solid #B2EBF2", borderRadius: "50%",
+                width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", color: "#006064"
               }}
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           )}
         </header>
 
-        {/* Branding Banner */}
-        <div style={{
-          padding: "14px 32px",
-          background: "#ffffff",
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-          borderBottom: "1px solid #f0f0f0",
-          flexShrink: 0,
-        }}>
-          <Info size={16} color="#00BCD4" />
-          <span style={{ fontSize: 13, color: "#555", fontWeight: 500 }}>
-            Your privacy is our mission. We build tools, not track records.
-          </span>
-        </div>
-
-        {/* Scrollable Content */}
-        <div
+        {/* SCROLLABLE AREA - THE BULLERPROOF PART */}
+        <div 
           ref={scrollRef}
           onScroll={handleScroll}
-          className="privacy-modal-scroll"
+          className="privacy-modal-scroll-container"
           style={{
-            flex: 1, // Takes up remaining space
-            overflowY: "auto", // Forces internal scroll
+            flex: "1 1 auto", // Takes all available space between header and footer
+            minHeight: 0,     // CRITICAL for nested flexbox scrolling
             padding: "32px",
-            minHeight: 0, // CRITICAL for flex scrolling
+            background: "#ffffff",
           }}
         >
-          <div style={{ maxWidth: "100%", margin: "0 auto" }}>
-            <p style={{
-              fontSize: 15,
-              color: "#444",
-              lineHeight: 1.6,
-              marginBottom: 32,
-              paddingLeft: 4,
-              borderLeft: "4px solid #f05523"
+          <div style={{ marginBottom: 32 }}>
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "12px 16px", background: "#f8fdfd", borderRadius: 12,
+              border: "1px dashed #00BCD4", color: "#006064", fontSize: 13,
+              fontWeight: 500
             }}>
-              This policy explains what data Takshila AI collects, how it is used,
-              and the rights you have. Written by humans, for humans.
-            </p>
+              <Info size={16} />
+              <span>We collect only what is necessary for your career growth.</span>
+            </div>
+          </div>
 
-            {SECTIONS.map((section, idx) => {
+          <p style={{ fontSize: 15, color: "#444", lineHeight: 1.7, marginBottom: 32 }}>
+            This policy outlines how your information is handled within the Takshila AI ecosystem. 
+            <strong> Please scroll through all sections to enable the "Accept" button.</strong>
+          </p>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {SECTIONS.map((section) => {
               const Icon = section.icon;
               const isOpen = openSection === section.id;
               return (
-                <div key={section.id} style={{ marginBottom: 12 }}>
+                <div key={section.id} style={{
+                  border: `1px solid ${isOpen ? "#00BCD4" : "#f0f0f0"}`,
+                  borderRadius: 16,
+                  overflow: "hidden",
+                  transition: "all 0.2s ease"
+                }}>
                   <button
                     onClick={() => setOpenSection(isOpen ? null : section.id)}
                     style={{
-                      width: "100%",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      padding: "18px 20px",
-                      background: isOpen ? "#E0F7FA" : "#fafafa",
-                      border: `1px solid ${isOpen ? "#B2EBF2" : "#eeeeee"}`,
-                      borderRadius: isOpen ? "16px 16px 0 0" : 16,
-                      cursor: "pointer",
-                      textAlign: "left",
-                      gap: 16,
-                      transition: "all 0.2s ease"
+                      width: "100%", display: "flex", alignItems: "center",
+                      justifyContent: "space-between", padding: "18px 20px",
+                      background: isOpen ? "#E0F7FA" : "#fff",
+                      cursor: "pointer", border: "none", textAlign: "left", gap: 14
                     }}
                   >
                     <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                      <div style={{ 
-                        width: 32, height: 32, borderRadius: 8, 
-                        background: isOpen ? "#ffffff" : "#eeeeee",
-                        display: "flex", alignItems: "center", justifyContent: "center",
-                        color: isOpen ? "#00BCD4" : "#888"
-                      }}>
+                      <div style={{ color: isOpen ? "#00BCD4" : "#999" }}>
                         <Icon size={18} />
                       </div>
-                      <span style={{ 
-                        fontSize: 15, 
-                        fontWeight: 600, 
-                        color: isOpen ? "#006064" : "#1a1a1a"
-                      }}>
-                        {section.title}
-                      </span>
+                      <span style={{ fontSize: 15, fontWeight: 700, color: "#1a1a1a" }}>{section.title}</span>
                     </div>
-                    <div style={{ color: isOpen ? "#00BCD4" : "#bbb" }}>
+                    <div style={{ color: isOpen ? "#00BCD4" : "#ccc" }}>
                       {isOpen ? <Minus size={18} /> : <Plus size={18} />}
                     </div>
                   </button>
                   {isOpen && (
                     <div style={{
-                      padding: "20px 24px 28px 66px",
-                      background: "#ffffff",
-                      border: "1px solid #B2EBF2",
-                      borderTop: "none",
-                      borderRadius: "0 0 16px 16px",
-                      fontSize: 14,
-                      lineHeight: 1.8,
-                      color: "#444",
-                      whiteSpace: "pre-line",
+                      padding: "20px 24px 24px 52px", background: "#fff",
+                      fontSize: 14, lineHeight: 1.8, color: "#555",
+                      whiteSpace: "pre-line", borderTop: "1px solid #E0F7FA"
                     }}>
                       {section.body}
                     </div>
@@ -401,9 +363,12 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
               );
             })}
           </div>
+
+          {/* Spacer at the bottom to ensure the user can scroll past the last item */}
+          <div style={{ height: 100 }} />
         </div>
 
-        {/* Footer */}
+        {/* Footer Section */}
         <footer style={{
           padding: "24px 32px 32px",
           background: "#E0F7FA",
@@ -411,59 +376,39 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
           flexShrink: 0,
         }}>
           {isFirstTime && !hasScrolledToBottom && (
-            <div className="privacy-scroll-btn" style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 10,
-              marginBottom: 16,
-              color: "#006064",
-              fontSize: 13,
-              fontWeight: 700,
+            <div className="bounce-arrow" style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+              marginBottom: 16, color: "#006064", fontSize: 13, fontWeight: 800
             }}>
-              <MoveDown size={16} />
-              <span>Scroll to the bottom to accept</span>
+              <MoveDown size={14} />
+              <span>Continue scrolling to accept</span>
             </div>
           )}
           
           <button
             onClick={canAccept ? onAccept : undefined}
             style={{
-              width: "100%",
-              padding: "16px",
-              background: canAccept ? "#f05523" : "rgba(0, 0, 0, 0.05)",
-              color: canAccept ? "white" : "#999",
-              border: "none",
-              borderRadius: 16,
-              fontSize: 16,
-              fontWeight: 800,
+              width: "100%", padding: "16px",
+              background: canAccept ? "#f05523" : "rgba(0,0,0,0.05)",
+              color: canAccept ? "white" : "#aaa",
+              border: "none", borderRadius: 16, fontSize: 16, fontWeight: 800,
               cursor: canAccept ? "pointer" : "default",
-              transition: "all 0.3s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              boxShadow: canAccept ? "0 10px 20px -5px rgba(240, 85, 35, 0.4)" : "none"
+              transition: "all 0.3s cubic-bezier(0.19, 1, 0.22, 1)",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: 12,
+              boxShadow: canAccept ? "0 10px 25px -5px rgba(240, 85, 35, 0.4)" : "none"
             }}
           >
             {isFirstTime ? (
               canAccept ? (
-                <>Accept & Continue <Shield size={20} /></>
+                <>I Accept & Understand <Shield size={18} /></>
               ) : (
-                "Please read the policy"
+                "Please scroll to the bottom"
               )
             ) : "Close Policy"}
           </button>
           
-          <div style={{ 
-            marginTop: 16, 
-            textAlign: "center", 
-            fontSize: 12, 
-            color: "#006064", 
-            opacity: 0.7,
-            fontWeight: 500
-          }}>
-            © 2025 Takshila AI · All Data Strictly Private
+          <div style={{ marginTop: 16, textAlign: "center", fontSize: 11, color: "#006064", opacity: 0.6, fontWeight: 600 }}>
+            SECURE ACCESS · TAKSHILA AI 2025
           </div>
         </footer>
       </div>
