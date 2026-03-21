@@ -209,7 +209,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse, user }) => {
             </div>
 
             <div style={{ padding: '24px 16px', borderTop: '1px solid #f1f5f9' }}>
-                {user?.email === import.meta.env.VITE_ADMIN_EMAIL && (
+                {(user?.email === import.meta.env.VITE_ADMIN_EMAIL || user?.email === "shihanshereef2@gmail.com") && (
                     <NavLink
                         to="/admin"
                         onClick={onClose}
