@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Navigate } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 
 // Lazy load pages for performance
 const DashboardPage = React.lazy(() => import('./dashboard/page'));
@@ -8,6 +8,10 @@ const UserManagement = React.lazy(() => import('./admin/users/page'));
 const AnalyticsPage = React.lazy(() => import('./admin/analytics/page'));
 const ContentManagement = React.lazy(() => import('./admin/content/page'));
 const AdminSettings = React.lazy(() => import('./admin/settings/page'));
+
+// Auxiliary Pages
+const AboutCreator = React.lazy(() => import('../pages/AboutCreator'));
+const PrivacyPolicy = React.lazy(() => import('../pages/PrivacyPolicy'));
 
 /**
  * Integration Routes
@@ -72,6 +76,24 @@ export const DashboardRoutes = [
         element={
             <React.Suspense fallback={<div>Loading...</div>}>
                 <AdminSettings />
+            </React.Suspense>
+        } 
+    />,
+    <Route 
+        key="about"
+        path="/about" 
+        element={
+            <React.Suspense fallback={<div>Loading...</div>}>
+                <AboutCreator />
+            </React.Suspense>
+        } 
+    />,
+    <Route 
+        key="privacy"
+        path="/privacy" 
+        element={
+            <React.Suspense fallback={<div>Loading...</div>}>
+                <PrivacyPolicy />
             </React.Suspense>
         } 
     />
