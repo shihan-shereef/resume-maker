@@ -3,6 +3,7 @@ import { Mail, Lock, Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useNavigate, Link } from 'react-router-dom';
 import '../styles/TakshilaLogin.css';
+import { usePrivacy } from '../context/PrivacyContext';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -13,6 +14,7 @@ const Login = () => {
     const [isLogin, setIsLogin] = useState(true);
     const navigate = useNavigate();
     const canvasRef = useRef(null);
+    const { hasAccepted, openPrivacyModal } = usePrivacy();
 
     /* ── 3D Dotted Surface Animation ── */
     useEffect(() => {
@@ -98,6 +100,13 @@ const Login = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // ── Privacy Check ──
+        if (!hasAccepted) {
+            openPrivacyModal(true); // Trigger modal with 'first time' flag
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -120,6 +129,10 @@ const Login = () => {
     };
 
     const handleGoogleLogin = async () => {
+        if (!hasAccepted) {
+            openPrivacyModal(true);
+            return;
+        }
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -130,6 +143,10 @@ const Login = () => {
     };
 
     const handleGithubLogin = async () => {
+        if (!hasAccepted) {
+            openPrivacyModal(true);
+            return;
+        }
         const { error } = await supabase.auth.signInWithOAuth({
             provider: 'github',
             options: {
@@ -253,4 +270,3 @@ const Login = () => {
 };
 
 export default Login;
-

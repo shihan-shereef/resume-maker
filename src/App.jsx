@@ -23,6 +23,11 @@ import TermsOfService from './pages/TermsOfService';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
 import WorkspaceLayout from './components/layout/WorkspaceLayout';
+
+// Shared UI Components
+import PrivacyPolicyModal from './components/ui/PrivacyPolicyModal';
+import { PrivacyProvider, usePrivacy } from './context/PrivacyContext';
+
 // Placeholder components for modules
 const Placeholder = ({ title }) => (
     <div className="glass-card" style={{ padding: '60px', textAlign: 'center', background: 'white' }}>
@@ -124,9 +129,25 @@ function App() {
     }
 
     return (
+        <PrivacyProvider>
+            <AppContent session={session} Placeholder={Placeholder} />
+        </PrivacyProvider>
+    );
+}
+
+function AppContent({ session, Placeholder }) {
+    const { isModalOpen, isFirstTime, closePrivacyModal, acceptPrivacy } = usePrivacy();
+
+    return (
         <ButtermaxEffects>
             <Router>
                 <AnimatedRoutes session={session} Placeholder={Placeholder} />
+                <PrivacyPolicyModal 
+                    isOpen={isModalOpen} 
+                    isFirstTime={isFirstTime}
+                    onClose={closePrivacyModal}
+                    onAccept={acceptPrivacy}
+                />
             </Router>
         </ButtermaxEffects>
     );

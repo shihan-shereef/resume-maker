@@ -2,12 +2,14 @@ import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   FileText, ScanSearch, Globe, Youtube, FileKey, NotebookPen, 
-  Map, PieChart, MonitorPlay, Compass, Briefcase, PenTool, Bot 
+  Map, PieChart, MonitorPlay, Compass, Briefcase, PenTool, Bot, User 
 } from 'lucide-react';
 import '../styles/TakshilaLanding.css';
+import { usePrivacy } from '../context/PrivacyContext';
 
 const LandingPage = () => {
   const navigate = useNavigate();
+  const { openPrivacyModal } = usePrivacy();
 
   useEffect(() => {
     // 1. Cursor movement
@@ -464,7 +466,19 @@ const LandingPage = () => {
         <div className="c-hint reveal">No credit card required. Instant access to core workspace.</div>
       </section>
 
-      <section className="foot">
+      {/* About the Creator Section */}
+      <section className="about-creator-preview" style={{ padding: '80px 24px', background: '#fafafa', borderTop: '1px solid #eee' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #f05523 0%, #7c3aed 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2rem', fontWeight: 900, marginBottom: '24px' }}>AS</div>
+          <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--navy)', marginBottom: '16px' }}>The Human Behind Takshila<span style={{ color: 'var(--orange)' }}>.</span></h2>
+          <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '700px', lineHeight: 1.6, marginBottom: '32px' }}>
+            Hi, I'm Abdul Shihan. I built Takshila AI to help people navigate their careers with better tools and AI-powered insights. I'm a student developer from Sri Lanka with a passion for building helpful technology.
+          </p>
+          <button className="btn-pill" onClick={() => navigate('/about')} style={{ padding: '12px 32px', fontSize: '1rem' }}>Read My Full Story →</button>
+        </div>
+      </section>
+
+      <footer className="foot">
         <div className="f-top">
           <div>
             <div className="ft-logo" style={{fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: 900, color: 'var(--navy)', letterSpacing: '-1px', fontSize: '1.5rem', marginBottom: '1rem'}}>Takshila<span style={{color: 'var(--orange)'}}>.</span></div>
@@ -472,18 +486,27 @@ const LandingPage = () => {
           </div>
           <div>
             <div className="ft-h">Navigation</div>
-            <div className="ft-lnks"><a href="#">About Us</a><a href="#">Support</a><a href="#">Workspace</a><a href="#">Blog</a></div>
+            <div className="ft-lnks">
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate('/about'); }}>About Us</a>
+              <a href="#">Support</a>
+              <a href="#">Workspace</a>
+              <a href="#">Blog</a>
+            </div>
           </div>
           <div>
             <div className="ft-h">Legal</div>
-            <div className="ft-lnks"><a href="#">Privacy Policy</a><a href="#">Terms of Service</a><a href="#">Cookie Policy</a></div>
+            <div className="ft-lnks">
+              <a href="#" onClick={(e) => { e.preventDefault(); openPrivacyModal(); }}>Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+              <a href="#">Cookie Policy</a>
+            </div>
           </div>
         </div>
         <div className="f-bot">
           <div>© 2026 Takshila AI. All rights reserved.</div>
           <div>Powered by AI · Built with ♥</div>
         </div>
-      </section>
+      </footer>
     </>
   );
 };
