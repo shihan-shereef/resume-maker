@@ -33,6 +33,11 @@ export default function AboutCreator() {
             src={creatorImg} 
             alt="Abdul Shihan" 
             style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+            onError={(e) => {
+              if (e.target.src !== "/creator.jpg") {
+                e.target.src = "/creator.jpg";
+              }
+            }}
           />
         </div>
 

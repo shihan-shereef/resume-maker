@@ -471,7 +471,11 @@ const LandingPage = () => {
       <section className="about-creator-preview" style={{ padding: '80px 24px', background: '#fafafa', borderTop: '1px solid #eee' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <div style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', border: '4px solid #fff', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
-            <img src={creatorImg} alt="Abdul Shihan" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={creatorImg} alt="Abdul Shihan" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => {
+              if (e.target.src !== "/creator.jpg") {
+                e.target.src = "/creator.jpg";
+              }
+            }} />
           </div>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--navy)', marginBottom: '16px' }}>The Human Behind Takshila<span style={{ color: 'var(--orange)' }}>.</span></h2>
           <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '700px', lineHeight: 1.6, marginBottom: '32px' }}>

@@ -200,12 +200,16 @@ export default function PrivacyPolicy() {
             alt="Abdul Shihan"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
             onError={(e) => {
-              e.target.onerror = null;
-              e.target.style.display = 'none';
-              e.target.parentNode.style.display = 'flex';
-              e.target.parentNode.style.alignItems = 'center';
-              e.target.parentNode.style.justifyContent = 'center';
-              e.target.parentNode.innerHTML = '<div style="background: linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 14px;">AS</div>';
+              if (e.target.src !== "/creator.jpg") {
+                e.target.src = "/creator.jpg";
+              } else {
+                e.target.onerror = null;
+                e.target.style.display = 'none';
+                e.target.parentNode.style.display = 'flex';
+                e.target.parentNode.style.alignItems = 'center';
+                e.target.parentNode.style.justifyContent = 'center';
+                e.target.parentNode.innerHTML = '<div style="background: linear-gradient(135deg, #FF5F6D 0%, #BD00FF 100%); width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 14px;">AS</div>';
+              }
             }}
           />
         </div>
