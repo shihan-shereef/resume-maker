@@ -4,6 +4,7 @@ import {
   Lock, Cookie, Mail, Plus, Minus, Info, ArrowLeft
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import creatorImg from "../assets/creator.jpg";
 
 const sections = [
   {
@@ -195,7 +196,7 @@ export default function PrivacyPolicy() {
            background: "#f0f0f0"
         }}>
           <img 
-            src="/images/patch/IMG_9320.jpg" 
+            src={creatorImg} 
             alt="Abdul Shihan"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
             onError={(e) => {

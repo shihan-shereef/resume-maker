@@ -3,6 +3,7 @@ import {
   Shield, ClipboardList, Target, Bot, UserX, Calendar, Scale, 
   Lock, Cookie, Mail, X, Plus, Minus, MoveDown, Info, UserCircle
 } from "lucide-react";
+import creatorImg from "../../assets/creator.jpg";
 
 const SECTIONS = [
   {
@@ -255,7 +256,7 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
                background: "#f0f0f0"
             }}>
               <img 
-                src="/images/patch/IMG_9320.jpg" 
+                src={creatorImg} 
                 alt="Abdul Shihan"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 onError={(e) => {

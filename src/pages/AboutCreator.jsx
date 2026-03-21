@@ -1,4 +1,5 @@
 import React from "react";
+import creatorImg from '../assets/creator.jpg';
 
 export default function AboutCreator() {
   return (
@@ -29,7 +30,7 @@ export default function AboutCreator() {
           marginBottom: 24
         }}>
           <img 
-            src="/images/patch/IMG_9320.jpg" 
+            src={creatorImg} 
             alt="Abdul Shihan" 
             style={{ width: "100%", height: "100%", objectFit: "cover" }} 
           />
