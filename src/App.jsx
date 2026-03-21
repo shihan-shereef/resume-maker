@@ -83,7 +83,7 @@ const AnimatedRoutes = ({ session, Placeholder }) => {
                     <Route 
                         path="/admin" 
                         element={
-                            session?.user?.email === 'admin@takshila.ai' ? (
+                            session?.user?.email === import.meta.env.VITE_ADMIN_EMAIL ? (
                                 <WorkspaceLayout><AdminDashboard /></WorkspaceLayout>
                             ) : (
                                 <Navigate to="/dashboard" replace />
