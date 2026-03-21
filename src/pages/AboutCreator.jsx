@@ -20,20 +20,19 @@ export default function AboutCreator() {
       }}>
         {/* Avatar */}
         <div style={{
-          width: 96,
-          height: 96,
+          width: 120,
+          height: 120,
           borderRadius: "50%",
-          background: "linear-gradient(135deg, #534AB7 0%, #1D9E75 100%)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontSize: 36,
-          fontWeight: 700,
-          color: "#fff",
-          marginBottom: 24,
-          letterSpacing: -1
+          overflow: "hidden",
+          border: "4px solid #fff",
+          boxShadow: "0 10px 30px rgba(0,0,0,0.12)",
+          marginBottom: 24
         }}>
-          AS
+          <img 
+            src="/images/patch/IMG_9320.jpg" 
+            alt="Abdul Shihan" 
+            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+          />
         </div>
 
         <div style={{

@@ -469,7 +469,9 @@ const LandingPage = () => {
       {/* About the Creator Section */}
       <section className="about-creator-preview" style={{ padding: '80px 24px', background: '#fafafa', borderTop: '1px solid #eee' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'linear-gradient(135deg, #f05523 0%, #7c3aed 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '2rem', fontWeight: 900, marginBottom: '24px' }}>AS</div>
+          <div style={{ width: '100px', height: '100px', borderRadius: '50%', overflow: 'hidden', border: '4px solid #fff', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', marginBottom: '24px' }}>
+            <img src="/images/patch/IMG_9320.jpg" alt="Abdul Shihan" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--navy)', marginBottom: '16px' }}>The Human Behind Takshila<span style={{ color: 'var(--orange)' }}>.</span></h2>
           <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '700px', lineHeight: 1.6, marginBottom: '32px' }}>
             Hi, I'm Abdul Shihan. I built Takshila AI to help people navigate their careers with better tools and AI-powered insights. I'm a student developer from Sri Lanka with a passion for building helpful technology.
