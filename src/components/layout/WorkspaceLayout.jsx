@@ -1,10 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import { supabase } from '../../lib/supabase';
 
 const WorkspaceLayout = ({ children }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(true);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        supabase.auth.getUser().then(({ data: { user } }) => {
+            setUser(user);
+        });
+    }, []);
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
     const closeMenu = () => setIsMenuOpen(false);
@@ -33,6 +41,7 @@ const WorkspaceLayout = ({ children }) => {
                     onClose={closeMenu} 
                     isCollapsed={isCollapsed} 
                     onToggleCollapse={toggleCollapse} 
+                    user={user}
                 />
             </div>
 
@@ -43,6 +52,7 @@ const WorkspaceLayout = ({ children }) => {
                     onClose={closeMenu} 
                     isCollapsed={false} 
                     onToggleCollapse={toggleCollapse} 
+                    user={user}
                 />
             </div>
 

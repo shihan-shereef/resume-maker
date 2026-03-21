@@ -52,12 +52,12 @@ For frontend-only UI work:
 ```bash
 npm run dev
 ```
-For full-stack local development with AI routes like `/api/ai`:
+For full-stack local development with AI routes (like `/api/ai` or the PDF Summarizer):
 ```bash
 npm run dev:full
 ```
 
-Use `npm run dev:full` when testing ATS analysis or any AI-powered feature. `npm run dev` is frontend-only and will not serve the Vercel serverless API routes.
+**CRITICAL NOTE:** Use `npm run dev:full` (or `vercel dev`) when testing the PDF Summarizer, ATS analysis, or any AI-powered feature. Running just `npm run dev` is frontend-only and will cause API endpoints to fail (e.g., throwing "Unexpected token < in JSON" or pattern match errors).
 
 Open the local URL shown in your terminal to see the results.
 

@@ -17,13 +17,14 @@ import {
     UserCircle,
     BookOpenCheck,
     Settings,
+    Shield,
     X,
     ChevronLeft,
     ChevronRight
 } from 'lucide-react';
 import Logo from '../common/Logo';
 
-const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
+const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse, user }) => {
     const [isHovered, setIsHovered] = React.useState(false);
     
     // Effectively collapsed if it's told to be collapsed AND we aren't hovering over it
@@ -208,6 +209,34 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse }) => {
             </div>
 
             <div style={{ padding: '24px 16px', borderTop: '1px solid #f1f5f9' }}>
+                {user?.email === 'admin@takshila.ai' && (
+                    <NavLink
+                        to="/admin"
+                        onClick={onClose}
+                        title={effectivelyCollapsed ? "Admin Hub" : ""}
+                        style={({ isActive }) => ({
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: effectivelyCollapsed ? 'center' : 'flex-start',
+                            gap: '12px',
+                            padding: '12px 16px',
+                            borderRadius: 'var(--radius-md)',
+                            color: isActive ? 'white' : '#6366f1',
+                            background: isActive ? '#6366f1' : 'rgba(99, 102, 241, 0.05)',
+                            textDecoration: 'none',
+                            fontWeight: 700,
+                            fontSize: '0.95rem',
+                            transition: 'all 0.3s cubic-bezier(0.22, 1, 0.36, 1)',
+                            marginBottom: '12px',
+                            border: isActive ? 'none' : '1px solid rgba(99, 102, 241, 0.1)'
+                        })}
+                    >
+                        <div>
+                            <Shield size={28} />
+                        </div>
+                        {!effectivelyCollapsed && <span className="item-label">Admin Hub</span>}
+                    </NavLink>
+                )}
                 <NavLink
                     to="/settings"
                     onClick={onClose}

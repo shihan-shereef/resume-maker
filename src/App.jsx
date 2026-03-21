@@ -22,6 +22,7 @@ import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
 import AboutUs from './pages/AboutUs';
 import ContactUs from './pages/ContactUs';
+import AdminDashboard from './pages/AdminDashboard';
 import WorkspaceLayout from './components/layout/WorkspaceLayout';
 
 // Shared UI Components
@@ -78,6 +79,18 @@ const AnimatedRoutes = ({ session, Placeholder }) => {
                     <Route path="/ideas" element={session?.user ? <WorkspaceLayout><Placeholder title="Project Ideas" /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     <Route path="/settings" element={session?.user ? <WorkspaceLayout><SettingsPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     
+                    {/* Admin Route */}
+                    <Route 
+                        path="/admin" 
+                        element={
+                            session?.user?.email === 'admin@takshila.ai' ? (
+                                <WorkspaceLayout><AdminDashboard /></WorkspaceLayout>
+                            ) : (
+                                <Navigate to="/dashboard" replace />
+                            )
+                        } 
+                    />
+
                     <Route path="/privacy" element={<PrivacyPolicy />} />
                     <Route path="/terms" element={<TermsOfService />} />
                     <Route path="/about" element={<AboutUs />} />
