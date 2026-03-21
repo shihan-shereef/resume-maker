@@ -512,7 +512,7 @@ const LandingPage = () => {
             <div className="ft-h">Legal</div>
             <div className="ft-lnks">
               <a href="#" onClick={(e) => { e.preventDefault(); openPrivacyModal(); }}>Privacy Policy</a>
-              <a href="#">Terms of Service</a>
+              <a href="#" onClick={(e) => { e.preventDefault(); navigate('/terms'); }}>Terms of Service</a>
               <a href="#">Cookie Policy</a>
             </div>
           </div>
