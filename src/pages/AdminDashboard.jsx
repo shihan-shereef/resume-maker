@@ -102,8 +102,8 @@ const AdminDashboard = () => {
 
             {/* Main Stats */}
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
-                <StatCard title="Total Citizens" value={stats.totalUsers} icon={Users} trend={12} color="#6366f1" />
-                <StatCard title="Knowledge Artifacts" value={stats.totalFiles} icon={Files} trend={24} color="#f05523" />
+                <StatCard title="Total Users" value={stats.totalUsers} icon={Users} trend={12} color="#6366f1" />
+                <StatCard title="Documents" value={stats.totalFiles} icon={Files} trend={24} color="#f05523" />
                 <StatCard title="AI Interactions" value={stats.totalChats} icon={MessageSquare} trend={8} color="#00BCD4" />
                 <StatCard title="System Load" value="Normal" icon={Activity} color="#10b981" />
             </div>
@@ -190,8 +190,8 @@ const AdminDashboard = () => {
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                                         <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '0.8rem', fontWeight: 700 }}>AS</div>
                                         <div>
-                                            <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>Citizen #{i}042</div>
-                                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>user_{i}@takshila.ai</div>
+                                            <div style={{ fontSize: '0.9rem', fontWeight: 700 }}>User #{i}042</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>user_{i}@example.com</div>
                                         </div>
                                     </div>
                                 </td>
