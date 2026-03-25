@@ -25,7 +25,7 @@ const CodeInput = ({ onGithubSubmit, onManualSubmit, error }) => {
                     <button 
                         onClick={() => setMode('github')}
                         style={{ 
-                            background: 'none', border: 'none', padding: '12px 24px', borderRadius: '12px',
+                            border: 'none', padding: '12px 24px', borderRadius: '12px',
                             fontWeight: 800, cursor: 'pointer', transition: '0.3s',
                             color: mode === 'github' ? 'var(--primary)' : '#64748b',
                             background: mode === 'github' ? 'rgba(255, 92, 0, 0.05)' : 'transparent',
@@ -37,7 +37,7 @@ const CodeInput = ({ onGithubSubmit, onManualSubmit, error }) => {
                     <button 
                         onClick={() => setMode('manual')}
                         style={{ 
-                            background: 'none', border: 'none', padding: '12px 24px', borderRadius: '12px',
+                            border: 'none', padding: '12px 24px', borderRadius: '12px',
                             fontWeight: 800, cursor: 'pointer', transition: '0.3s',
                             color: mode === 'manual' ? 'var(--primary)' : '#64748b',
                             background: mode === 'manual' ? 'rgba(255, 92, 0, 0.05)' : 'transparent',

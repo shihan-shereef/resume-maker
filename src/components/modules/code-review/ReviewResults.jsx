@@ -1,7 +1,30 @@
 import React, { useState } from 'react';
-import ReactDiffViewer from 'react-diff-viewer-next';
 import { Bug, Sparkles, BookOpen, ChevronDown, ChevronUp, AlertCircle, CheckCircle, Info, Terminal, FileCode } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// Custom diff viewer — replaces react-diff-viewer-next (incompatible with React 19)
+const SimpleDiffViewer = ({ oldValue, newValue }) => {
+    const oldLines = (oldValue || '').split('\n');
+    const newLines = (newValue || '').split('\n');
+    const maxLen = Math.max(oldLines.length, newLines.length);
+
+    return (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', fontSize: '0.78rem', fontFamily: "'Fira Code', monospace", borderRadius: '10px', overflow: 'hidden', border: '1px solid #eef2f6' }}>
+            <div style={{ background: '#fef2f2', borderRight: '1px solid #fecaca' }}>
+                <div style={{ padding: '6px 12px', background: '#fee2e2', fontWeight: 800, fontSize: '0.7rem', color: '#b91c1c', textTransform: 'uppercase' }}>Before</div>
+                {oldLines.map((line, i) => (
+                    <div key={i} style={{ padding: '2px 12px', color: '#7f1d1d', lineHeight: '1.5', whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: line !== (newLines[i] || '') ? 'rgba(239,68,68,0.1)' : 'transparent' }}>{line || ' '}</div>
+                ))}
+            </div>
+            <div style={{ background: '#f0fdf4' }}>
+                <div style={{ padding: '6px 12px', background: '#dcfce7', fontWeight: 800, fontSize: '0.7rem', color: '#15803d', textTransform: 'uppercase' }}>After</div>
+                {newLines.map((line, i) => (
+                    <div key={i} style={{ padding: '2px 12px', color: '#14532d', lineHeight: '1.5', whiteSpace: 'pre-wrap', wordBreak: 'break-all', background: line !== (oldLines[i] || '') ? 'rgba(34,197,94,0.1)' : 'transparent' }}>{line || ' '}</div>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 const ReviewResults = ({ data }) => {
     const [activeTab, setActiveTab] = useState('findings'); // findings, documentation
@@ -184,22 +207,9 @@ const FindingItem = ({ finding, isExpanded, onToggle }) => {
                                     <Terminal size={16} color="var(--primary)" /> Before vs After
                                 </h4>
                                 <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid #eef2f6', fontSize: '0.8rem' }}>
-                                    <ReactDiffViewer 
+                                <SimpleDiffViewer 
                                         oldValue={finding.code_snippet} 
                                         newValue={finding.suggested_fix.includes('\n') ? finding.suggested_fix : finding.code_snippet.replace(finding.code_snippet.trim(), finding.suggested_fix)} 
-                                        splitView={true}
-                                        useDarkTheme={false}
-                                        styles={{
-                                            variables: {
-                                                diffViewerBackground: '#fff',
-                                                diffViewerTitleBackground: '#f8fafc',
-                                                diffViewerTitleColor: '#64748b',
-                                                addedBackground: '#f0fdf4',
-                                                addedColor: '#16a34a',
-                                                removedBackground: '#fef2f2',
-                                                removedColor: '#ef4444',
-                                            }
-                                        }}
                                     />
                                 </div>
                             </div>

@@ -185,7 +185,6 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
           -webkit-overflow-scrolling: touch;
           scrollbar-gutter: stable;
           overscroll-behavior: contain;
-          touch-action: pan-y;
         }
         .privacy-modal-scroll-container::-webkit-scrollbar {
           width: 8px;
@@ -302,19 +301,16 @@ export const PrivacyPolicyModal = ({ isOpen, onAccept, onClose, isFirstTime = fa
           )}
         </header>
 
-        {/* SCROLLABLE AREA */}
+        {/* SCROLLABLE AREA - THE BULLERPROOF PART */}
         <div 
           ref={scrollRef}
           onScroll={handleScroll}
-          onWheel={(e) => e.stopPropagation()}
           className="privacy-modal-scroll-container"
           style={{
-            flex: "1 1 auto",
-            minHeight: 0,
+            flex: "1 1 auto", // Takes all available space between header and footer
+            minHeight: 0,     // CRITICAL for nested flexbox scrolling
             padding: "32px",
             background: "#ffffff",
-            overflowY: "scroll",
-            WebkitOverflowScrolling: "touch",
           }}
         >
           <div style={{ marginBottom: 32 }}>

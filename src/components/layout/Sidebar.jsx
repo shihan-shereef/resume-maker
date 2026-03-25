@@ -44,12 +44,12 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse, user }) => {
     ];
 
     const productivityModules = [
-        { id: 'code-review', icon: Terminal, label: 'AI Code Review', path: '/code-review' },
         { id: 'job-search', icon: Search, label: 'AI Job Search', path: '/job-search' },
         { id: 'tracker', icon: Briefcase, label: 'Job Tracker', path: '/tracker' },
         { id: 'youtube', icon: Youtube, label: 'YouTube Summarizer', path: '/youtube' },
         { id: 'pdf', icon: FileUp, label: 'PDF Summarizer', path: '/pdf' },
         { id: 'notes', icon: BookOpenCheck, label: 'Takshila AI Notes', path: '/notes' },
+        { id: 'code-review', icon: Terminal, label: 'AI Code Review', path: '/code-review' },
         { id: 'file-tools', icon: FolderOpen, label: 'File Tools', path: '/file-tools' },
         { id: 'ideas', icon: Lightbulb, label: 'Project Ideas', path: '/ideas' },
     ];

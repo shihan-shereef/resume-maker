@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { 
     Search, Filter, ChevronRight, Activity, Zap, 
-    ArrowUpRight, ArrowDownRight, Clock, MoreHorizontal, Terminal
+    ArrowUpRight, ArrowDownRight, Clock, MoreHorizontal, Terminal,
+    Users, Files, MessageSquare, Shield
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
