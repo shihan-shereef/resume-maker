@@ -41,16 +41,36 @@ export const createReview = async (reviewData) => {
  * @param {Array} findings - List of findings from AI analysis
  */
 export const createReviewDetails = async (reviewId, findings) => {
-    const details = findings.map(f => ({
-        review_id: reviewId,
-        file_path: f.file_path,
-        category: f.category,
-        severity: f.severity,
-        description: f.description,
-        code_snippet: f.code_snippet,
-        suggested_fix: f.suggested_fix,
-        line_number: f.line_number
-    }));
+    const validCategories = ['bug', 'improvement', 'documentation'];
+    const validSeverities = ['high', 'medium', 'low', 'info'];
+
+    const details = findings.map(f => {
+        // Sanitize Category mapped to allowed PG enums
+        let rawCat = (f.category || '').toLowerCase();
+        let safeCat = 'improvement'; // default fallback
+        if (validCategories.includes(rawCat)) safeCat = rawCat;
+        else if (rawCat.includes('sec') || rawCat.includes('err') || rawCat.includes('bug')) safeCat = 'bug';
+        else if (rawCat.includes('doc')) safeCat = 'documentation';
+
+        // Sanitize Severity mapped to allowed PG enums
+        let rawSev = (f.severity || '').toLowerCase();
+        let safeSev = 'info';
+        if (validSeverities.includes(rawSev)) safeSev = rawSev;
+        else if (rawSev.includes('crit') || rawSev.includes('high')) safeSev = 'high';
+        else if (rawSev.includes('med')) safeSev = 'medium';
+        else if (rawSev.includes('low')) safeSev = 'low';
+
+        return {
+            review_id: reviewId,
+            file_path: f.file_path || 'unknown',
+            category: safeCat,
+            severity: safeSev,
+            description: f.description || '',
+            code_snippet: f.code_snippet || '',
+            suggested_fix: f.suggested_fix || '',
+            line_number: typeof f.line_number === 'number' ? f.line_number : 0
+        };
+    });
 
     const { error } = await supabase
         .from('review_details')
