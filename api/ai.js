@@ -35,8 +35,8 @@ const parseJsonSafely = (bodyText) => {
 };
 
 const AiSchema = z.object({
-    prompt: z.string().min(1).max(20000),
-    systemPrompt: z.string().max(2000).optional(),
+    prompt: z.string().min(1).max(200000),
+    systemPrompt: z.string().max(3000).optional(),
     model: z.string().min(1).max(120).optional()
 });
 
