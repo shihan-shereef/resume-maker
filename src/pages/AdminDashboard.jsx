@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    Users, Files, MessageSquare, TrendingUp, Shield, 
     Search, Filter, ChevronRight, Activity, Zap, 
-    ArrowUpRight, ArrowDownRight, Clock, MoreHorizontal
+    ArrowUpRight, ArrowDownRight, Clock, MoreHorizontal, Terminal
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../lib/supabase';
@@ -15,6 +14,7 @@ const AdminDashboard = () => {
         totalUsers: 0,
         totalFiles: 0,
         totalChats: 0,
+        totalReviews: 0,
         activeToday: 0
     });
     const [users, setUsers] = useState([]);
@@ -40,11 +40,13 @@ const AdminDashboard = () => {
                 const { count: userCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true });
                 const { count: fileCount } = await supabase.from('documents').select('*', { count: 'exact', head: true });
                 const { count: chatCount } = await supabase.from('chat_history').select('*', { count: 'exact', head: true });
+                const { count: reviewCount } = await supabase.from('reviews').select('*', { count: 'exact', head: true });
 
                 setStats({
                     totalUsers: userCount || 0,
                     totalFiles: fileCount || 0,
                     totalChats: chatCount || 0,
+                    totalReviews: reviewCount || 0,
                     activeToday: Math.floor(userCount * 0.4 || 0)
                 });
 
@@ -104,8 +106,8 @@ const AdminDashboard = () => {
             <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
                 <StatCard title="Total Users" value={stats.totalUsers} icon={Users} trend={12} color="#6366f1" />
                 <StatCard title="Documents" value={stats.totalFiles} icon={Files} trend={24} color="#f05523" />
-                <StatCard title="AI Interactions" value={stats.totalChats} icon={MessageSquare} trend={8} color="#00BCD4" />
-                <StatCard title="System Load" value="Normal" icon={Activity} color="#10b981" />
+                <StatCard title="AI Reviews" value={stats.totalReviews} icon={Terminal} trend={15} color="#ff5c00" />
+                <StatCard title="AI Chats" value={stats.totalChats} icon={MessageSquare} trend={8} color="#00BCD4" />
             </div>
 
             {/* Grid Layout */}

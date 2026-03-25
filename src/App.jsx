@@ -17,6 +17,7 @@ import CoverLetterPage from './pages/CoverLetterPage';
 import PdfSummarizerPage from './pages/PdfSummarizerPage';
 import SkillGapPage from './pages/SkillGapPage';
 import JobTrackerPage from './pages/JobTrackerPage';
+import CodeReviewPage from './pages/CodeReviewPage';
 import PortfolioPage from './pages/PortfolioPage';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import TermsOfService from './pages/TermsOfService';
@@ -75,6 +76,7 @@ const AnimatedRoutes = ({ session, Placeholder }) => {
                     <Route path="/youtube" element={session?.user ? <WorkspaceLayout><YoutubeSummarizerAdvanced /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     <Route path="/pdf" element={session?.user ? <WorkspaceLayout><PdfSummarizerPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     <Route path="/notes" element={session?.user ? <WorkspaceLayout><NotesPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
+                    <Route path="/code-review" element={session?.user ? <WorkspaceLayout><CodeReviewPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     <Route path="/file-tools" element={session?.user ? <WorkspaceLayout><Placeholder title="File Tools" /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     <Route path="/ideas" element={session?.user ? <WorkspaceLayout><Placeholder title="Project Ideas" /></WorkspaceLayout> : <Navigate to="/login" replace />} />
                     <Route path="/settings" element={session?.user ? <WorkspaceLayout><SettingsPage /></WorkspaceLayout> : <Navigate to="/login" replace />} />

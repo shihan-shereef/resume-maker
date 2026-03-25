@@ -7,7 +7,8 @@ import {
     TrendingUp, 
     Plus,
     Sparkles,
-    ArrowRight
+    ArrowRight,
+    Terminal
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -137,6 +138,10 @@ const Dashboard = () => {
                             <button onClick={() => navigate('/resume')} className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', background: '#f8fafc', border: '1px dashed #cbd5e1' }}>
                                 <FileText size={20} color="var(--primary)" />
                                 <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Create Resume</span>
+                            </button>
+                            <button onClick={() => navigate('/code-review')} className="glass-card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', background: '#f8fafc', border: '1px dashed #cbd5e1' }}>
+                                <Terminal size={20} color="var(--primary)" />
+                                <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Code Review</span>
                             </button>
                         </div>
                     </div>

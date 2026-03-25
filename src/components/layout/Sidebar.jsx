@@ -20,7 +20,9 @@ import {
     Shield,
     X,
     ChevronLeft,
-    ChevronRight
+    ChevronRight,
+    Terminal,
+    Code
 } from 'lucide-react';
 import Logo from '../common/Logo';
 
@@ -42,6 +44,7 @@ const Sidebar = ({ isOpen, onClose, isCollapsed, onToggleCollapse, user }) => {
     ];
 
     const productivityModules = [
+        { id: 'code-review', icon: Terminal, label: 'AI Code Review', path: '/code-review' },
         { id: 'job-search', icon: Search, label: 'AI Job Search', path: '/job-search' },
         { id: 'tracker', icon: Briefcase, label: 'Job Tracker', path: '/tracker' },
         { id: 'youtube', icon: Youtube, label: 'YouTube Summarizer', path: '/youtube' },
