@@ -193,7 +193,13 @@ const LandingPage = () => {
       <div className="cursor" id="cur"></div>
       <nav id="nav">
 
-        <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="n-left">
+        <a href="/" onClick={(e) => { 
+          e.preventDefault(); 
+          const audio = new Audio('/splash.wav');
+          audio.volume = 0.5;
+          audio.play().catch(err => console.error("Sound play failed", err));
+          navigate('/'); 
+        }} className="n-left">
           <div className="n-logo" style={{fontFamily: 'system-ui, -apple-system, sans-serif', fontWeight: 900, color: 'var(--navy)', letterSpacing: '-1px', fontSize: '1.4rem'}}>Takshila<span style={{color: 'var(--orange)'}}>.</span></div>
         </a>
         <div className="n-links">
@@ -479,7 +485,7 @@ const LandingPage = () => {
           </div>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: 'var(--navy)', marginBottom: '16px' }}>The Human Behind Takshila<span style={{ color: 'var(--orange)' }}>.</span></h2>
           <p style={{ fontSize: '1.2rem', color: '#666', maxWidth: '700px', lineHeight: 1.6, marginBottom: '32px' }}>
-            Hi, I'm Abdul Shihan. I built Takshila AI to help people navigate their careers with better tools and AI-powered insights. I'm a student developer from Sri Lanka with a passion for building helpful technology.
+            Hi, I'm Abdul Shihan. I built Takshila AI to help people navigate their careers with better tools and AI-powered insights. I'm a student developer from India with a passion for building helpful technology.
           </p>
           <button className="btn-pill" onClick={() => navigate('/about')} style={{ padding: '12px 32px', fontSize: '1rem' }}>Read My Full Story →</button>
         </div>

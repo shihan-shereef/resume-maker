@@ -11,7 +11,7 @@ const sections = [
     id: "who",
     icon: Shield,
     title: "Who we are",
-    content: `Takshila AI is an AI-powered resume builder and career workspace created and operated by Abdul Shihan, a student developer based in Sri Lanka. This project was originally built as part of an internship submission and has since been expanded with additional features to genuinely help job seekers create professional resumes with ease.
+    content: `Takshila AI is an AI-powered resume builder and career workspace created and operated by Abdul Shihan, a student developer based in India. This project was originally built as part of an internship submission and has since been expanded with additional features to genuinely help job seekers create professional resumes with ease.
 
 You can contact the creator directly at: shihan@takshila.ai`
   },

@@ -8,6 +8,17 @@ const SplashScreen = ({ onComplete }) => {
             audio.volume = 0.5;
             audio.play().catch(e => {
                 console.log("Audio autoplay blocked by browser policy on initial load.", e);
+                const playOnInteract = () => {
+                    const interactAudio = new Audio('/splash.wav');
+                    interactAudio.volume = 0.5;
+                    interactAudio.play().catch(err => console.log(err));
+                    ['click', 'keydown', 'touchstart'].forEach(evt => 
+                        document.removeEventListener(evt, playOnInteract)
+                    );
+                };
+                ['click', 'keydown', 'touchstart'].forEach(evt => 
+                    document.addEventListener(evt, playOnInteract, { once: true })
+                );
             });
         };
 

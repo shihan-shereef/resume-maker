@@ -82,7 +82,7 @@ export default function AboutCreator() {
           color: "#999",
           margin: 0
         }}>
-          Sri Lanka
+          India
         </p>
       </div>
 
